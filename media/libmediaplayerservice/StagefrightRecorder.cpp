@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2009 The Android Open Source Project
+ * Copyright (c) 2011, Code Aurora Forum. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -1384,13 +1385,16 @@ status_t StagefrightRecorder::setupCameraSource(
                 mTimeBetweenTimeLapseFrameCaptureUs);
         *cameraSource = mCameraSourceTimeLapse;
     } else {
+
+        bool useMeta = true;
+        char value[PROPERTY_VALUE_MAX];
+        if (property_get("debug.camcorder.disablemeta", value, NULL) &&
+            atoi(value)) {
+            useMeta = false;
+        }
         *cameraSource = CameraSource::CreateFromCamera(
                 mCamera, mCameraProxy, mCameraId, videoSize, mFrameRate,
-#ifdef QCOM_HARDWARE
-                mPreviewSurface, false);
-#else
-                mPreviewSurface, true /*storeMetaDataInVideoBuffers*/);
-#endif
+                mPreviewSurface, useMeta);
     }
     mCamera.clear();
     mCameraProxy.clear();
@@ -1453,12 +1457,18 @@ status_t StagefrightRecorder::setupVideoEncoder(
 
     sp<MetaData> meta = cameraSource->getFormat();
 
-    int32_t width, height, stride, sliceHeight, colorFormat;
+    int32_t width, height, stride, sliceHeight, colorFormat, hfr, is3D;
     CHECK(meta->findInt32(kKeyWidth, &width));
     CHECK(meta->findInt32(kKeyHeight, &height));
     CHECK(meta->findInt32(kKeyStride, &stride));
     CHECK(meta->findInt32(kKeySliceHeight, &sliceHeight));
     CHECK(meta->findInt32(kKeyColorFormat, &colorFormat));
+    CHECK(meta->findInt32(kKeyHFR, &hfr));
+
+    if(hfr) {
+      mMaxFileDurationUs = mMaxFileDurationUs * (hfr/mFrameRate);
+    }
+
 
     enc_meta->setInt32(kKeyWidth, width);
     enc_meta->setInt32(kKeyHeight, height);
@@ -1466,9 +1476,26 @@ status_t StagefrightRecorder::setupVideoEncoder(
     enc_meta->setInt32(kKeyStride, stride);
     enc_meta->setInt32(kKeySliceHeight, sliceHeight);
     enc_meta->setInt32(kKeyColorFormat, colorFormat);
+    enc_meta->setInt32(kKeyHFR, hfr);
     if (mVideoTimeScale > 0) {
         enc_meta->setInt32(kKeyTimeScale, mVideoTimeScale);
     }
+
+    char mDeviceName[100];
+    property_get("ro.board.platform",mDeviceName,"0");
+    if(!strncmp(mDeviceName, "msm7627a", 8)) {
+      if(hfr && (width * height > 432*240)) {
+        LOGE("HFR mode is supported only upto WQVGA resolution");
+        return INVALID_OPERATION;
+      }
+    }
+    else {
+      if(hfr && ((mVideoEncoder != VIDEO_ENCODER_H264) || (width * height > 800*480))) {
+        LOGE("HFR mode is supported only upto WVGA and H264 codec.");
+        return INVALID_OPERATION;
+      }
+    }
+
 
     /*
      * can set profile from the app as a parameter.
@@ -1528,14 +1555,23 @@ status_t StagefrightRecorder::setupVideoEncoder(
     if (mVideoEncoderLevel != -1) {
         enc_meta->setInt32(kKeyVideoLevel, mVideoEncoderLevel);
     }
+    if (meta->findInt32(kKey3D, &is3D)) {
+        enc_meta->setInt32(kKey3D, is3D);
+    }
 
     OMXClient client;
     CHECK_EQ(client.connect(), OK);
 
     uint32_t encoder_flags = 0;
     if (mIsMetaDataStoredInVideoBuffers) {
+        LOGW("Camera source supports metadata mode, create OMXCodec for metadata");
         encoder_flags |= OMXCodec::kHardwareCodecsOnly;
         encoder_flags |= OMXCodec::kStoreMetaDataInVideoBuffers;
+        if (property_get("ro.product.device", value, "0")
+            && (!strncmp(value, "msm7627", sizeof("msm7627") - 1))) {
+            LOGW("msm7627 family of chipsets supports, only one buffer at a time");
+            encoder_flags |= OMXCodec::kOnlySubmitOneInputBufferAtOneTime;
+        }
     }
 
     // Do not wait for all the input buffers to become available.
@@ -1665,6 +1701,13 @@ void StagefrightRecorder::setupMPEG4MetaData(int64_t startTimeUs, int32_t totalB
     if (mTrackEveryTimeDurationUs > 0) {
         (*meta)->setInt64(kKeyTrackTimeStatus, mTrackEveryTimeDurationUs);
     }
+
+    char value[PROPERTY_VALUE_MAX];
+    if (property_get("debug.camcorder.rotation", value, 0) > 0 && atoi(value) >= 0) {
+        mRotationDegrees = atoi(value);
+        LOGI("Setting rotation to %d", mRotationDegrees );
+    }
+
     if (mRotationDegrees != 0) {
         (*meta)->setInt32(kKeyRotation, mRotationDegrees);
     }

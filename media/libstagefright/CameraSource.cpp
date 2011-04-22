@@ -532,10 +532,25 @@ status_t CameraSource::initWithCameraAccess(
         }
     }
 
+    const char *hfr_str = params.get("video-hfr");
+    int32_t hfr = -1;
+    if ( hfr_str != NULL ) {
+      hfr = atoi(hfr_str);
+    }
+    if(hfr < 0) {
+      LOGW("Invalid hfr value(%d) set from app. Disabling HFR.", hfr);
+      hfr = 0;
+    }
+
     int64_t glitchDurationUs = (1000000LL / mVideoFrameRate);
     if (glitchDurationUs > mGlitchDurationThresholdUs) {
         mGlitchDurationThresholdUs = glitchDurationUs;
     }
+
+    const char * k3dFrameArrangement = "3d-frame-format";
+    const char * arrangement = params.get(k3dFrameArrangement);
+    // XXX: just assume left/right for now since that's all the camera supports
+    bool want3D = (arrangement != NULL && !strcmp("left-right", arrangement));
 
     // XXX: query camera for the stride and slice height
     // when the capability becomes available.
@@ -547,6 +562,11 @@ status_t CameraSource::initWithCameraAccess(
     mMeta->setInt32(kKeyStride,      mVideoSize.width);
     mMeta->setInt32(kKeySliceHeight, mVideoSize.height);
     mMeta->setInt32(kKeyFrameRate,   mVideoFrameRate);
+    mMeta->setInt32(kKeyHFR, hfr);
+
+    if (want3D) {
+        mMeta->setInt32(kKey3D, !0);
+    }
     return OK;
 }
 
