@@ -228,7 +228,6 @@ const char CameraParameters::SCENE_MODE_FLOWERS[] = "flowers";
 const char CameraParameters::SCENE_MODE_BARCODE[] = "barcode";
 #ifdef QCOM_HARDWARE
 const char CameraParameters::SCENE_MODE_AR[] = "AR";
-const char CameraParameters::SCENE_MODE_OFF[] = "off";
 
 // Values for auto scene detection settings.
 const char CameraParameters::SCENE_DETECT_OFF[] = "off";
