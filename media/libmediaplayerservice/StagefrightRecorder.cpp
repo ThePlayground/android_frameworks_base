@@ -1429,15 +1429,21 @@ status_t StagefrightRecorder::setupCameraSource(
         *cameraSource = mCameraSourceTimeLapse;
     } else {
 
+#ifdef QCOM_HARDWARE
         bool useMeta = true;
         char value[PROPERTY_VALUE_MAX];
         if (property_get("debug.camcorder.disablemeta", value, NULL) &&
             atoi(value)) {
             useMeta = false;
         }
+#endif
         *cameraSource = CameraSource::CreateFromCamera(
                 mCamera, mCameraProxy, mCameraId, videoSize, mFrameRate,
+#ifdef QCOM_HARDWARE
                 mPreviewSurface, useMeta);
+#else
+                mPreviewSurface, true /*storeMetaDataInVideoBuffers*/);
+#endif
     }
     mCamera.clear();
     mCameraProxy.clear();
@@ -1506,11 +1512,13 @@ status_t StagefrightRecorder::setupVideoEncoder(
     CHECK(meta->findInt32(kKeyStride, &stride));
     CHECK(meta->findInt32(kKeySliceHeight, &sliceHeight));
     CHECK(meta->findInt32(kKeyColorFormat, &colorFormat));
+#ifdef QCOM_HARDWARE
     CHECK(meta->findInt32(kKeyHFR, &hfr));
 
     if(hfr) {
       mMaxFileDurationUs = mMaxFileDurationUs * (hfr/mFrameRate);
     }
+#endif
 
 
     enc_meta->setInt32(kKeyWidth, width);
@@ -1519,11 +1527,14 @@ status_t StagefrightRecorder::setupVideoEncoder(
     enc_meta->setInt32(kKeyStride, stride);
     enc_meta->setInt32(kKeySliceHeight, sliceHeight);
     enc_meta->setInt32(kKeyColorFormat, colorFormat);
+#ifdef QCOM_HARDWARE
     enc_meta->setInt32(kKeyHFR, hfr);
+#endif
     if (mVideoTimeScale > 0) {
         enc_meta->setInt32(kKeyTimeScale, mVideoTimeScale);
     }
 
+#ifdef QCOM_HARDWARE
     char mDeviceName[100];
     property_get("ro.board.platform",mDeviceName,"0");
     if(!strncmp(mDeviceName, "msm7627a", 8)) {
@@ -1538,7 +1549,7 @@ status_t StagefrightRecorder::setupVideoEncoder(
         return INVALID_OPERATION;
       }
     }
-
+#endif
 
     /*
      * can set profile from the app as a parameter.
