@@ -360,6 +360,7 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 
+#ifdef QCOM_HARDWARE
 struct ACodec::FlushingOutputState : public ACodec::BaseState {
     FlushingOutputState(ACodec *codec);
 
@@ -381,6 +382,7 @@ private:
 };
 
 ////////////////////////////////////////////////////////////////////////////////
+#endif
 
 ACodec::ACodec()
     : mNode(NULL),
@@ -401,7 +403,9 @@ ACodec::ACodec()
     mExecutingToIdleState = new ExecutingToIdleState(this);
     mIdleToLoadedState = new IdleToLoadedState(this);
     mFlushingState = new FlushingState(this);
+#ifdef QCOM_HARDWARE
     mFlushingOutputState = new FlushingOutputState(this);
+#endif
 
     mPortEOS[kPortIndexInput] = mPortEOS[kPortIndexOutput] = false;
     mInputEOSResult = OK;
@@ -533,9 +537,14 @@ status_t ACodec::allocateOutputBuffersFromNativeWindow() {
 
     err = native_window_set_buffers_geometry(
             mNativeWindow.get(),
-            def.format.video.nStride,
-            def.format.video.nSliceHeight,
+            def.format.video.nFrameWidth,
+            def.format.video.nFrameHeight,
+#ifdef QCOM_HARDWARE
             format);
+#else
+            def.format.video.eColorFormat);
+#endif
+
 
     if (err != 0) {
         LOGE("native_window_set_buffers_geometry failed: %s (%d)",
@@ -616,13 +625,13 @@ status_t ACodec::allocateOutputBuffersFromNativeWindow() {
     err = mNativeWindow.get()->perform(mNativeWindow.get(),
                               NATIVE_WINDOW_SET_BUFFERS_SIZE,
                               def.nBufferSize);
-#endif
 
     if (err != 0) {
         LOGE("native_window_set_buffer_size failed: %s (%d)", strerror(-err),
                 -err);
         return err;
     }
+#endif
 
 
     LOGV("[%s] Allocating %lu buffers from a native window of size %lu on "
@@ -1132,9 +1141,10 @@ status_t ACodec::setSupportedOutputFormat() {
            || format.eColorFormat == OMX_TI_COLOR_FormatYUV420PackedSemiPlanar
 #ifdef QCOM_HARDWARE
            || format.eColorFormat == (OMX_COLOR_FORMATTYPE)OMX_QCOM_COLOR_FormatYVU420SemiPlanar
-           || format.eColorFormat ==  (OMX_COLOR_FORMATTYPE)QOMX_COLOR_FormatYUV420PackedSemiPlanar64x32Tile2m8ka
-#endif
+           || format.eColorFormat ==  (OMX_COLOR_FORMATTYPE)QOMX_COLOR_FormatYUV420PackedSemiPlanar64x32Tile2m8ka);
+#else
            || format.eColorFormat == OMX_QCOM_COLOR_FormatYVU420SemiPlanar);
+#endif
 
     return mOMX->setParameter(
             mNode, OMX_IndexParamVideoPortFormat,
@@ -1264,7 +1274,7 @@ bool ACodec::allYourBuffersAreBelongToUs(
 
         if (info->mStatus != BufferInfo::OWNED_BY_US
                 && info->mStatus != BufferInfo::OWNED_BY_NATIVE_WINDOW) {
-            LOGV("[%s] Buffer %p on port %ld still has status %d",
+            LOGE("[%s] Buffer %p on port %ld still has status %d",
                     mComponentName.c_str(),
                     info->mBufferID, portIndex, info->mStatus);
             return false;
@@ -2451,11 +2461,20 @@ bool ACodec::ExecutingState::onOMXEvent(
             if (data2 == 0 || data2 == OMX_IndexParamPortDefinition) {
                 LOGV("Flush output port before disable");
                 CHECK_EQ(mCodec->mOMX->sendCommand(
+#ifdef QCOM_HARDWARE
                         mCodec->mNode, OMX_CommandFlush, kPortIndexOutput),
+#else
+                            mCodec->mNode,
+                            OMX_CommandPortDisable, kPortIndexOutput),
+#endif
                      (status_t)OK);
 
+#ifdef QCOM_HARDWARE
                 mCodec->changeState(mCodec->mFlushingOutputState);
-
+#else
+                mCodec->freeOutputBuffersNotOwnedByComponent();
+                mCodec->changeState(mCodec->mOutputPortSettingsChangedState);
+#endif
             } else if (data2 == OMX_IndexConfigCommonOutputCrop) {
                 mCodec->mSentFormat = false;
             } else {
@@ -2872,6 +2891,7 @@ void ACodec::FlushingState::changeStateIfWeOwnAllBuffers() {
     }
 }
 
+#ifdef QCOM_HARDWARE
 ////////////////////////////////////////////////////////////////////////////////
 
 ACodec::FlushingOutputState::FlushingOutputState(ACodec *codec)
@@ -2900,14 +2920,6 @@ bool ACodec::FlushingOutputState::onMessageReceived(const sp<AMessage> &msg) {
             mCodec->deferMessage(msg);
             break;
         }
-
-        case kWhatInputBufferFilled:
-        {
-           mCodec->deferMessage(msg);
-           changeStateIfWeOwnAllBuffers();
-           break;
-        }
-
         default:
             handled = BaseState::onMessageReceived(msg);
             break;
@@ -2992,5 +3004,5 @@ void ACodec::FlushingOutputState::changeStateIfWeOwnAllBuffers() {
         mCodec->changeState(mCodec->mOutputPortSettingsChangedState);
     }
 }
-
+#endif
 }  // namespace android

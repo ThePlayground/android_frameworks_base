@@ -674,15 +674,11 @@ rinse_repeat:
         if(property_get("httplive.enable.discontinuity", value, NULL) &&
            (!strcasecmp(value, "true") || !strcmp(value, "1")) ) {
            bandwidthChanged = true;
-           LOGW("discontinuity property set, queue discontinuity");
+           LOGV("discontinuity property set, queue discontinuity");
         }
         else {
+           LOGV("BW changed, but do not queue discontinuity");
            bandwidthChanged = false;
-        }
-
-        if (mPrevBandwidthIndex >= 0) {
-           LOGW("BW changed from index %d to index %d",
-                    mPrevBandwidthIndex, bandwidthIndex);
         }
 #else
         bandwidthChanged = true;
