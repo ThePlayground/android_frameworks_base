@@ -529,10 +529,6 @@ status_t ACodec::allocateOutputBuffersFromNativeWindow() {
 #ifdef QCOM_HARDWARE
     int format = (def.format.video.eColorFormat == (OMX_COLOR_FORMATTYPE)QOMX_COLOR_FormatYUV420PackedSemiPlanar64x32Tile2m8ka)?
                  HAL_PIXEL_FORMAT_YCbCr_420_SP_TILED : def.format.video.eColorFormat;
-    if(def.format.video.eColorFormat == OMX_QCOM_COLOR_FormatYVU420SemiPlanar)
-        format = HAL_PIXEL_FORMAT_YCrCb_420_SP;
-#else
-    int format = HAL_PIXEL_FORMAT_YCrCb_420_SP;
 #endif
 
     err = native_window_set_buffers_geometry(
@@ -1345,9 +1341,11 @@ void ACodec::sendFormatChange() {
             CHECK_GE(rect.nHeight, 0u);
             CHECK_LE(rect.nLeft + rect.nWidth - 1, videoDef->nFrameWidth);
             CHECK_LE(rect.nTop + rect.nHeight - 1, videoDef->nFrameHeight);
+
 #ifdef QCOM_HARDWARE
             int format = (def.format.video.eColorFormat == (OMX_COLOR_FORMATTYPE)QOMX_COLOR_FormatYUV420PackedSemiPlanar64x32Tile2m8ka)?
                  HAL_PIXEL_FORMAT_YCbCr_420_SP_TILED : def.format.video.eColorFormat;
+
 
             if( mSmoothStreaming ) {
                //call Update buffer geometry here
@@ -1358,8 +1356,6 @@ void ACodec::sendFormatChange() {
                    LOGE("native_window_update_buffers_geometry failed in SS mode %d", err);
                }
             }
-#else
-            int format = HAL_PIXEL_FORMAT_YCrCb_420_SP;
 #endif
 
             notify->setRect(
