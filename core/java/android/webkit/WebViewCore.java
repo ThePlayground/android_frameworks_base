@@ -1099,6 +1099,9 @@ public final class WebViewCore {
 
         static final int NOTIFY_ANIMATION_STARTED = 196;
 
+        // Feature Permissions
+        static final int NAVIGATOR_PERMISSIONS_PROVIDE = 196;
+
         // private message ids
         private static final int DESTROY =     200;
 
