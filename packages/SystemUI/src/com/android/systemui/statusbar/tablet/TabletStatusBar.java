@@ -23,9 +23,11 @@ import java.util.ArrayList;
 import android.animation.LayoutTransition;
 import android.animation.ObjectAnimator;
 import android.app.ActivityManagerNative;
+import android.app.Dialog;
 import android.app.KeyguardManager;
 import android.app.Notification;
 import android.app.PendingIntent;
+import android.app.Notification;
 import android.app.StatusBarManager;
 import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
@@ -44,6 +46,7 @@ import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
 import android.os.Build;
+import android.provider.Settings;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
@@ -87,6 +90,8 @@ import com.android.systemui.statusbar.policy.CompatModeButton;
 import com.android.systemui.statusbar.policy.LocationController;
 import com.android.systemui.statusbar.policy.NetworkController;
 import com.android.systemui.statusbar.policy.Prefs;
+import com.android.systemui.recent.RecentTasksLoader;
+import com.android.systemui.recent.RecentsPanelView;
 
 public class TabletStatusBar extends StatusBar implements
         HeightReceiver.OnBarHeightChangedListener,
@@ -172,6 +177,7 @@ public class TabletStatusBar extends StatusBar implements
     NetworkController mNetworkController;
 
     ViewGroup mBarContents;
+    LayoutTransition mBarContentsLayoutTransition;
 
     // hide system chrome ("lights out") support
     View mShadow;
@@ -464,6 +470,19 @@ public class TabletStatusBar extends StatusBar implements
         }
 
         mBarContents = (ViewGroup) sb.findViewById(R.id.bar_contents);
+        // layout transitions for the status bar's contents
+        mBarContentsLayoutTransition = new LayoutTransition();
+        // add/removal will fade as normal
+        mBarContentsLayoutTransition.setAnimator(LayoutTransition.APPEARING,
+                ObjectAnimator.ofFloat(null, "alpha", 0f, 1f));
+        mBarContentsLayoutTransition.setAnimator(LayoutTransition.DISAPPEARING,
+                ObjectAnimator.ofFloat(null, "alpha", 1f, 0f));
+        // no animations for siblings on change: just jump into place please
+        mBarContentsLayoutTransition.setAnimator(LayoutTransition.CHANGE_APPEARING, null);
+        mBarContentsLayoutTransition.setAnimator(LayoutTransition.CHANGE_DISAPPEARING, null);
+        // quick like bunny
+        mBarContentsLayoutTransition.setDuration(250 * (DEBUG?10:1));
+        mBarContents.setLayoutTransition(mBarContentsLayoutTransition);
 
         // the whole right-hand side of the bar
         mNotificationArea = sb.findViewById(R.id.notificationArea);

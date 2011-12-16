@@ -16,6 +16,8 @@
 
 package com.android.systemui.recent;
 
+import java.util.ArrayList;
+
 import android.animation.Animator;
 import android.animation.LayoutTransition;
 import android.app.ActivityManager;
@@ -50,6 +52,8 @@ import android.widget.PopupMenu;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.ImageView.ScaleType;
 
 import com.android.systemui.R;
 import com.android.systemui.statusbar.StatusBar;
