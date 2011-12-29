@@ -977,7 +977,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
             mUserRotation = Settings.System.getInt(resolver,
                     Settings.System.USER_ROTATION,
                     Surface.ROTATION_0);
-	    mUserRotationAngles = Settings.System.getInt(resolver,
+            mUserRotationAngles = Settings.System.getInt(resolver,
                     Settings.System.ACCELEROMETER_ROTATION_ANGLES, -1);
 
             if (mAccelerometerDefault != accelerometerDefault) {
