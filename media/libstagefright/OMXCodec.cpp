@@ -312,6 +312,14 @@ static const CodecInfo kDecoderInfo[] = {
 };
 
 static const CodecInfo kEncoderInfo[] = {
+#ifdef SAMSUNG_OMX
+    { MEDIA_MIMETYPE_AUDIO_AMR_NB, "OMX.SEC.amr.enc" },
+    { MEDIA_MIMETYPE_AUDIO_AMR_WB, "OMX.SEC.amr.enc" },
+    { MEDIA_MIMETYPE_AUDIO_AAC, "OMX.SEC.aac.enc" },
+    { MEDIA_MIMETYPE_VIDEO_MPEG4, "OMX.SEC.mpeg4.enc" },
+    { MEDIA_MIMETYPE_VIDEO_H263, "OMX.SEC.h263.enc" },
+    { MEDIA_MIMETYPE_VIDEO_AVC, "OMX.SEC.avc.enc" },
+#endif
     { MEDIA_MIMETYPE_AUDIO_AMR_NB, "OMX.TI.AMR.encode" },
     { MEDIA_MIMETYPE_AUDIO_AMR_NB, "AMRNBEncoder" },
     { MEDIA_MIMETYPE_AUDIO_AMR_WB, "OMX.TI.WBAMR.encode" },
@@ -1584,7 +1592,9 @@ status_t OMXCodec::isColorFormatSupported(
 void OMXCodec::setVideoInputFormat(
         const char *mime, const sp<MetaData>& meta) {
 
-    int32_t width, height, frameRate, bitRate, stride, sliceHeight, hfr;
+    int32_t width, height, frameRate, bitRate, stride, sliceHeight;
+#ifdef QCOM_HARDWARE
+    int32_t hfr;
 
     char value[PROPERTY_VALUE_MAX];
     if ( property_get("encoder.video.bitrate", value, 0) > 0 && atoi(value) > 0){
@@ -1592,17 +1602,22 @@ void OMXCodec::setVideoInputFormat(
         meta->setInt32(kKeyBitRate, atoi(value));
     }
 
+#endif
     bool success = meta->findInt32(kKeyWidth, &width);
     success = success && meta->findInt32(kKeyHeight, &height);
     success = success && meta->findInt32(kKeyFrameRate, &frameRate);
     success = success && meta->findInt32(kKeyBitRate, &bitRate);
     success = success && meta->findInt32(kKeyStride, &stride);
     success = success && meta->findInt32(kKeySliceHeight, &sliceHeight);
+#ifdef QCOM_HARDWARE
     success = success && meta->findInt32(kKeyHFR, &hfr);
+#endif
     CHECK(success);
     CHECK(stride != 0);
 
+#ifdef QCOM_HARDWARE
     frameRate = hfr?hfr:frameRate;
+#endif
 
     OMX_VIDEO_CODINGTYPE compressionFormat = OMX_VIDEO_CodingUnused;
     if (!strcasecmp(MEDIA_MIMETYPE_VIDEO_AVC, mime)) {
@@ -1928,7 +1943,9 @@ status_t OMXCodec::setupH263EncoderParameters(const sp<MetaData>& meta) {
     bool success = meta->findInt32(kKeyBitRate, &bitRate);
     success = success && meta->findInt32(kKeyFrameRate, &frameRate);
     success = success && meta->findInt32(kKeyIFramesInterval, &iFramesInterval);
+#ifdef QCOM_HARDWARE
     success = success && meta->findInt32(kKeyHFR, &hfr);
+#endif
     CHECK(success);
     OMX_VIDEO_PARAM_H263TYPE h263type;
     InitOMXParams(&h263type);
@@ -1938,7 +1955,9 @@ status_t OMXCodec::setupH263EncoderParameters(const sp<MetaData>& meta) {
             mNode, OMX_IndexParamVideoH263, &h263type, sizeof(h263type));
     CHECK_EQ(err, (status_t)OK);
 
+#ifdef QCOM_HARDWARE
     frameRate = hfr ? hfr : frameRate;
+#endif
     h263type.nAllowedPictureTypes =
         OMX_VIDEO_PictureTypeI | OMX_VIDEO_PictureTypeP;
 
@@ -1983,7 +2002,9 @@ status_t OMXCodec::setupMPEG4EncoderParameters(const sp<MetaData>& meta) {
     bool success = meta->findInt32(kKeyBitRate, &bitRate);
     success = success && meta->findInt32(kKeyFrameRate, &frameRate);
     success = success && meta->findInt32(kKeyIFramesInterval, &iFramesInterval);
+#ifdef QCOM_HARDWARE
     success = success && meta->findInt32(kKeyHFR, &hfr);
+#endif
     CHECK(success);
     OMX_VIDEO_PARAM_MPEG4TYPE mpeg4type;
     InitOMXParams(&mpeg4type);
@@ -2000,7 +2021,9 @@ status_t OMXCodec::setupMPEG4EncoderParameters(const sp<MetaData>& meta) {
     mpeg4type.nAllowedPictureTypes =
         OMX_VIDEO_PictureTypeI | OMX_VIDEO_PictureTypeP;
 
+#ifdef QCOM_HARDWARE
     frameRate = hfr ? hfr : frameRate;
+#endif
     mpeg4type.nPFrames = setPFramesSpacing(iFramesInterval, frameRate);
     if (mpeg4type.nPFrames == 0) {
         mpeg4type.nAllowedPictureTypes = OMX_VIDEO_PictureTypeI;
@@ -2045,7 +2068,9 @@ status_t OMXCodec::setupAVCEncoderParameters(const sp<MetaData>& meta) {
     bool success = meta->findInt32(kKeyBitRate, &bitRate);
     success = success && meta->findInt32(kKeyFrameRate, &frameRate);
     success = success && meta->findInt32(kKeyIFramesInterval, &iFramesInterval);
+#ifdef QCOM_HARDWARE
     success = success && meta->findInt32(kKeyHFR, &hfr);
+#endif
     CHECK(success);
 
     OMX_VIDEO_PARAM_AVCTYPE h264type;
@@ -2068,7 +2093,9 @@ status_t OMXCodec::setupAVCEncoderParameters(const sp<MetaData>& meta) {
     h264type.eProfile = static_cast<OMX_VIDEO_AVCPROFILETYPE>(profileLevel.mProfile);
     h264type.eLevel = static_cast<OMX_VIDEO_AVCLEVELTYPE>(profileLevel.mLevel);
 
+#ifdef QCOM_HARDWARE
     frameRate = hfr ? hfr : frameRate;
+#endif
 
     // FIXME:
     // Remove the workaround after the work in done.

@@ -532,6 +532,7 @@ status_t CameraSource::initWithCameraAccess(
         }
     }
 
+#ifdef QCOM_HARDWARE
     const char *hfr_str = params.get("video-hfr");
     int32_t hfr = -1;
     if ( hfr_str != NULL ) {
@@ -541,6 +542,7 @@ status_t CameraSource::initWithCameraAccess(
       LOGW("Invalid hfr value(%d) set from app. Disabling HFR.", hfr);
       hfr = 0;
     }
+#endif
 
     int64_t glitchDurationUs = (1000000LL / mVideoFrameRate);
     if (glitchDurationUs > mGlitchDurationThresholdUs) {
