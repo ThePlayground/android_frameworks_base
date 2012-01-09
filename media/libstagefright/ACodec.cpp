@@ -54,7 +54,6 @@ Copyright (c) 2010-2012, Code Aurora Forum. All rights reserved.
 #define MIN_HEIGHT 320;
 #endif
 
-
 namespace android {
 
 template<class T>
@@ -166,7 +165,7 @@ const int32_t ColorFormatInfo::preferredFormat =
 #ifdef TARGET8x50
     OMX_QCOM_COLOR_FormatYVU420SemiPlanar;
 #endif
-#endif
+#endif //QCOM_HARDWARE
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -208,7 +207,9 @@ private:
 
     void getMoreInputDataIfPossible();
 
+#ifdef QCOM_HARDWARE
     void HandleExtraData(IOMX::buffer_id omxBuffer);
+#endif
 
     DISALLOW_EVIL_CONSTRUCTORS(BaseState);
 };
@@ -383,8 +384,12 @@ private:
 
 ACodec::ACodec()
     : mNode(NULL),
+#ifdef QCOM_HARDWARE
       mSentFormat(false),
       mSmoothStreaming(false) {
+#else
+      mSentFormat(false) {
+#endif
     mUninitializedState = new UninitializedState(this);
     mLoadedToIdleState = new LoadedToIdleState(this);
     mIdleToExecutingState = new IdleToExecutingState(this);
@@ -525,7 +530,6 @@ status_t ACodec::allocateOutputBuffersFromNativeWindow() {
 #else
     int format = HAL_PIXEL_FORMAT_YCrCb_420_SP;
 #endif
-    
 
     err = native_window_set_buffers_geometry(
             mNativeWindow.get(),
@@ -575,10 +579,12 @@ status_t ACodec::allocateOutputBuffersFromNativeWindow() {
         OMX_U32 newBufferCount = def.nBufferCountMin + minUndequeuedBufs;
         def.nBufferCountActual = newBufferCount;
 
+#ifdef QCOM_HARDWARE
         //Keep an extra buffer for smooth streaming
         if (mSmoothStreaming) {
             def.nBufferCountActual += 1;
         }
+#endif
 
         err = mOMX->setParameter(
                 mNode, OMX_IndexParamPortDefinition, &def, sizeof(def));
@@ -589,10 +595,12 @@ status_t ACodec::allocateOutputBuffersFromNativeWindow() {
             return err;
         }
 
+#ifdef QCOM_HARDWARE
         if (mSmoothStreaming) {
             //Copy the final port definitio
              memcpy(&mOutputPortDef, &def, sizeof(def));
         }
+#endif
     }
 
     err = native_window_set_buffer_count(
@@ -1107,10 +1115,10 @@ status_t ACodec::setSupportedOutputFormat() {
                 break;
         }
     }
-#endif
 
     LOGV("Video O/P format.nIndex 0x%x",format.nIndex);
     LOGW("Video O/P format.eColorFormat 0x%x",format.eColorFormat);
+#endif
 
     status_t err = mOMX->getParameter(
             mNode, OMX_IndexParamVideoPortFormat,
@@ -1122,11 +1130,12 @@ status_t ACodec::setSupportedOutputFormat() {
            || format.eColorFormat == OMX_COLOR_FormatYUV420SemiPlanar
            || format.eColorFormat == OMX_COLOR_FormatCbYCrY
            || format.eColorFormat == OMX_TI_COLOR_FormatYUV420PackedSemiPlanar
-           || format.eColorFormat == (OMX_COLOR_FORMATTYPE)OMX_QCOM_COLOR_FormatYVU420SemiPlanar
 #ifdef QCOM_HARDWARE
-           || format.eColorFormat ==  (OMX_COLOR_FORMATTYPE)QOMX_COLOR_FormatYUV420PackedSemiPlanar64x32Tile2m8ka
+           || format.eColorFormat == (OMX_COLOR_FORMATTYPE)OMX_QCOM_COLOR_FormatYVU420SemiPlanar
+           || format.eColorFormat ==  (OMX_COLOR_FORMATTYPE)QOMX_COLOR_FormatYUV420PackedSemiPlanar64x32Tile2m8ka);
+#else
+           || format.eColorFormat == OMX_QCOM_COLOR_FormatYVU420SemiPlanar);
 #endif
-          );
 
     return mOMX->setParameter(
             mNode, OMX_IndexParamVideoPortFormat,
@@ -1192,7 +1201,11 @@ status_t ACodec::setVideoFormatOnPort(
 
     CHECK_EQ(err, (status_t)OK);
 
-    if (portIndex == kPortIndexInput && !mSmoothStreaming) {
+    if (portIndex == kPortIndexInput
+#ifdef QCOM_HARDWARE
+            && !mSmoothStreaming
+#endif
+            ) {
         // XXX Need a (much) better heuristic to compute input buffer sizes.
         const size_t X = 64 * 1024;
         if (def.nBufferSize < X) {
@@ -1202,10 +1215,14 @@ status_t ACodec::setVideoFormatOnPort(
 
     CHECK_EQ((int)def.eDomain, (int)OMX_PortDomainVideo);
 
+#ifdef QCOM_HARDWARE
     if (!mSmoothStreaming) {
+#endif
         video_def->nFrameWidth = width;
         video_def->nFrameHeight = height;
+#ifdef QCOM_HARDWARE
     }
+#endif
 
     if (portIndex == kPortIndexInput) {
         video_def->eCompressionFormat = compressionFormat;
@@ -1937,7 +1954,9 @@ bool ACodec::BaseState::onOMXFillBufferDone(
                     new AMessage(kWhatOutputBufferDrained, mCodec->id());
 
                 reply->setPointer("buffer-id", info->mBufferID);
+#ifdef QCOM_HARDWARE
                 reply->setInt32("flags", flags);
+#endif
 
                 notify->setMessage("reply", reply);
 
@@ -1979,6 +1998,7 @@ void ACodec::BaseState::onOutputBufferDrained(const sp<AMessage> &msg) {
         mCodec->findBufferByID(kPortIndexOutput, bufferID, &index);
     CHECK_EQ((int)info->mStatus, (int)BufferInfo::OWNED_BY_DOWNSTREAM);
 
+#ifdef QCOM_HARDWARE
     int32_t flags;
     CHECK(msg->findInt32("flags", &flags));
 #ifdef QCOM_HARDWARE
