@@ -29,9 +29,12 @@
 #include "include/AACExtractor.h"
 #ifdef QCOM_HARDWARE
 #include "include/ExtendedExtractor.h"
+#else
+#include "include/AVIExtractor.h"
+#endif
+#include "include/WVMExtractor.h"
 
 #include <media/stagefright/MediaDefs.h>
-#endif
 
 #include "matroska/MatroskaExtractor.h"
 
@@ -89,7 +92,7 @@ bool DataSource::sniff(
 #endif
 
         String8 newMimeType;
-        float newConfidence = 0.0;
+        float newConfidence;
         sp<AMessage> newMeta;
         if ((*it)(this, &newMimeType, &newConfidence, &newMeta)) {
             if (newConfidence > *confidence) {
@@ -110,7 +113,7 @@ bool DataSource::sniff(
                         //if this is fragmented or not.
                         LOGV("calling Extended Sniff if mimeType = %s ",(*mimeType).string());
                         String8 tmpMimeType;
-                        float tmpConfidence = 0.0 ;
+                        float tmpConfidence;
                         sp<AMessage> tmpMeta;
                         (*extendedSnifferPosition)(this, &tmpMimeType, &tmpConfidence, &tmpMeta);
                         if (tmpConfidence > *confidence) {
@@ -170,6 +173,10 @@ void DataSource::RegisterDefaultSniffers() {
     RegisterSniffer(SniffMPEG2TS);
     RegisterSniffer(SniffMP3);
     RegisterSniffer(SniffAAC);
+    RegisterSniffer(SniffWVM);
+#ifndef QCOM_HARDWARE
+    RegisterSniffer(SniffAVI);
+#endif
     RegisterSniffer(SniffMPEG2PS);
 #ifdef QCOM_HARDWARE
     ExtendedExtractor::RegisterSniffers();
