@@ -2422,6 +2422,13 @@ public final class Settings {
          * @hide
          */
         public static final String VOLUME_WAKE_SCREEN = "volume_wake_screen";
+        /**
+          * Statusbar toggle for 6 bar signal strength.
+          * @hide
+          */
+          public static final String STATUSBAR_6BAR_SIGNAL = "statusbar_6bar_signal";
+
+        /* END Constants for Evervolv Toolbox */
 
         /**
          * Whether national data roaming should be used.
