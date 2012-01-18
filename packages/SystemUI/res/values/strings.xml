@@ -29,7 +29,7 @@
     <string name="notifications_off_title">Notifications off</string>
 
     <!-- Content text for do-not-disturb mode notification -->
-    <string name="notifications_off_text">Tap here to turn notifications back on.</string>
+    <string name="notifications_off_text">Touch to enable notifications.</string>
 
     <!-- The text for the button in the notification window-shade that turns
          on do not disturb mode, where notifications no longer show their ticker,
