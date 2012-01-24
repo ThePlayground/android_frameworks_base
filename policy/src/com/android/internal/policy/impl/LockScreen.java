@@ -530,7 +530,6 @@ class LockScreen extends LinearLayout implements KeyguardScreen {
         switch (mLockscreenTargets) {
             default:
             case LAYOUT_STOCK:
-            case LAYOUT_QUAD:
                 if (landscape)
                     inflater.inflate(R.layout.keyguard_screen_tab_unlock_land, this,
                             true);
@@ -538,6 +537,7 @@ class LockScreen extends LinearLayout implements KeyguardScreen {
                     inflater.inflate(R.layout.keyguard_screen_tab_unlock, this,
                             true);
                 break;
+            case LAYOUT_QUAD:
             case LAYOUT_OCTO:
                 if (landscape)
                     inflater.inflate(R.layout.keyguard_screen_tab_octounlock_land, this,
