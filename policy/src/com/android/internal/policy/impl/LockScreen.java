@@ -58,14 +58,14 @@ import com.android.internal.widget.multiwaveview.MultiWaveView;
 class LockScreen extends LinearLayout implements KeyguardScreen {
 
     private static final int ON_RESUME_PING_DELAY = 500; // delay first ping until the screen is on
-    private static final boolean DBG = true;
+    private static final boolean DBG = false;
     private static final String TAG = "LockScreen";
     private static final String ENABLE_MENU_KEY_FILE = "/data/local/enable_menu_key";
     private static final int WAIT_FOR_ANIMATION_TIMEOUT = 0;
     private static final int STAY_ON_WHILE_GRABBED_TIMEOUT = 30000;
 
     public static final int LAYOUT_STOCK = 2;
-    public static final int LAYOUT_QUAD = 4;
+    public static final int LAYOUT_QUAD = 6;
     public static final int LAYOUT_OCTO = 8;
 
     private int mLockscreenTargets = LAYOUT_STOCK;
@@ -89,7 +89,7 @@ class LockScreen extends LinearLayout implements KeyguardScreen {
     private TextView mCarrier;
 
     private Drawable[] lockDrawables;
-    
+
     ArrayList<Target> lockTargets = new ArrayList<Target>();
 
     private interface UnlockWidgetCommonMethods {
@@ -226,14 +226,14 @@ class LockScreen extends LinearLayout implements KeyguardScreen {
                         != R.array.lockscreen_targets_with_camera;
             }
         }
-        
+
         public void updateResources() {
             boolean isLandscape = (mCreationOrientation == Configuration
                     .ORIENTATION_LANDSCAPE);
-            
+
             targetController.setLandscape(isLandscape);
             targetController.setupTargets();
-            
+
             mMultiWaveView.setTargetResources(targetController.getDrawables());
         }
 
@@ -250,7 +250,7 @@ class LockScreen extends LinearLayout implements KeyguardScreen {
                 Log.v(TAG, "onTrigger: target = " + target);
             if (DBG)
                 Log.v(TAG, "onTrigger: Orientation = " + mCreationOrientation);
-                targetController.getTarget(target).doAction();
+            targetController.getTarget(target).doAction();
         }
 
         public void onGrabbedStateChange(View v, int handle) {
@@ -317,7 +317,7 @@ class LockScreen extends LinearLayout implements KeyguardScreen {
         return (Settings.System.getInt(getContext().getContentResolver(),
                 Settings.System.LOCKSCREEN_ENABLE_MENU_KEY, defaultValue ? 1 : 0) == 1);
     }
-    
+
     class Target {
         public static final String ACTION_UNLOCK = "**unlock**";
         public static final String ACTION_SOUND_TOGGLE = "**sound**";
@@ -325,20 +325,20 @@ class LockScreen extends LinearLayout implements KeyguardScreen {
         public static final String ACTION_APP_CAMERA = "**camera**";
         public static final String ACTION_APP_CUSTOM = "**app**";
         public static final String ACTION_NULL = "**null**";
-        
-        String action;
+
+        String action = ACTION_NULL;
         Drawable icon;
         String customAppIntentUri;
         int index;
-        
+
         public Target(int index) {
             this.index = index;
         }
-        
+
         void setDrawable() {
             icon = getDrawable();
         }
-        
+
         Drawable getDrawable() {
             int resId;
             Drawable drawable = null;
@@ -371,7 +371,7 @@ class LockScreen extends LinearLayout implements KeyguardScreen {
             }
             return drawable;
         }
-        
+
         void doAction() {
             if (action.equals(ACTION_UNLOCK)) {
                 mCallback.goToUnlockScreen();
@@ -405,30 +405,30 @@ class LockScreen extends LinearLayout implements KeyguardScreen {
 
                 mCallback.pokeWakelock();
             } else if (action.equals(ACTION_APP_CUSTOM)) {
-                    try {
-                        Intent intent = Intent.parseUri(customAppIntentUri, 0);
-                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                        mContext.startActivity(intent);
-                        mCallback.goToUnlockScreen();
-                    } catch (URISyntaxException e) {
-                        Log.e(TAG, "URISyntaxException: [" + customAppIntentUri + "]");
-                    }
+                try {
+                    Intent intent = Intent.parseUri(customAppIntentUri, 0);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    mContext.startActivity(intent);
+                    mCallback.goToUnlockScreen();
+                } catch (URISyntaxException e) {
+                    Log.e(TAG, "URISyntaxException: [" + customAppIntentUri + "]");
+                }
             }
         }
     }
-    
+
     class TargetController {
         ArrayList<Target> targets = new ArrayList<Target>();
         int unlockTarget = -1;
         boolean landscape = false;
-        
+
         public TargetController() {
             setupTargets();
         }
-        
+
         public void setLandscape(boolean isLandscape) {
             this.landscape = isLandscape;
-            
+
         }
 
         public void setupTargets() {
@@ -441,10 +441,18 @@ class LockScreen extends LinearLayout implements KeyguardScreen {
                         Settings.System.LOCKSCREEN_CUSTOM_APP_ACTIVITIES[i]);
                 Target t = new Target(i);
                 if (settingUri == null) {
-                    if(numTargets / 2 == (i+1))
+                    if (i == 0) {
+                        t.action = Target.ACTION_UNLOCK;
+                        t.setDrawable();
+                        targets.add(t);
+                    } else if (numTargets == 2 && i == 1) {
                         t.action = Target.ACTION_APP_CAMERA;
+                        t.setDrawable();
+                        targets.add(t);
+                    } else if ((numTargets / 2) == (i + 1)) {
+                        t.action = Target.ACTION_APP_CAMERA;
+                    }
                 } else {
-
                     if (settingUri.equals(Target.ACTION_UNLOCK)) {
                         t.action = Target.ACTION_UNLOCK;
                         unlockTarget = i;
@@ -458,34 +466,34 @@ class LockScreen extends LinearLayout implements KeyguardScreen {
                         t.action = Target.ACTION_APP_CUSTOM;
                         t.customAppIntentUri = settingUri;
                     }
-                    t.setDrawable();
-                    targets.add(t);
                 }
+                t.setDrawable();
+                targets.add(t);
             }
 
             if (unlockTarget == -1)
-                if(targets.size() > 0)
+                if (targets.size() > 1)
                     targets.get(0).action = Target.ACTION_UNLOCK;
                 else {
                     Target t = new Target(0);
                     t.action = Target.ACTION_UNLOCK;
-                    targets.add(t);
+                    targets.add(0, t);
                 }
         }
-        
+
         public Drawable[] getDrawables() {
             Drawable[] d = new Drawable[targets.size()];
-            for(int i = 0; i < targets.size(); i++)
+            for (int i = 0; i < targets.size(); i++)
                 d[i] = targets.get(i).getDrawable();
-            
+
             return d;
         }
-        
+
         public Target getTarget(int target) {
             return targets.get(target);
         }
     }
-    
+
     TargetController targetController;
 
     /**
@@ -512,7 +520,7 @@ class LockScreen extends LinearLayout implements KeyguardScreen {
 
         SettingsObserver settingsObserver = new SettingsObserver(new Handler());
         settingsObserver.observe();
-        
+
         targetController = new TargetController();
 
         if (LockPatternKeyguardView.DEBUG_CONFIGURATION) {
@@ -530,6 +538,7 @@ class LockScreen extends LinearLayout implements KeyguardScreen {
         switch (mLockscreenTargets) {
             default:
             case LAYOUT_STOCK:
+            case LAYOUT_QUAD:
                 if (landscape)
                     inflater.inflate(R.layout.keyguard_screen_tab_unlock_land, this,
                             true);
@@ -537,7 +546,6 @@ class LockScreen extends LinearLayout implements KeyguardScreen {
                     inflater.inflate(R.layout.keyguard_screen_tab_unlock, this,
                             true);
                 break;
-            case LAYOUT_QUAD:
             case LAYOUT_OCTO:
                 if (landscape)
                     inflater.inflate(R.layout.keyguard_screen_tab_octounlock_land, this,
