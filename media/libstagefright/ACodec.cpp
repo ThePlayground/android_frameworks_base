@@ -2001,7 +2001,6 @@ void ACodec::BaseState::onOutputBufferDrained(const sp<AMessage> &msg) {
 #ifdef QCOM_HARDWARE
     int32_t flags;
     CHECK(msg->findInt32("flags", &flags));
-#ifdef QCOM_HARDWARE
     if (mCodec->mSmoothStreaming && (flags & OMX_BUFFERFLAG_EXTRADATA)) {
         HandleExtraData( bufferID );
     }
