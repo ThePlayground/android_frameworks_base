@@ -139,6 +139,7 @@ private:
 #ifdef QCOM_HARDWARE
 static const int QOMX_COLOR_FormatYUV420PackedSemiPlanar64x32Tile2m8ka = 0x7FA30C03;
 static const int OMX_QCOM_COLOR_FormatYVU420SemiPlanar = 0x7FA30C00;
+static const int QOMX_COLOR_FormatYVU420PackedSemiPlanar32m4ka = 0x7FA30C01;
 
 class ColorFormatInfo {
     private:
@@ -160,7 +161,8 @@ const int32_t ColorFormatInfo::preferredFormat =
     OMX_QCOM_COLOR_FormatYVU420SemiPlanar;
 #endif
 #ifdef TARGET7x27A
-    OMX_QCOM_COLOR_FormatYVU420SemiPlanar;
+    //OMX_QCOM_COLOR_FormatYVU420SemiPlanar;
+    QOMX_COLOR_FormatYVU420PackedSemiPlanar32m4ka;
 #endif
 #ifdef TARGET8x50
     OMX_QCOM_COLOR_FormatYVU420SemiPlanar;
@@ -529,6 +531,10 @@ status_t ACodec::allocateOutputBuffersFromNativeWindow() {
 #ifdef QCOM_HARDWARE
     int format = (def.format.video.eColorFormat == (OMX_COLOR_FORMATTYPE)QOMX_COLOR_FormatYUV420PackedSemiPlanar64x32Tile2m8ka)?
                  HAL_PIXEL_FORMAT_YCbCr_420_SP_TILED : def.format.video.eColorFormat;
+    if(def.format.video.eColorFormat == OMX_QCOM_COLOR_FormatYVU420SemiPlanar)
+        format = HAL_PIXEL_FORMAT_YCrCb_420_SP;
+    if(def.format.video.eColorFormat == QOMX_COLOR_FormatYVU420PackedSemiPlanar32m4ka)
+        format = HAL_PIXEL_FORMAT_YCrCb_420_SP_ADRENO;
 #endif
 
     err = native_window_set_buffers_geometry(
@@ -1137,6 +1143,7 @@ status_t ACodec::setSupportedOutputFormat() {
            || format.eColorFormat == OMX_TI_COLOR_FormatYUV420PackedSemiPlanar
 #ifdef QCOM_HARDWARE
            || format.eColorFormat == (OMX_COLOR_FORMATTYPE)OMX_QCOM_COLOR_FormatYVU420SemiPlanar
+           || format.eColorFormat == (OMX_COLOR_FORMATTYPE)QOMX_COLOR_FormatYVU420PackedSemiPlanar32m4ka
            || format.eColorFormat ==  (OMX_COLOR_FORMATTYPE)QOMX_COLOR_FormatYUV420PackedSemiPlanar64x32Tile2m8ka
 #endif
            || format.eColorFormat == OMX_QCOM_COLOR_FormatYVU420SemiPlanar);
