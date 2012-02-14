@@ -114,6 +114,7 @@ private:
     sp<ABuffer> mBuffer;
     sp<AnotherPacketSource> mSource;
     bool mPayloadStarted;
+    bool mFormatChanged;
 
     ElementaryStreamQueue *mQueue;
 
@@ -447,6 +448,7 @@ ATSParser::Stream::Stream(
       mElementaryPID(elementaryPID),
       mStreamType(streamType),
       mPayloadStarted(false),
+      mFormatChanged(false),
       mQueue(NULL) {
     switch (mStreamType) {
         case STREAMTYPE_H264:
@@ -580,6 +582,11 @@ void ATSParser::Stream::signalDiscontinuity(
         if (type & DISCONTINUITY_VIDEO_FORMAT) {
             clearFormat = true;
         }
+    }
+
+    if (type & DISCONTINUITY_PLAYER_SEEK) {
+        clearFormat = true;
+        mFormatChanged = true;
     }
 
     mQueue->clear(clearFormat);
@@ -830,6 +837,10 @@ void ATSParser::Stream::onPayloadData(
 
             if (mSource->getFormat() == NULL) {
                 mSource->setFormat(mQueue->getFormat());
+            }
+            else if (mFormatChanged) {
+                mSource->updateFormat(mQueue->getFormat());
+                mFormatChanged = false;
             }
             mSource->queueAccessUnit(accessUnit);
         }
