@@ -35,11 +35,9 @@ ifeq ($(TARGET_BOARD_PLATFORM), s5pc110)
 endif
 
 ifeq ($(BOARD_USES_QCOM_HARDWARE),true)
-ifneq ($(BOARD_USES_QCOM_LEGACY),true)
 LOCAL_SHARED_LIBRARIES := \
 	libQcomUI
 LOCAL_C_INCLUDES += hardware/qcom/display/libqcomui
-endif
 LOCAL_CFLAGS += -DQCOM_HARDWARE
 endif
 
