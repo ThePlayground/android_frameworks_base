@@ -2153,6 +2153,13 @@ public final class Settings {
          */
         public static final String STATUS_BAR_SIGNAL_TEXT = "status_bar_signal";
 
+        /**
+         * Custom Carrier text on the systemui.
+         * @hide
+         */
+        public static final String CUSTOM_CARRIER_TEXT = "custom_carrier_text";
+        public static final String MODIFY_CARRIER_TEXT = "notification_drawer_carrier_text";
+
          /**
          * Whether to control brightness from status bar
          *
