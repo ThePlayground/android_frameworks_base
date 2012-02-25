@@ -2787,6 +2787,9 @@ status_t SurfaceFlinger::captureScreen(DisplayID dpy,
     if (UNLIKELY(uint32_t(dpy) >= DISPLAY_COUNT))
         return BAD_VALUE;
 
+    if (!GLExtensions::getInstance().haveFramebufferObject())
+        return INVALID_OPERATION;
+
     class MessageCaptureScreen : public MessageBase {
         SurfaceFlinger* flinger;
         DisplayID dpy;
