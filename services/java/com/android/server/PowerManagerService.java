@@ -513,10 +513,21 @@ public class PowerManagerService extends IPowerManager.Stub
                 // recalculate everything
                 setScreenOffTimeoutsLocked();
 
+                // Animation settings controlled by system configuration
+                //final float windowScale = getFloat(WINDOW_ANIMATION_SCALE, 1.0f);
+                //final float transitionScale = getFloat(TRANSITION_ANIMATION_SCALE, 1.0f);
+                
+                //if (windowScale > 0.5f) {
+                //        mAnimationSetting |= ANIM_SETTING_OFF;
+                //}
+                //if (transitionScale > 0.5f) {
+                //        mAnimationSetting |= ANIM_SETTING_ON;
+                //}
+                
                 mElectronBeamAnimationOn = Settings.System.getInt(mContext.getContentResolver(),
-                        ELECTRON_BEAM_ANIMATION_ON, 0) != 0;
+                        ELECTRON_BEAM_ANIMATION_ON, 0) == 1);
                 mElectronBeamAnimationOff = Settings.System.getInt(mContext.getContentResolver(),
-                        ELECTRON_BEAM_ANIMATION_OFF, 1) != 0;
+                        ELECTRON_BEAM_ANIMATION_OFF, 1) == 1;
 
                 mAnimationSetting = 0;
                 if (mElectronBeamAnimationOff) {
