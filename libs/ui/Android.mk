@@ -57,6 +57,10 @@ ifeq ($(BOARD_USES_QCOM_HARDWARE),true)
 LOCAL_SRC_FILES+= \
 	Overlay.cpp
 endif
+ifneq ($(TARGET_CUSTOM_OVERLAY),)
+LOCAL_SRC_FILES+= \
+	$(TARGET_CUSTOM_OVERLAY)
+endif
 
 LOCAL_SHARED_LIBRARIES := \
 	libcutils \
