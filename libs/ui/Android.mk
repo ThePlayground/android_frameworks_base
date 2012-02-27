@@ -42,6 +42,7 @@ include $(CLEAR_VARS)
 
 LOCAL_SRC_FILES:= \
 	$(commonSources) \
+	Overlay.cpp \
 	EGLUtils.cpp \
 	FramebufferNativeWindow.cpp \
 	GraphicBuffer.cpp \
@@ -52,15 +53,6 @@ LOCAL_SRC_FILES:= \
 	PixelFormat.cpp \
 	Rect.cpp \
 	Region.cpp
-
-ifeq ($(BOARD_USES_QCOM_HARDWARE),true)
-LOCAL_SRC_FILES+= \
-	Overlay.cpp
-endif
-ifneq ($(TARGET_CUSTOM_OVERLAY),)
-LOCAL_SRC_FILES+= \
-	$(TARGET_CUSTOM_OVERLAY)
-endif
 
 LOCAL_SHARED_LIBRARIES := \
 	libcutils \
