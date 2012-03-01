@@ -131,7 +131,7 @@ size_t PageCache::releaseFromStart(size_t maxBytes) {
     }
 
     mTotalSize -= bytesReleased;
-    ALOGV("Size of cache after release %d", mTotalSize);
+    LOGV("Size of cache after release %d", mTotalSize);
     return bytesReleased;
 }
 
@@ -265,7 +265,7 @@ void NuCachedSource2::setAVInterleavingOffset(int64_t av_offset){
     mAVOffset = av_offset > kMaxAVInterleavingOffset ? kMaxAVInterleavingOffset: av_offset;
     mAVOffset = mAVOffset < kMinAVInterleavingOffset ? kMinAVInterleavingOffset: mAVOffset;
 
-    ALOGV("setAVOffset %lld", mAVOffset);
+    LOGV("setAVOffset %lld", mAVOffset);
 }
 
 void NuCachedSource2::onMessageReceived(const sp<AMessage> &msg) {
@@ -444,7 +444,7 @@ void NuCachedSource2::restartPrefetcherIfNecessary_l(
             && mCacheOffset + mCache->totalSize() - mLastAccessPos
                 >= mLowwaterThresholdBytes + mAVOffset) {
         int64_t cacheLeft = mCacheOffset + mCache->totalSize() - mLastAccessPos;
-        ALOGV("Dont restart prefetcher last access %lld, cache left %lld", mLastAccessPos, cacheLeft);
+        LOGV("Dont restart prefetcher last access %lld, cache left %lld", mLastAccessPos, cacheLeft);
         return;
     }
 
@@ -454,7 +454,7 @@ void NuCachedSource2::restartPrefetcherIfNecessary_l(
     size_t actualBytes = mCache->releaseFromStart(maxBytes);
     mCacheOffset += actualBytes;
 
-    ALOGI("restarting prefetcher, totalSize = %d, offset %lld", mCache->totalSize(), mCacheOffset);
+    LOGI("restarting prefetcher, totalSize = %d, offset %lld", mCache->totalSize(), mCacheOffset);
     mFetching = true;
 }
 
