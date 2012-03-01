@@ -42,7 +42,6 @@ include $(CLEAR_VARS)
 
 LOCAL_SRC_FILES:= \
 	$(commonSources) \
-	Overlay.cpp \
 	EGLUtils.cpp \
 	FramebufferNativeWindow.cpp \
 	GraphicBuffer.cpp \
@@ -64,15 +63,13 @@ LOCAL_SHARED_LIBRARIES := \
 	libskia \
 	libbinder
 
-ifdef BOARD_EGL_GRALLOC_USAGE_FILTER
-	LOCAL_CFLAGS += -DBOARD_EGL_GRALLOC_USAGE_FILTER=$(BOARD_EGL_GRALLOC_USAGE_FILTER)
-endif
-
 LOCAL_C_INCLUDES := \
     external/skia/include/core
 
 ifeq ($(BOARD_USES_QCOM_HARDWARE),true)
 LOCAL_CFLAGS += -DQCOM_HARDWARE
+else
+LOCAL_SRC_FILES+= Overlay.cpp
 endif
 
 LOCAL_MODULE:= libui
