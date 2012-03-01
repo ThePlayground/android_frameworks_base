@@ -450,6 +450,7 @@ void Layer::lockPageFlip(bool& recomputeVisibleRegions)
 #else
 
         if (mSurfaceTexture->updateTexImage() < NO_ERROR) {
+#endif
             // something happened!
             recomputeVisibleRegions = true;
             return;
