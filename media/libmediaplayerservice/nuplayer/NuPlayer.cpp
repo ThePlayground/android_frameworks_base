@@ -525,7 +525,7 @@ void NuPlayer::onMessageReceived(const sp<AMessage> &msg) {
 
             if( mIsHttpLive ) {
                 mSource->getNewSeekTime(&newSeekTime);
-                ALOGV("newSeekTime %lld", newSeekTime);
+                LOGV("newSeekTime %lld", newSeekTime);
             }
 
             if( newSeekTime >= 0 ) {
