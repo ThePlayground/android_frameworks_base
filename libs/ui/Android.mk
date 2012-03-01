@@ -67,9 +67,11 @@ LOCAL_C_INCLUDES := \
     external/skia/include/core
 
 ifeq ($(BOARD_USES_QCOM_HARDWARE),true)
-LOCAL_CFLAGS += -DQCOM_HARDWARE
+    LOCAL_CFLAGS += -DQCOM_HARDWARE
+    LOCAL_C_INCLUDES += 7x30
+    LOCAL_SRC_FILES+= 7x30/Overlay.cpp
 else
-LOCAL_SRC_FILES+= Overlay.cpp
+    LOCAL_SRC_FILES+= Overlay.cpp
 endif
 
 LOCAL_MODULE:= libui
