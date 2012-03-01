@@ -77,11 +77,6 @@ ifneq ($(BOARD_USES_QCOM_HARDWARE),true)
         LOCAL_SRC_FILES += AVIExtractor.cpp
 endif
 
-ifeq ($(BOARD_USES_QCOM_HARDWARE),true)
-        LOCAL_SRC_FILES += ExtendedExtractor.cpp
-        LOCAL_SRC_FILES += ExtendedWriter.cpp
-endif
-
 LOCAL_C_INCLUDES:= \
 	$(JNI_H_INCLUDE) \
         $(TOP)/frameworks/base/include/media/stagefright/openmax \
@@ -129,7 +124,7 @@ LOCAL_C_INCLUDES += \
 	$(TOP)/external/alsa-lib/include/sound \
         $(TOP)/hardware/qcom/display/libgralloc \
         $(TOP)/hardware/qcom/display/libqcomui \
-        $(TOP)/hardware/qcom/media/mm-core/omxcore/inc \
+        $(TOP)/vendor/qcom-opensource/omx/mm-core/omxcore/inc \
         $(TOP)/system/core/include \
         $(TOP)/hardware/libhardware_legacy/include
 
@@ -236,14 +231,6 @@ LOCAL_SHARED_LIBRARIES += \
         libdl
 
 LOCAL_CFLAGS += -Wno-multichar
-
-ifeq ($(BOARD_USES_QCOM_HARDWARE),true)
-        LOCAL_C_INCLUDES += $(TOP)/hardware/qcom/display/libgralloc
-        LOCAL_C_INCLUDES += $(TOP)/hardware/qcom/media/mm-core/omxcore/inc
-        LOCAL_C_INCLUDES += $(TOP)/system/core/include
-        LOCAL_C_INCLUDES += $(TOP)/hardware/libhardware_legacy/include
-        LOCAL_CFLAGS += -DQCOM_HARDWARE
-endif
 
 LOCAL_MODULE:= libstagefright
 

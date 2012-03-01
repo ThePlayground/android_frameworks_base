@@ -20,18 +20,13 @@ LOCAL_C_INCLUDES:= \
 
 ifeq ($(BOARD_USES_QCOM_HARDWARE),true)
 LOCAL_C_INCLUDES += \
-    $(TOP)/hardware/qcom/media/mm-core/omxcore/inc
+    $(TOP)/vendor/qcom-opensource/omx/mm-core/omxcore/inc
 LOCAL_CFLAGS += -DQCOM_HARDWARE
 endif
 
 LOCAL_CFLAGS += -Wno-multichar
 
 LOCAL_MODULE_TAGS := debug
-
-ifeq ($(BOARD_USES_QCOM_HARDWARE),true)
-	LOCAL_C_INCLUDES += $(TOP)/hardware/qcom/media/mm-core/omxcore/inc
-	LOCAL_CFLAGS += -DQCOM_HARDWARE
-endif
 
 LOCAL_MODULE:= stagefright
 
@@ -83,18 +78,13 @@ LOCAL_C_INCLUDES:= \
 
 ifeq ($(BOARD_USES_QCOM_HARDWARE),true)
 LOCAL_C_INCLUDES += \
-    $(TOP)/hardware/qcom/media/mm-core/omxcore/inc
+    $(TOP)/vendor/qcom-opensource/omx/mm-core/omxcore/inc
 LOCAL_CFLAGS += -DQCOM_HARDWARE
 endif
 
 LOCAL_CFLAGS += -Wno-multichar
 
 LOCAL_MODULE_TAGS := debug
-
-ifeq ($(BOARD_USES_QCOM_HARDWARE),true)
-	LOCAL_C_INCLUDES += $(TOP)/hardware/qcom/media/mm-core/omxcore/inc
-	LOCAL_CFLAGS += -DQCOM_HARDWARE
-endif
 
 LOCAL_MODULE:= recordvideo
 
@@ -119,17 +109,13 @@ LOCAL_C_INCLUDES:= \
 
 ifeq ($(BOARD_USES_QCOM_HARDWARE),true)
 LOCAL_C_INCLUDES += \
-    $(TOP)/hardware/qcom/media/mm-core/omxcore/inc
+    $(TOP)/vendor/qcom-opensource/omx/mm-core/omxcore/inc
 LOCAL_CFLAGS += -DQCOM_HARDWARE
 endif
 
 LOCAL_CFLAGS += -Wno-multichar
 
 LOCAL_MODULE_TAGS := debug
-
-ifeq ($(BOARD_USES_QCOM_HARDWARE),true)
-	LOCAL_CFLAGS += -DQCOM_HARDWARE
-endif
 
 LOCAL_MODULE:= audioloop
 
@@ -153,18 +139,13 @@ LOCAL_C_INCLUDES:= \
 
 ifeq ($(BOARD_USES_QCOM_HARDWARE),true)
 LOCAL_C_INCLUDES += \
-    $(TOP)/hardware/qcom/media/mm-core/omxcore/inc
+    $(TOP)/vendor/qcom-opensource/omx/mm-core/omxcore/inc
 LOCAL_CFLAGS += -DQCOM_HARDWARE
 endif
 
 LOCAL_CFLAGS += -Wno-multichar
 
 LOCAL_MODULE_TAGS := debug
-
-ifeq ($(BOARD_USES_QCOM_HARDWARE),true)
-	LOCAL_C_INCLUDES += $(TOP)/hardware/qcom/media/mm-core/omxcore/inc
-	LOCAL_CFLAGS += -DQCOM_HARDWARE
-endif
 
 LOCAL_MODULE:= stream
 
@@ -188,18 +169,13 @@ LOCAL_C_INCLUDES:= \
 
 ifeq ($(BOARD_USES_QCOM_HARDWARE),true)
 LOCAL_C_INCLUDES += \
-    $(TOP)/hardware/qcom/media/mm-core/omxcore/inc
+    $(TOP)/vendor/qcom-opensource/omx/mm-core/omxcore/inc
 LOCAL_CFLAGS += -DQCOM_HARDWARE
 endif
 
 LOCAL_CFLAGS += -Wno-multichar
 
 LOCAL_MODULE_TAGS := debug
-
-ifeq ($(BOARD_USES_QCOM_HARDWARE),true)
-	LOCAL_C_INCLUDES += $(TOP)/hardware/qcom/media/mm-core/omxcore/inc
-	LOCAL_CFLAGS += -DQCOM_HARDWARE
-endif
 
 LOCAL_MODULE:= sf2
 
