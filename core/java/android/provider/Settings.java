@@ -2227,6 +2227,13 @@ public final class Settings {
         public static final String LOCKSCREEN_QUAD_TARGETS = "lockscreen_quad_targets";
 
         /**
+         * launch a custom app for sms
+         * 
+         * @hide
+         */
+        public static final String LOCKSCREEN_CUSTOM_SMS_INTENT = "lockscreen_custom_sms_intent";
+
+        /**
          * Whether to unlock the menu key.  The value is boolean (1 or 0).
          * @hide
          */

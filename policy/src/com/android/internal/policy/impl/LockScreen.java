@@ -40,6 +40,7 @@ import android.provider.MediaStore;
 import android.provider.Settings;
 
 import java.io.File;
+import java.net.URISyntaxException;
 
 /**
  * The screen within {@link LockPatternKeyguardView} that shows general
