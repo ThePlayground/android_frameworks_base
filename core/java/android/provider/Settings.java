@@ -2227,9 +2227,9 @@ public final class Settings {
          * @hide
          */
         public static final String LOCKSCREEN_CUSTOM_SMS_INTENT = "lockscreen_custom_sms_intent";
-        public static final String LOCKSCREEN_CUSTOM_SMS_INTENT_1 = "lockscreen_custom_sms_intent";
-        public static final String LOCKSCREEN_CUSTOM_SMS_INTENT_2 = "lockscreen_custom_sms_intent";
-        public static final String LOCKSCREEN_CUSTOM_SMS_INTENT_3 = "lockscreen_custom_sms_intent";
+        public static final String LOCKSCREEN_CUSTOM_APP_INTENT_1 = "lockscreen_custom_app_intent_1";
+        public static final String LOCKSCREEN_CUSTOM_APP_INTENT_2 = "lockscreen_custom_app_intent_2";
+        public static final String LOCKSCREEN_CUSTOM_APP_INTENT_3 = "lockscreen_custom_app_intent_3";
         /**
          0 = stock
          1 = quad
