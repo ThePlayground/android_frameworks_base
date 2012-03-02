@@ -2656,7 +2656,7 @@ status_t OMXCodec::allocateBuffersOnPort(OMX_U32 portIndex) {
         }
 
         if (err != OK) {
-            LOGE("allocate_buffer_with_backup failed");
+            CODEC_LOGE("allocate_buffer_with_backup failed");
             return err;
         }
 
@@ -2936,12 +2936,14 @@ status_t OMXCodec::allocateOutputBuffersFromNativeWindow() {
             break;
         }
 
+#ifdef QCOM_HARDWARE
         private_handle_t *handle = (private_handle_t *)buf->handle;
         if(!handle) {
                 LOGE("Native Buffer handle is NULL");
                 break;
         }
         CHECK_EQ(def.nBufferSize, handle->size); //otherwise it might cause memory corruption issues. It may fail because of alignment or extradata.
+#endif
 
         sp<GraphicBuffer> graphicBuffer(new GraphicBuffer(buf, false));
         BufferInfo info;
