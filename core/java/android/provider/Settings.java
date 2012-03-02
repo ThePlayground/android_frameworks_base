@@ -2219,12 +2219,7 @@ public final class Settings {
          */
         public static final String LOCKSCREEN_QUICK_UNLOCK_CONTROL = "lockscreen_quick_unlock_control";
 
-        /**
-         * Whether to enable mms and phone lockscreen shortcuts
-         *
-         * @hide
-         */
-        public static final String LOCKSCREEN_QUAD_TARGETS = "lockscreen_quad_targets";
+        public static final String LOCKSCREEN_ENABLE_MENU_KEY = "lockscreen_enable_menu_key";
 
         /**
          * launch a custom app for sms
@@ -2232,6 +2227,17 @@ public final class Settings {
          * @hide
          */
         public static final String LOCKSCREEN_CUSTOM_SMS_INTENT = "lockscreen_custom_sms_intent";
+        public static final String LOCKSCREEN_CUSTOM_SMS_INTENT_1 = "lockscreen_custom_sms_intent";
+        public static final String LOCKSCREEN_CUSTOM_SMS_INTENT_2 = "lockscreen_custom_sms_intent";
+        public static final String LOCKSCREEN_CUSTOM_SMS_INTENT_3 = "lockscreen_custom_sms_intent";
+        /**
+         0 = stock
+         1 = quad
+         2 = octo
+         * 
+         * @hide
+         */
+        public static final String LOCKSCREEN_LAYOUT = "lockscreen_layout";
 
         /**
          * Whether to unlock the menu key.  The value is boolean (1 or 0).
