@@ -2326,6 +2326,13 @@ public final class Settings {
         public static final String LOCKSCREEN_LAYOUT = "lockscreen_layout";
 
         /**
+         * Whether to allow the device to use landscape lockscreen layouts
+         * 
+         * @hide
+         */
+        public static final String LOCKSCREEN_LANDSCAPE = "lockscreen_landscape";
+
+        /**
          * Whether to unlock the menu key.  The value is boolean (1 or 0).
          * @hide
          */
