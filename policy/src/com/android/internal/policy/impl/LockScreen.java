@@ -72,6 +72,9 @@ class LockScreen extends LinearLayout implements KeyguardScreen {
     private UnlockWidgetCommonMethods mUnlockWidgetMethods;
     private View mUnlockWidget;
 
+    private boolean mQuadTargets = (Settings.System.getInt(mContext.getContentResolver(),
+            Settings.System.LOCKSCREEN_QUAD_TARGETS, 0) == 1);
+
     private interface UnlockWidgetCommonMethods {
         // Update resources based on phone state
         public void updateResources();
@@ -208,7 +211,9 @@ class LockScreen extends LinearLayout implements KeyguardScreen {
         
         public void updateResources() {
             int resId;
-            if (!mSoundLock) {
+            if (mQuadTargets) {
+                resId = R.array.quad_lockscreen_targets;
+            } else if (!mSoundLock) {
                 if (mCameraDisabled) {
                     // Fall back to showing ring/silence if camera is disabled by DPM...
                     resId = mSilentMode ? R.array.lockscreen_targets_when_silent
@@ -233,10 +238,38 @@ class LockScreen extends LinearLayout implements KeyguardScreen {
         }
 
         public void onTrigger(View v, int target) {
-            if (target == 0 || target == 1) { // 0 = unlock/portrait, 1 = unlock/landscape
-                mCallback.goToUnlockScreen();
-            } else if (target == 2 || target == 3) { // 2 = alt/portrait, 3 = alt/landscape
-                if (!mSoundLock) {
+            if (mQuadTargets) {
+                if (target == 0) { // right Action = Unlock
+                    mCallback.goToUnlockScreen();
+                } else if (target == 1) { // up Action == Mms
+                    String intentUri = Settings.System.getString(mContext.getContentResolver(), Settings.System.LOCKSCREEN_CUSTOM_SMS_INTENT);
+
+                    if(intentUri == null) {
+                        Intent intent = new Intent(Intent.ACTION_MAIN);
+                        intent.addCategory(Intent.CATEGORY_LAUNCHER);
+                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK
+                                | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
+                        intent.setClassName("com.android.mms", "com.android.mms.ui.ConversationList");
+                        mContext.startActivity(intent);
+                    } else {
+                        Intent mmsIntent;
+                        try {
+                            mmsIntent = Intent.parseUri(intentUri, 0);
+                            mmsIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK
+                                    | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
+                            mContext.startActivity(mmsIntent);
+                        } catch (URISyntaxException e) {
+                        }
+                    }
+                    mCallback.goToUnlockScreen();
+                } else if (target == 2) { // left Action = Phone
+                    Intent phoneIntent = new Intent(Intent.ACTION_MAIN);
+                    phoneIntent.setClassName("com.android.contacts",
+                                             "com.android.contacts.activities.DialtactsActivity");
+                    phoneIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    mContext.startActivity(phoneIntent);
+                    mCallback.goToUnlockScreen();
+                } else if (target == 3) {
                     if (!mCameraDisabled) {
                         // Start the Camera
                         Intent intent = new Intent(MediaStore.INTENT_ACTION_STILL_IMAGE_CAMERA);
@@ -248,10 +281,28 @@ class LockScreen extends LinearLayout implements KeyguardScreen {
                         mUnlockWidgetMethods.updateResources();
                         mCallback.pokeWakelock();
                     }
-                } else {
-                    toggleRingMode();
-                    mUnlockWidgetMethods.updateResources();
-                    mCallback.pokeWakelock();
+                }
+            } else {
+                if (target == 0 || target == 1) { // 0 = unlock/portrait, 1 = unlock/landscape
+                    mCallback.goToUnlockScreen();
+                } else if (target == 2 || target == 3) { // 2 = alt/portrait, 3 = alt/landscape
+                    if (!mSoundLock) {
+                        if (!mCameraDisabled) {
+                            // Start the Camera
+                            Intent intent = new Intent(MediaStore.INTENT_ACTION_STILL_IMAGE_CAMERA);
+                            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                            mContext.startActivity(intent);
+                            mCallback.goToUnlockScreen();
+                        } else {
+                            toggleRingMode();
+                            mUnlockWidgetMethods.updateResources();
+                            mCallback.pokeWakelock();
+                        }
+                    } else {
+                        toggleRingMode();
+                        mUnlockWidgetMethods.updateResources();
+                        mCallback.pokeWakelock();
+                    }
                 }
             }
         }

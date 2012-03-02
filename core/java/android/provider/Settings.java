@@ -2220,6 +2220,13 @@ public final class Settings {
         public static final String LOCKSCREEN_QUICK_UNLOCK_CONTROL = "lockscreen_quick_unlock_control";
 
         /**
+         * Whether to enable mms and phone lockscreen shortcuts
+         *
+         * @hide
+         */
+        public static final String LOCKSCREEN_QUAD_TARGETS = "lockscreen_quad_targets";
+
+        /**
          * Whether to unlock the menu key.  The value is boolean (1 or 0).
          * @hide
          */
