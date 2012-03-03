@@ -11,6 +11,7 @@ LOCAL_SRC_FILES:=                         \
         AMRWriter.cpp                     \
         AudioPlayer.cpp                   \
         AudioSource.cpp                   \
+        AVIExtractor.cpp                  \
         AwesomePlayer.cpp                 \
         CameraSource.cpp                  \
         CameraSourceTimeLapse.cpp         \
@@ -51,10 +52,6 @@ LOCAL_SRC_FILES:=                         \
         WVMExtractor.cpp                  \
         XINGSeeker.cpp                    \
         avc_utils.cpp                     \
-
-ifneq ($(BOARD_USES_QCOM_HARDWARE),true)
-        LOCAL_SRC_FILES += AVIExtractor.cpp
-endif
 
 LOCAL_C_INCLUDES:= \
 	$(JNI_H_INCLUDE) \
