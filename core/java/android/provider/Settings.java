@@ -2388,14 +2388,6 @@ public final class Settings {
          */
         public static final String VOLUME_WAKE_SCREEN = "volume_wake_screen";
 
-
-        /**
-         * Link/unlink volume/notification volume
-         *
-         * @hide
-         */
-        public static final String VOLUME_LINK_NOTIFICATION = "volume_link_notification";
-
         /**
          * Whether national data roaming should be used.
          */
