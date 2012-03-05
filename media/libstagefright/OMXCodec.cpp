@@ -2243,14 +2243,13 @@ status_t OMXCodec::setVideoOutputFormat(
                || format.eColorFormat == OMX_TI_COLOR_FormatYUV420PackedSemiPlanar
 #ifdef QCOM_HARDWARE
                || format.eColorFormat == OMX_QCOM_COLOR_FormatYVU420SemiPlanar
-               || format.eColorFormat == QOMX_COLOR_FormatYUV420PackedSemiPlanar64x32Tile2m8ka);
+               || format.eColorFormat == QOMX_COLOR_FormatYUV420PackedSemiPlanar64x32Tile2m8ka
 #else
-               || format.eColorFormat == OMX_QCOM_COLOR_FormatYVU420SemiPlanar);
-#endif
                || format.eColorFormat == OMX_QCOM_COLOR_FormatYVU420SemiPlanar
 #ifdef SAMSUNG_CODEC_SUPPORT
                || format.eColorFormat == OMX_SEC_COLOR_FormatNV12TPhysicalAddress
                || format.eColorFormat == OMX_SEC_COLOR_FormatNV12Tiled
+#endif
 #endif
                );
 #ifdef SAMSUNG_CODEC_SUPPORT
@@ -2781,6 +2780,7 @@ status_t OMXCodec::allocateOutputBuffersFromNativeWindow() {
             def.format.video.nSliceHeight,
             format);
 #else
+#ifndef SAMSUNG_CODEC_SUPPORT
     err = native_window_set_buffers_geometry(
             mNativeWindow.get(),
             def.format.video.nFrameWidth,
@@ -2807,6 +2807,7 @@ status_t OMXCodec::allocateOutputBuffersFromNativeWindow() {
             def.format.video.nFrameWidth,
             def.format.video.nFrameHeight,
             eColorFormat);
+#endif
 #endif
     if (err != 0) {
         LOGE("native_window_set_buffers_geometry failed: %s (%d)",
