@@ -40,7 +40,6 @@ import android.widget.LinearLayout;
 
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
-import java.lang.StringBuilder;
 
 import com.android.internal.statusbar.IStatusBarService;
 
@@ -74,6 +73,35 @@ public class NavigationBarView extends LinearLayout {
     boolean mHidden, mLowProfile, mShowMenu;
     int mDisabledFlags = 0;
 
+    // workaround for LayoutTransitions leaving the nav buttons in a weird state (bug 5549288)
+    final static boolean WORKAROUND_INVALID_LAYOUT = true;
+    final static int MSG_CHECK_INVALID_LAYOUT = 8686;
+
+    private class H extends Handler {
+        public void handleMessage(Message m) {
+            switch (m.what) {
+                case MSG_CHECK_INVALID_LAYOUT:
+                    final String how = "" + m.obj;
+                    final int w = getWidth();
+                    final int h = getHeight();
+                    final int vw = mCurrentView.getWidth();
+                    final int vh = mCurrentView.getHeight();
+
+                    if (h != vh || w != vw) {
+                        Slog.w(TAG, String.format(
+                            "*** Invalid layout in navigation bar (%s this=%dx%d cur=%dx%d)",
+                            how, w, h, vw, vh));
+                        if (WORKAROUND_INVALID_LAYOUT) {
+                            requestLayout();
+                        }
+                    }
+                    break;
+            }
+        }
+    }
+
+    private H mHandler = new H();
+
     public static boolean getEditMode() {
         return EDIT_MODE;
     }
@@ -84,7 +112,7 @@ public class NavigationBarView extends LinearLayout {
     }
 
     protected void toggleRecentListener(boolean enable) {
-        View recentView = mCurrentView.findViewWithTag("Recent");
+        View recentView = mCurrentView.findViewWithTag("recent");
         if (recentView != null) {
             recentView.setOnClickListener(enable ? mRecentsClickListener : null);
             recentView.setOnTouchListener(enable ? mRecentsPanel : null);
@@ -119,6 +147,7 @@ public class NavigationBarView extends LinearLayout {
         @Override
         public void onReceive(Context context, Intent intent) {
             boolean edit = intent.getBooleanExtra("edit", false);
+            boolean save = intent.getBooleanExtra("save", false);
             if (edit != EDIT_MODE) {
                 EDIT_MODE = edit;
                 if (EDIT_MODE) {
@@ -126,11 +155,14 @@ public class NavigationBarView extends LinearLayout {
                     mEditBar.setupListeners();
                     mEditBar.updateKeys();
                 } else {
-                    mEditBar.saveKeys();
+                    if (save) {
+                        mEditBar.saveKeys();
+                    }
                     mEditBar = new NavbarEditor((ViewGroup) mCurrentView.findViewById(R.id.container), mVertical);
                     mEditBar.reInflate();
                     mEditBar.updateKeys();
                     toggleRecentListener(true);
+                    mCurrentView.findViewById(R.id.container).invalidate();
                 }
             }
         }
@@ -167,11 +199,15 @@ public class NavigationBarView extends LinearLayout {
         final boolean disableRecent = ((disabledFlags & View.STATUS_BAR_DISABLE_RECENT) != 0);
         final boolean disableBack = ((disabledFlags & View.STATUS_BAR_DISABLE_BACK) != 0);
 
-        setButtonWithTagVisibility("Back", disableBack                       ? View.INVISIBLE : View.VISIBLE);
-        setButtonWithTagVisibility("Home", disableHome                       ? View.INVISIBLE : View.VISIBLE);
-        setButtonWithTagVisibility("Recent", disableRecent                   ? View.INVISIBLE : View.VISIBLE);
-        setButtonWithTagVisibility("Search", disableRecent                   ? View.INVISIBLE : View.VISIBLE);
-        setButtonWithTagVisibility("Menu1", disableRecent                   ? View.INVISIBLE : View.VISIBLE);
+        if (mCurrentView.findViewById(R.id.container).isDirty()) {
+            mCurrentView.findViewById(R.id.container).requestLayout();
+        }
+
+        setButtonWithTagVisibility("back", disableBack                       ? View.INVISIBLE : View.VISIBLE);
+        setButtonWithTagVisibility("home", disableHome                       ? View.INVISIBLE : View.VISIBLE);
+        setButtonWithTagVisibility("recent", disableRecent                   ? View.INVISIBLE : View.VISIBLE);
+        setButtonWithTagVisibility("search", disableRecent                   ? View.INVISIBLE : View.VISIBLE);
+        setButtonWithTagVisibility("menu1", disableRecent                   ? View.INVISIBLE : View.VISIBLE);
     }
 
     public void setMenuVisibility(final boolean show) {
@@ -183,7 +219,7 @@ public class NavigationBarView extends LinearLayout {
 
         mShowMenu = show;
 
-        setButtonWithTagVisibility("Menu0", mShowMenu ? View.VISIBLE : View.INVISIBLE);
+        setButtonWithTagVisibility("menu0", mShowMenu ? View.VISIBLE : View.INVISIBLE);
     }
 
     public void setLowProfile(final boolean lightsOut) {
@@ -292,6 +328,36 @@ public class NavigationBarView extends LinearLayout {
         }
     }
 
+    @Override
+    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+        if (DEBUG) Slog.d(TAG, String.format(
+                    "onSizeChanged: (%dx%d) old: (%dx%d)", w, h, oldw, oldh));
+        postCheckForInvalidLayout("sizeChanged");
+        super.onSizeChanged(w, h, oldw, oldh);
+    }
+
+    /*
+    @Override
+    protected void onLayout (boolean changed, int left, int top, int right, int bottom) {
+        if (DEBUG) Slog.d(TAG, String.format(
+                    "onLayout: %s (%d,%d,%d,%d)", 
+                    changed?"changed":"notchanged", left, top, right, bottom));
+        super.onLayout(changed, left, top, right, bottom);
+    }
+
+    // uncomment this for extra defensiveness in WORKAROUND_INVALID_LAYOUT situations: if all else
+    // fails, any touch on the display will fix the layout.
+    @Override
+    public boolean onInterceptTouchEvent(MotionEvent ev) {
+        if (DEBUG) Slog.d(TAG, "onInterceptTouchEvent: " + ev.toString());
+        if (ev.getAction() == MotionEvent.ACTION_DOWN) {
+            postCheckForInvalidLayout("touch");
+        }
+        return super.onInterceptTouchEvent(ev);
+    }
+    */
+        
+
     private String getResourceName(int resId) {
         if (resId != 0) {
             final android.content.res.Resources res = mContext.getResources();
@@ -303,6 +369,10 @@ public class NavigationBarView extends LinearLayout {
         } else {
             return "(null)";
         }
+    }
+
+    private void postCheckForInvalidLayout(final String how) {
+        mHandler.obtainMessage(MSG_CHECK_INVALID_LAYOUT, 0, 0, how).sendToTarget();
     }
 
     private static String visibilityToString(int vis) {
@@ -343,9 +413,9 @@ public class NavigationBarView extends LinearLayout {
                         mLowProfile ? "true" : "false",
                         mShowMenu ? "true" : "false"));
 
-        final View back = mCurrentView.findViewWithTag("Back");
-        final View home = mCurrentView.findViewWithTag("Home");
-        final View recent = mCurrentView.findViewWithTag("Recent");
+        final View back = mCurrentView.findViewWithTag("back");
+        final View home = mCurrentView.findViewWithTag("home");
+        final View recent = mCurrentView.findViewWithTag("recent");
 
         pw.println("      back: "
                 + PhoneStatusBar.viewInfo(back)

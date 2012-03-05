@@ -225,13 +225,13 @@ public class KeyButtonView extends ImageView {
             keyD = getResources().getDrawable(item.landResource);
         }
         setImageDrawable(keyD);
-        if (itemKey.equals("Blank")) {
+        if (itemKey.equals("empty")) {
             if (ArrayUtils.contains(NavbarEditor.smallButtonIds,getId())) {
                 setVisibility(NavigationBarView.getEditMode() ? View.VISIBLE : View.INVISIBLE);
             } else {
                 setVisibility(NavigationBarView.getEditMode() ? View.VISIBLE : View.GONE);
             }
-        } else if (itemKey.equals("Menu0")) {
+        } else if (itemKey.equals("menu0")) {
             setVisibility(NavigationBarView.getEditMode() ? View.VISIBLE : View.INVISIBLE);
         }
     }

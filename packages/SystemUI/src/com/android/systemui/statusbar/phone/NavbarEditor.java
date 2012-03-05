@@ -45,26 +45,26 @@ public class NavbarEditor implements OnTouchListener {
 
     static {
         //TODO USE search stuff, volume ..etc
-        buttonMap.put("Home",
+        buttonMap.put("home",
                 new ButtonInfo("Home button", R.string.accessibility_home,KeyEvent.KEYCODE_HOME,R.drawable.ic_sysbar_home,
                         R.drawable.ic_sysbar_home_land, R.drawable.ic_sysbar_home));
-        buttonMap.put("Menu0",
+        buttonMap.put("menu0",
                 new ButtonInfo("Menu (autoHide) button" ,R.string.accessibility_menu,KeyEvent.KEYCODE_MENU,R.drawable.ic_sysbar_menu,
                         R.drawable.ic_sysbar_menu_land, R.drawable.ic_sysbar_menu));
-        buttonMap.put("Menu1",
+        buttonMap.put("menu1",
                 new ButtonInfo("Menu (alwaysShow) button" ,R.string.accessibility_menu,KeyEvent.KEYCODE_MENU,R.drawable.ic_sysbar_menu,
                         R.drawable.ic_sysbar_menu_land, R.drawable.ic_sysbar_menu));
-        buttonMap.put("Back",
+        buttonMap.put("back",
                 new ButtonInfo("Back button", R.string.accessibility_back,KeyEvent.KEYCODE_BACK,R.drawable.ic_sysbar_back,
                         R.drawable.ic_sysbar_back_land, R.drawable.ic_sysbar_back_side));
-        buttonMap.put("Search",
+        buttonMap.put("search",
                 new ButtonInfo("Search button",R.string.accessibility_back,KeyEvent.KEYCODE_SEARCH,R.drawable.ic_sysbar_search,
                         R.drawable.ic_sysbar_search_land, R.drawable.ic_sysbar_search_side));
-        buttonMap.put("Recent",
+        buttonMap.put("recent",
                 new ButtonInfo("Recent button",R.string.accessibility_recent,0,R.drawable.ic_sysbar_recent,
                         R.drawable.ic_sysbar_recent_land, R.drawable.ic_sysbar_recent_side));
-        buttonMap.put("Blank",
-                new ButtonInfo("Blank button",R.string.accessibility_clear_all,0,R.drawable.ic_sysbar_add,
+        buttonMap.put("empty",
+                new ButtonInfo("Empty button",R.string.accessibility_clear_all,0,R.drawable.ic_sysbar_add,
                         R.drawable.ic_sysbar_add_land, R.drawable.ic_sysbar_add_side));
     }
 
@@ -163,7 +163,7 @@ public class NavbarEditor implements OnTouchListener {
             switchId(viewPosition, affectedViewPosition, view);
         } else if (event.getAction() == MotionEvent.ACTION_UP || event.getAction() == MotionEvent.ACTION_CANCEL) {
             view.removeCallbacks(mCheckLongPress);
-            if (!mLongPressed && !view.getTag().equals("Home")) {
+            if (!mLongPressed && !view.getTag().equals("home")) {
                 final ButtonAdapter list = new ButtonAdapter(ArrayUtils.contains(smallButtonIds, view.getId()) ? true : false);
                 //Needs to be localized
                 AlertDialog.Builder builder = new AlertDialog.Builder(mParent.getContext());
@@ -257,7 +257,7 @@ public class NavbarEditor implements OnTouchListener {
     protected void updateKeys() {
         String saved = Settings.System.getString(mParent.getContext().getContentResolver(), Settings.System.NAV_BUTTONS);
         if (saved == null) {
-            saved = "Blank|Back|Home|Recent|Blank|Menu0";
+            saved = "empty|back|home|recent|empty|menu0";
         }
         int cc = 0;
         ArrayList<Integer> idMap = (ArrayList<Integer>) mIds.clone();
@@ -316,16 +316,16 @@ public class NavbarEditor implements OnTouchListener {
             inflater = (LayoutInflater) mParent.getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             takenItems = new ArrayList<String>();
             for (int id : mIds) {
-                if (mParent.findViewById(id).getTag()==null || mParent.findViewById(id).getTag().equals("Blank")) {
+                if (mParent.findViewById(id).getTag()==null || mParent.findViewById(id).getTag().equals("empty")) {
                     continue;
                 }
                 takenItems.add(mParent.findViewById(id).getTag().toString());
             }
             items = new ArrayList<String>(buttonMap.keySet());
-            items.remove("Home");
+            items.remove("home");
             if (!smallButtons) {
-                items.remove("Menu0");
-                items.remove("Menu1");
+                items.remove("menu0");
+                items.remove("menu1");
             }
         }
 
