@@ -2826,6 +2826,7 @@ status_t OMXCodec::allocateOutputBuffersFromNativeWindow() {
 #endif
 
 #ifdef SAMSUNG_CODEC_SUPPORT
+    OMX_COLOR_FORMATTYPE eColorFormat;
     switch (def.format.video.eColorFormat) {
         case OMX_SEC_COLOR_FormatNV12TPhysicalAddress:
             eColorFormat = (OMX_COLOR_FORMATTYPE)HAL_PIXEL_FORMAT_CUSTOM_YCbCr_420_SP_TILED;
