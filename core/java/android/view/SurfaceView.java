@@ -446,7 +446,7 @@ public class SurfaceView extends View {
                               | WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
                               ;
                 boolean mCompatOverride = SystemProperties.get(COMPAT_PROPERTY).equalsIgnoreCase("true");
-                if (!mPreviewOverride) {
+                if (!mCompatOverride) {
                     if (!getContext().getResources().getCompatibilityInfo().supportsScreen()) {
                         mLayout.flags |= WindowManager.LayoutParams.FLAG_COMPATIBLE_WINDOW;
                     }
