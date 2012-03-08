@@ -72,9 +72,7 @@ LOCAL_C_INCLUDES := \
 
 ifeq ($(BOARD_USES_7X30_OVERLAY),true)
     LOCAL_SRC_FILES+= 7x30/Overlay.cpp
-endif
-
-ifneq ($(BOARD_USES_QCOM_HARDWARE),true)
+else
     LOCAL_SRC_FILES+= Overlay.cpp
 endif
 
