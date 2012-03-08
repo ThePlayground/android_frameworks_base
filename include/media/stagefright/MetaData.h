@@ -133,8 +133,6 @@ enum {
     kKeyWMAFormatTag      = 'fmtt',  // int64_t
     kKeyWMABitspersample  = 'bsps',  // int64_t
     kKeyWMAVirPktSize     = 'vpks',  // int64_t
-#else
-    kKeyWMVProfile        = 'wmvp',   //int32_t
 #endif
 
     // An indication that a video buffer has been rendered.
@@ -183,11 +181,6 @@ enum {
     kTypeWMA,
     kTypeWMAPro,
     kTypeWMALossLess,
-};
-#else
-enum {
-    kTypeWMVSimple,
-    kTypeWMVAdvance,
 };
 #endif
 

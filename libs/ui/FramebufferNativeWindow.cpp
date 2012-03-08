@@ -15,7 +15,6 @@
 ** limitations under the License.
 */
 
-#define LOG_NDEBUG 0
 #define LOG_TAG "FramebufferNativeWindow"
 
 #include <stdlib.h>
@@ -109,9 +108,6 @@ FramebufferNativeWindow::FramebufferNativeWindow()
         mNumFreeBuffers = NUM_FRAME_BUFFERS;
         mBufferHead = mNumBuffers-1;
 #endif
-
-        LOGV("alloc fbDev for %d buffers of %dx%d format=0x%x)\n", mNumBuffers,
-                fbDev->width, fbDev->height, fbDev->format);
 
         for (i = 0; i < mNumBuffers; i++)
         {

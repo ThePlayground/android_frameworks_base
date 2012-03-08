@@ -58,7 +58,6 @@ Copyright (c) 2011-2012, Code Aurora Forum. All rights reserved.
 #include <OMX_Component.h>
 
 #ifdef QCOM_HARDWARE
-#include <cutils/properties.h>
 #include <OMX_QCOMExtns.h>
 
 #include <gralloc_priv.h>
@@ -805,7 +804,7 @@ sp<MediaSource> OMXCodec::Create(
         metadata->findInt32(kkeyAacFormatLtp, &aacLTPType);
 
         if ((aacformattype == true)|| aacLTPType == true)  {
-            ALOGE("This is ADIF/LTP clip , so using sw decoder ");
+            LOGE("This is ADIF/LTP clip , so using sw decoder ");
             componentName= "OMX.google.aac.decoder";
             componentNameBase = "OMX.google.aac.decoder";
         }
@@ -2839,8 +2838,7 @@ status_t OMXCodec::allocateOutputBuffersFromNativeWindow() {
             def.format.video.nFrameWidth,
             def.format.video.nFrameHeight,
             def.format.video.eColorFormat);
-#else
-    OMX_COLOR_FORMATTYPE eColorFormat;
+#endif
 
     switch (def.format.video.eColorFormat) {
     case OMX_SEC_COLOR_FormatNV12TPhysicalAddress:

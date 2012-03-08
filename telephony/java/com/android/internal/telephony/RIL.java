@@ -2946,7 +2946,6 @@ public class RIL extends BaseCommands implements CommandsInterface {
         return response;
     }
 
-
     protected Object
      responseICC_IO(Parcel p) {
         int sw1, sw2;
@@ -2966,7 +2965,7 @@ public class RIL extends BaseCommands implements CommandsInterface {
         return new IccIoResult(sw1, sw2, s);
     }
 
-    protected boolean needsOldRilFeature(String feature) {
+    private boolean needsOldRilFeature(String feature) {
         String[] features = SystemProperties.get("ro.telephony.ril.v3", "").split(",");
         for (String found: features) {
             if (found.equals(feature))

@@ -42,11 +42,11 @@ class HeapCache : public IBinder::DeathRecipient
 public:
     HeapCache();
     virtual ~HeapCache();
-
+    
     virtual void binderDied(const wp<IBinder>& who);
 
-    sp<IMemoryHeap> find_heap(const sp<IBinder>& binder);
-    void free_heap(const sp<IBinder>& binder);
+    sp<IMemoryHeap> find_heap(const sp<IBinder>& binder); 
+    void free_heap(const sp<IBinder>& binder); 
     sp<IMemoryHeap> get_heap(const sp<IBinder>& binder);
     void dump_heaps();
 
@@ -57,7 +57,7 @@ private:
         int32_t         count;
     };
 
-    void free_heap(const wp<IBinder>& binder);
+    void free_heap(const wp<IBinder>& binder); 
 
     Mutex mHeapCacheLock;
     KeyedVector< wp<IBinder>, heap_info_t > mHeapCache;
@@ -85,7 +85,7 @@ public:
 private:
     friend class IMemory;
     friend class HeapCache;
-
+    
     // for debugging in this module
     static inline sp<IMemoryHeap> find_heap(const sp<IBinder>& binder) {
         return gHeapCache->find_heap(binder);
@@ -97,7 +97,7 @@ private:
         return gHeapCache->get_heap(binder);
     }
     static inline void dump_heaps() {
-        gHeapCache->dump_heaps();
+        gHeapCache->dump_heaps();       
     }
 
     void assertMapped() const;
@@ -126,7 +126,7 @@ public:
     BpMemory(const sp<IBinder>& impl);
     virtual ~BpMemory();
     virtual sp<IMemoryHeap> getMemory(ssize_t* offset=0, size_t* size=0) const;
-
+    
 private:
     mutable sp<IMemoryHeap> mHeap;
     mutable ssize_t mOffset;
@@ -206,7 +206,7 @@ IMPLEMENT_META_INTERFACE(Memory, "android.utils.IMemory");
 BnMemory::BnMemory() {
 }
 
-BnMemory::~BnMemory() {
+BnMemory::~BnMemory() { 
 }
 
 status_t BnMemory::onTransact(
@@ -296,7 +296,7 @@ void BpMemoryHeap::assertReallyMapped() const
         // remote call without mLock held, worse case scenario, we end up
         // calling transact() from multiple threads, but that's not a problem,
         // only mmap below must be in the critical section.
-
+        
         Parcel data, reply;
         data.writeInterfaceToken(IMemoryHeap::getInterfaceDescriptor());
         status_t err = remote()->transact(HEAP_ID, data, &reply);
@@ -357,10 +357,10 @@ uint32_t BpMemoryHeap::getFlags() const {
 
 IMPLEMENT_META_INTERFACE(MemoryHeap, "android.utils.IMemoryHeap");
 
-BnMemoryHeap::BnMemoryHeap() {
+BnMemoryHeap::BnMemoryHeap() { 
 }
 
-BnMemoryHeap::~BnMemoryHeap() {
+BnMemoryHeap::~BnMemoryHeap() { 
 }
 
 status_t BnMemoryHeap::onTransact(
@@ -396,7 +396,7 @@ void HeapCache::binderDied(const wp<IBinder>& binder)
     free_heap(binder);
 }
 
-sp<IMemoryHeap> HeapCache::find_heap(const sp<IBinder>& binder)
+sp<IMemoryHeap> HeapCache::find_heap(const sp<IBinder>& binder) 
 {
     Mutex::Autolock _l(mHeapCacheLock);
     ssize_t i = mHeapCache.indexOfKey(binder);
@@ -425,7 +425,7 @@ void HeapCache::free_heap(const sp<IBinder>& binder)  {
     free_heap( wp<IBinder>(binder) );
 }
 
-void HeapCache::free_heap(const wp<IBinder>& binder)
+void HeapCache::free_heap(const wp<IBinder>& binder) 
 {
     sp<IMemoryHeap> rel;
     {
@@ -460,7 +460,7 @@ sp<IMemoryHeap> HeapCache::get_heap(const sp<IBinder>& binder)
     return realHeap;
 }
 
-void HeapCache::dump_heaps()
+void HeapCache::dump_heaps() 
 {
     Mutex::Autolock _l(mHeapCacheLock);
     int c = mHeapCache.size();
@@ -469,7 +469,7 @@ void HeapCache::dump_heaps()
         BpMemoryHeap const* h(static_cast<BpMemoryHeap const *>(info.heap.get()));
         LOGD("hey=%p, heap=%p, count=%d, (fd=%d, base=%p, size=%d)",
                 mHeapCache.keyAt(i).unsafe_get(),
-                info.heap.get(), info.count,
+                info.heap.get(), info.count, 
                 h->mHeapId, h->mBase, h->mSize);
     }
 }
