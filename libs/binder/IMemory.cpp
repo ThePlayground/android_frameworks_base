@@ -42,11 +42,11 @@ class HeapCache : public IBinder::DeathRecipient
 public:
     HeapCache();
     virtual ~HeapCache();
-
+    
     virtual void binderDied(const wp<IBinder>& who);
 
-    sp<IMemoryHeap> find_heap(const sp<IBinder>& binder);
-    void free_heap(const sp<IBinder>& binder);
+    sp<IMemoryHeap> find_heap(const sp<IBinder>& binder); 
+    void free_heap(const sp<IBinder>& binder); 
     sp<IMemoryHeap> get_heap(const sp<IBinder>& binder);
     void dump_heaps();
 
@@ -57,7 +57,7 @@ private:
         int32_t         count;
     };
 
-    void free_heap(const wp<IBinder>& binder);
+    void free_heap(const wp<IBinder>& binder); 
 
     Mutex mHeapCacheLock;
     KeyedVector< wp<IBinder>, heap_info_t > mHeapCache;
@@ -81,14 +81,11 @@ public:
     virtual void* getBase() const;
     virtual size_t getSize() const;
     virtual uint32_t getFlags() const;
-#ifndef SENSE_CAMERA
-    virtual uint32_t getOffset() const;
-#endif
 
 private:
     friend class IMemory;
     friend class HeapCache;
-
+    
     // for debugging in this module
     static inline sp<IMemoryHeap> find_heap(const sp<IBinder>& binder) {
         return gHeapCache->find_heap(binder);
@@ -100,7 +97,7 @@ private:
         return gHeapCache->get_heap(binder);
     }
     static inline void dump_heaps() {
-        gHeapCache->dump_heaps();
+        gHeapCache->dump_heaps();       
     }
 
     void assertMapped() const;
@@ -110,9 +107,6 @@ private:
     mutable void*       mBase;
     mutable size_t      mSize;
     mutable uint32_t    mFlags;
-#ifndef SENSE_CAMERA
-    mutable uint32_t    mOffset;
-#endif
     mutable bool        mRealHeap;
     mutable Mutex       mLock;
 #ifdef QCOM_HARDWARE
@@ -132,7 +126,7 @@ public:
     BpMemory(const sp<IBinder>& impl);
     virtual ~BpMemory();
     virtual sp<IMemoryHeap> getMemory(ssize_t* offset=0, size_t* size=0) const;
-
+    
 private:
     mutable sp<IMemoryHeap> mHeap;
     mutable ssize_t mOffset;
@@ -212,7 +206,7 @@ IMPLEMENT_META_INTERFACE(Memory, "android.utils.IMemory");
 BnMemory::BnMemory() {
 }
 
-BnMemory::~BnMemory() {
+BnMemory::~BnMemory() { 
 }
 
 status_t BnMemory::onTransact(
@@ -238,11 +232,7 @@ status_t BnMemory::onTransact(
 
 BpMemoryHeap::BpMemoryHeap(const sp<IBinder>& impl)
     : BpInterface<IMemoryHeap>(impl),
-#ifdef SENSE_CAMERA
         mHeapId(-1), mBase(MAP_FAILED), mSize(0), mFlags(0), mRealHeap(false)
-#else
-        mHeapId(-1), mBase(MAP_FAILED), mSize(0), mFlags(0), mOffset(0), mRealHeap(false)
-#endif
 {
 #ifdef QCOM_HARDWARE
     mIonFd = open("/dev/ion", O_RDONLY);
@@ -290,9 +280,6 @@ void BpMemoryHeap::assertMapped() const
             if (mHeapId == -1) {
                 mBase   = heap->mBase;
                 mSize   = heap->mSize;
-#ifndef SENSE_CAMERA
-                mOffset = heap->mOffset;
-#endif
                 android_atomic_write( dup( heap->mHeapId ), &mHeapId );
             }
         } else {
@@ -309,16 +296,13 @@ void BpMemoryHeap::assertReallyMapped() const
         // remote call without mLock held, worse case scenario, we end up
         // calling transact() from multiple threads, but that's not a problem,
         // only mmap below must be in the critical section.
-
+        
         Parcel data, reply;
         data.writeInterfaceToken(IMemoryHeap::getInterfaceDescriptor());
         status_t err = remote()->transact(HEAP_ID, data, &reply);
         int parcel_fd = reply.readFileDescriptor();
         ssize_t size = reply.readInt32();
         uint32_t flags = reply.readInt32();
-#ifndef SENSE_CAMERA
-        uint32_t offset = reply.readInt32();
-#endif
 
         LOGE_IF(err, "binder=%p transaction failed fd=%d, size=%ld, err=%d (%s)",
                 asBinder().get(), parcel_fd, size, err, strerror(-err));
@@ -335,11 +319,7 @@ void BpMemoryHeap::assertReallyMapped() const
         Mutex::Autolock _l(mLock);
         if (mHeapId == -1) {
             mRealHeap = true;
-#ifdef SENSE_CAMERA
             mBase = mmap(0, size, access, MAP_SHARED, fd, 0);
-#else
-            mBase = mmap(0, size, access, MAP_SHARED, fd, offset);
-#endif
             if (mBase == MAP_FAILED) {
                 LOGE("cannot map BpMemoryHeap (binder=%p), size=%ld, fd=%d (%s)",
                         asBinder().get(), size, fd, strerror(errno));
@@ -347,9 +327,6 @@ void BpMemoryHeap::assertReallyMapped() const
             } else {
                 mSize = size;
                 mFlags = flags;
-#ifndef SENSE_CAMERA
-                mOffset = offset;
-#endif
                 android_atomic_write(fd, &mHeapId);
             }
         }
@@ -376,21 +353,14 @@ uint32_t BpMemoryHeap::getFlags() const {
     return mFlags;
 }
 
-#ifndef SENSE_CAMERA
-uint32_t BpMemoryHeap::getOffset() const {
-    assertMapped();
-    return mOffset;
-}
-#endif
-
 // ---------------------------------------------------------------------------
 
 IMPLEMENT_META_INTERFACE(MemoryHeap, "android.utils.IMemoryHeap");
 
-BnMemoryHeap::BnMemoryHeap() {
+BnMemoryHeap::BnMemoryHeap() { 
 }
 
-BnMemoryHeap::~BnMemoryHeap() {
+BnMemoryHeap::~BnMemoryHeap() { 
 }
 
 status_t BnMemoryHeap::onTransact(
@@ -402,9 +372,6 @@ status_t BnMemoryHeap::onTransact(
             reply->writeFileDescriptor(getHeapID());
             reply->writeInt32(getSize());
             reply->writeInt32(getFlags());
-#ifndef SENSE_CAMERA
-            reply->writeInt32(getOffset());
-#endif
             return NO_ERROR;
         } break;
         default:
@@ -429,7 +396,7 @@ void HeapCache::binderDied(const wp<IBinder>& binder)
     free_heap(binder);
 }
 
-sp<IMemoryHeap> HeapCache::find_heap(const sp<IBinder>& binder)
+sp<IMemoryHeap> HeapCache::find_heap(const sp<IBinder>& binder) 
 {
     Mutex::Autolock _l(mHeapCacheLock);
     ssize_t i = mHeapCache.indexOfKey(binder);
@@ -458,7 +425,7 @@ void HeapCache::free_heap(const sp<IBinder>& binder)  {
     free_heap( wp<IBinder>(binder) );
 }
 
-void HeapCache::free_heap(const wp<IBinder>& binder)
+void HeapCache::free_heap(const wp<IBinder>& binder) 
 {
     sp<IMemoryHeap> rel;
     {
@@ -493,7 +460,7 @@ sp<IMemoryHeap> HeapCache::get_heap(const sp<IBinder>& binder)
     return realHeap;
 }
 
-void HeapCache::dump_heaps()
+void HeapCache::dump_heaps() 
 {
     Mutex::Autolock _l(mHeapCacheLock);
     int c = mHeapCache.size();
@@ -502,7 +469,7 @@ void HeapCache::dump_heaps()
         BpMemoryHeap const* h(static_cast<BpMemoryHeap const *>(info.heap.get()));
         LOGD("hey=%p, heap=%p, count=%d, (fd=%d, base=%p, size=%d)",
                 mHeapCache.keyAt(i).unsafe_get(),
-                info.heap.get(), info.count,
+                info.heap.get(), info.count, 
                 h->mHeapId, h->mBase, h->mSize);
     }
 }

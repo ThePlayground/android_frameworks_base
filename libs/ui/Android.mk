@@ -66,9 +66,7 @@ LOCAL_SHARED_LIBRARIES := \
 LOCAL_C_INCLUDES := \
     external/skia/include/core
 
-ifeq ($(TARGET_7X30_OVERLAY),true)
-    LOCAL_SRC_FILES+= 7x30/Overlay.cpp
-else
+ifeq ($(TARGET_SENSE_CAMERA),true)
     LOCAL_SRC_FILES+= Overlay.cpp
 endif
 
