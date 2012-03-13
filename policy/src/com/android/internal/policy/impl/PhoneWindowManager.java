@@ -295,8 +295,6 @@ public class PhoneWindowManager implements WindowManagerPolicy {
     final ArrayList<WindowState> mStatusBarPanels = new ArrayList<WindowState>();
     WindowState mNavigationBar = null;
     boolean mHasNavigationBar = false;
-    // User override to enable soft keys alongside hard keys
-    boolean mUserNavigationBar = false;
     int mNavigationBarWidth = 0, mNavigationBarHeight = 0;
 
     WindowState mKeyguard = null;
@@ -501,8 +499,6 @@ public class PhoneWindowManager implements WindowManagerPolicy {
             resolver.registerContentObserver(Settings.System.getUriFor(
                     "fancy_rotation_anim"), false, this);
             resolver.registerContentObserver(Settings.System.getUriFor(
-                    Settings.System.NAVIGATION_BAR_VISIBLE), false, this);
-	    resolver.registerContentObserver(Settings.System.getUriFor(
                     Settings.System.ACCELEROMETER_ROTATION_ANGLES), false, this);
             updateSettings();
         }
@@ -932,11 +928,6 @@ public class PhoneWindowManager implements WindowManagerPolicy {
             if      (navBarOverride.equals("1")) mHasNavigationBar = false;
             else if (navBarOverride.equals("0")) mHasNavigationBar = true;
         }
-        // Allow user to override this if phone has hard keys (eg. nav bar is
-        // not enabled by default in the configuration)
-        if(!mHasNavigationBar) {
-            mHasNavigationBar = mUserNavigationBar;
-        }
         mNavigationBarHeight = mHasNavigationBar
                 ? mContext.getResources().getDimensionPixelSize(
                     com.android.internal.R.dimen.navigation_bar_height)
@@ -1017,8 +1008,6 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                 updateRotation = true;
             }
         }
-        mUserNavigationBar = (Settings.System.getInt(resolver,
-            Settings.System.NAVIGATION_BAR_VISIBLE, 0) == 1);
         if (updateRotation) {
             updateRotation(true);
         }

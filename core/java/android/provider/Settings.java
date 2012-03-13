@@ -1957,13 +1957,6 @@ public final class Settings {
          * value is boolean (1 or 0).
          * @hide
          */
-        public static final String NAVIGATION_BAR_VISIBLE = "navigation_bar_visible";
-
-        /**
-         * Whether the soft keys should display if device already has hard keys. The
-         * value is boolean (1 or 0).
-         * @hide
-         */
         public static final String DUAL_PANE_SETTINGS = "dual_pane_settings";
 
         /**
