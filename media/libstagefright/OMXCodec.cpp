@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2009 The Android Open Source Project
- * Copyright (C) 2010-2011 Code Aurora Forum
+ * Copyright (c) 2011 - 2012, Code Aurora Forum. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 /*--------------------------------------------------------------------------
-Copyright (c) 2010-2011, Code Aurora Forum. All rights reserved.
+Copyright (c) 2011-2012, Code Aurora Forum. All rights reserved.
 --------------------------------------------------------------------------*/
 
 //#define LOG_NDEBUG 0
@@ -1133,15 +1133,6 @@ status_t OMXCodec::configureCodec(const sp<MetaData> &meta) {
         }
         paramDivX.eProfile = (QOMX_VIDEO_DIVXPROFILETYPE)0;//Not used for now.
 
-        paramDivX.pDrmHandle = NULL;
-        if (meta->findPointer(kKeyDivXDrm, &paramDivX.pDrmHandle) ) {
-            if( paramDivX.pDrmHandle != NULL ) {
-                LOGV("This DivX Clip is DRM encrypted, set the DRM handle ");
-            }
-            else {
-                LOGV("This DivX Clip is not DRM encrypted ");
-            }
-        }
         status_t err =  mOMX->setParameter(mNode,
                          (OMX_INDEXTYPE)OMX_QcomIndexParamVideoDivx,
                          &paramDivX, sizeof(paramDivX));
@@ -1149,54 +1140,6 @@ status_t OMXCodec::configureCodec(const sp<MetaData> &meta) {
             return err;
         }
     }
-
-    // Set params for divx311 and configure
-    // decoder in frame by frame mode
-    if (!strcasecmp(MEDIA_MIMETYPE_VIDEO_DIVX311, mMIME)) {
-        CODEC_LOGV("Setting the QOMX_VIDEO_PARAM_DIVX311TYPE params ");
-        QOMX_VIDEO_PARAM_DIVXTYPE paramDivX;
-        InitOMXParams(&paramDivX);
-        paramDivX.nPortIndex = mIsEncoder ? kPortIndexOutput : kPortIndexInput;
-        int32_t DivxVersion = 0;
-        CHECK(meta->findInt32(kKeyDivXVersion,&DivxVersion));
-        CODEC_LOGV("Divx Version Type %d\n",DivxVersion);
-
-        if(DivxVersion == kTypeDivXVer_3_11 ) {
-            paramDivX.eFormat = QOMX_VIDEO_DIVXFormat311;
-            paramDivX.eProfile = (QOMX_VIDEO_DIVXPROFILETYPE)0;//Not used for now.
-            paramDivX.pDrmHandle = NULL;
-            if (meta->findPointer(kKeyDivXDrm, &paramDivX.pDrmHandle) ) {
-                if( paramDivX.pDrmHandle != NULL ) {
-                    CODEC_LOGV("This DivX Clip is DRM encrypted, set the DRM handle ");
-                }
-                else {
-                    CODEC_LOGV("This DivX Clip is not DRM encrypted ");
-                }
-            }
-
-            status_t err =  mOMX->setParameter(mNode,
-                             (OMX_INDEXTYPE)OMX_QcomIndexParamVideoDivx,
-                             &paramDivX, sizeof(paramDivX));
-            if (err!=OK) {
-                CODEC_LOGE("Set params DIVX error");
-                return err;
-            }
-
-            CODEC_LOGV("kTypeDivXVer_3_11 - set frame by frame mode");
-            OMX_QCOM_PARAM_PORTDEFINITIONTYPE portdef;
-            portdef.nSize = sizeof(OMX_QCOM_PARAM_PORTDEFINITIONTYPE);
-            portdef.nPortIndex = 0; //Input port.
-            portdef.nMemRegion = OMX_QCOM_MemRegionInvalid;
-            portdef.nCacheAttr = OMX_QCOM_CacheAttrNone;
-            portdef.nFramePackingFormat = OMX_QCOM_FramePacking_OnlyOneCompleteFrame;
-            err = mOMX->setParameter(mNode, (OMX_INDEXTYPE)OMX_QcomIndexPortDefn, &portdef, sizeof(OMX_QCOM_PARAM_PORTDEFINITIONTYPE));
-            if (err != OK) {
-                CODEC_LOGE("DIVX 311 set frame by frame mode error");
-                return err;
-            }
-        }
-    }
-
 #endif
 
     int32_t bitRate = 0;
@@ -2083,6 +2026,7 @@ status_t OMXCodec::setupMPEG4EncoderParameters(const sp<MetaData>& meta) {
     if (mpeg4type.eProfile > OMX_VIDEO_MPEG4ProfileSimple) {
         mpeg4type.nAllowedPictureTypes |= OMX_VIDEO_PictureTypeB;
         mpeg4type.nBFrames = 1;
+        mNumBFrames = 1;
     }
 #endif
 
@@ -2155,6 +2099,7 @@ status_t OMXCodec::setupAVCEncoderParameters(const sp<MetaData>& meta) {
     if (h264type.eProfile > OMX_VIDEO_AVCProfileBaseline) {
         h264type.nPFrames = setPFramesSpacing(iFramesInterval, frameRate);
         h264type.nBFrames = 1;
+        mNumBFrames = 1;
     }
 #endif
 
@@ -2407,7 +2352,8 @@ OMXCodec::OMXCodec(
       mNativeWindow(
               (!strncmp(componentName, "OMX.google.", 11)
               || !strcmp(componentName, "OMX.Nvidia.mpeg2v.decode"))
-                        ? NULL : nativeWindow) {
+                        ? NULL : nativeWindow),
+      mNumBFrames(0) {
 #ifdef QCOM_HARDWARE
     parseFlags();
 #endif
@@ -4274,6 +4220,7 @@ void OMXCodec::drainInputBuffers() {
             }
 
             if (mFlags & kOnlySubmitOneInputBufferAtOneTime) {
+                if (i == mNumBFrames)
                 break;
             }
         }
