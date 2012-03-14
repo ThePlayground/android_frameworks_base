@@ -59,7 +59,7 @@ public:
         ANativeWindowBuffer::usage  = u;
     }
 private:
-    friend class LightRefBase<NativeBuffer>;
+    friend class LightRefBase<NativeBuffer>;    
     ~NativeBuffer() { }; // this class cannot be overloaded
 };
 
