@@ -252,7 +252,7 @@ public class PhoneStatusBar extends StatusBar {
         void observe() {
             ContentResolver resolver = mContext.getContentResolver();
             resolver.registerContentObserver(Settings.System.getUriFor(
-                    Settings.System.STATUS_BAR_BRIGHTNESS_TOGGLE), false, this);
+                    Settings.System.STATUS_BAR_BRIGHTNESS_CONTROL), false, this);
             resolver.registerContentObserver(Settings.System.getUriFor(
                     Settings.System.SCREEN_BRIGHTNESS_MODE), false, this);
             update();
@@ -265,16 +265,11 @@ public class PhoneStatusBar extends StatusBar {
 
         public void update() {
             ContentResolver resolver = mContext.getContentResolver();
-            boolean brightnessControl = Settings.System.getInt(resolver,
-                    Settings.System.STATUS_BAR_BRIGHTNESS_TOGGLE, 0) != 0;
-            boolean autoBrightness = Settings.System.getInt(resolver,
-                    Settings.System.SCREEN_BRIGHTNESS_MODE, 0) == Settings.System.SCREEN_BRIGHTNESS_MODE_AUTOMATIC;
-            if (mBrightnessControl != brightnessControl) {
-                mBrightnessControl = brightnessControl;
-            }
-            if (mAutoBrightness != autoBrightness) {
-                mAutoBrightness = autoBrightness;
-            }
+            mBrightnessControl = Settings.System.getInt(resolver,
+                    Settings.System.STATUS_BAR_BRIGHTNESS_CONTROL, 0) != 0;
+            mAutoBrightness = Settings.System.getInt(resolver,
+                    Settings.System.SCREEN_BRIGHTNESS_MODE, 0) ==
+                    Settings.System.SCREEN_BRIGHTNESS_MODE_AUTOMATIC;
         }
     }
 
