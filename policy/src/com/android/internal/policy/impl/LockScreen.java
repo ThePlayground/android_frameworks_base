@@ -38,6 +38,7 @@ import android.provider.MediaStore;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -522,7 +523,8 @@ class LockScreen extends LinearLayout implements KeyguardScreen {
         }
 
         public Drawable[] getDrawables() {
-            Drawable[] d = new Drawable[targets.size()];
+            int size = targets.size();
+            Drawable[] d = new Drawable[size];
             for (int i = 0; i < targets.size(); i++)
                 d[i] = targets.get(i).getDrawable();
 
@@ -637,6 +639,8 @@ class LockScreen extends LinearLayout implements KeyguardScreen {
 
         // Update widget with initial ring state
         mUnlockWidgetMethods.updateResources();
+        // Update the settings everytime we draw lockscreen
+        updateSettings();
 
         if (DBG)
             Log.v(TAG, "*** LockScreen accel is "
@@ -723,6 +727,7 @@ class LockScreen extends LinearLayout implements KeyguardScreen {
                     + ", new config=" + getResources().getConfiguration());
         }
         updateConfiguration();
+        updateSettings();
     }
 
     /** {@inheritDoc} */
@@ -805,14 +810,16 @@ class LockScreen extends LinearLayout implements KeyguardScreen {
     }
 
     private Drawable resize(Drawable image) {
-        int size = 100;
+        int size = 50;
+        int px = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, size, getResources().getDisplayMetrics());
 
         Bitmap d = ((BitmapDrawable) image).getBitmap();
-        Bitmap bitmapOrig = Bitmap.createScaledBitmap(d, size, size, false);
+        Bitmap bitmapOrig = Bitmap.createScaledBitmap(d, px, px, false);
         return new BitmapDrawable(getContext().getResources(), bitmapOrig);
     }
 
-    protected void updateSettings() {
+    private void updateSettings() {
+    	if (DEBUG) Log.d(TAG, "Settings for lockscreen have changed lets update");
         ContentResolver resolver = mContext.getContentResolver();
 
         mLockscreenTargets = Settings.System.getInt(resolver,
