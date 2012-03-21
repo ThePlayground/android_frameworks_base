@@ -674,6 +674,7 @@ public:
     // Values for scene mode settings.
     static const char SCENE_MODE_OFF[];
     static const char SCENE_MODE_AUTO[];
+    static const char SCENE_MODE_ASD[];
     static const char SCENE_MODE_ACTION[];
     static const char SCENE_MODE_PORTRAIT[];
     static const char SCENE_MODE_LANDSCAPE[];
