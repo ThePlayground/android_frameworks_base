@@ -819,7 +819,6 @@ class LockScreen extends LinearLayout implements KeyguardScreen {
     }
 
     private void updateSettings() {
-    	if (DEBUG) Log.d(TAG, "Settings for lockscreen have changed lets update");
         ContentResolver resolver = mContext.getContentResolver();
 
         mLockscreenTargets = Settings.System.getInt(resolver,
