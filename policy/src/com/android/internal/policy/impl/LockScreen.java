@@ -16,23 +16,23 @@
 
 package com.android.internal.policy.impl;
 
+import java.io.File;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+
 import android.app.ActivityManager;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.content.pm.PackageManager.NameNotFoundException;
-import android.content.res.AssetFileDescriptor;
 import android.content.res.ColorStateList;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.database.ContentObserver;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
-import android.net.Uri;
 import android.os.Handler;
 import android.provider.MediaStore;
 import android.provider.Settings;
@@ -50,13 +50,6 @@ import com.android.internal.widget.LockPatternUtils;
 import com.android.internal.widget.SlidingTab;
 import com.android.internal.widget.WaveView;
 import com.android.internal.widget.multiwaveview.MultiWaveView;
-
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-
 
 /**
  * The screen within {@link LockPatternKeyguardView} that shows general information about the device
@@ -352,26 +345,6 @@ class LockScreen extends LinearLayout implements KeyguardScreen {
             Drawable drawable = null;
             PackageManager pm = getContext().getPackageManager();
             Resources res = getContext().getResources();
-
-            String customIconUri = Settings.System.getString(getContext().getContentResolver(),
-                    Settings.System.LOCKSCREEN_CUSTOM_APP_ICONS[index]);
-
-            if (customIconUri != null && !customIconUri.equals("") && customIconUri.startsWith("file")) {
-                // it's an icon the user chose from the gallery here
-                File icon = new File(Uri.parse(customIconUri).getPath());
-                if(icon.exists())
-                    return resize(new BitmapDrawable(getResources(), icon.getAbsolutePath()));
-            } else if (customIconUri != null && !customIconUri.equals("")) {
-                // here they chose another app icon
-                try {
-                    return resize(pm.getActivityIcon(Intent.parseUri(customIconUri, 0)));
-                } catch (NameNotFoundException e) {
-                    e.printStackTrace();
-                } catch (URISyntaxException e) {
-                    e.printStackTrace();
-                }
-            }
-
             if (action.equals(ACTION_UNLOCK)) {
                 resId = R.drawable.ic_lockscreen_unlock;
                 drawable = res.getDrawable(resId);
@@ -443,7 +416,7 @@ class LockScreen extends LinearLayout implements KeyguardScreen {
                 toastMessage(mCarrier, message, toastColor, toastIcon);
 
                 mCallback.pokeWakelock();
-            } else if (action.equals(ACTION_APP_CUSTOM) && customAppIntentUri != null) {
+            } else if (action.equals(ACTION_APP_CUSTOM)) {
                 try {
                     Intent intent = Intent.parseUri(customAppIntentUri, 0);
                     intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -818,7 +791,17 @@ class LockScreen extends LinearLayout implements KeyguardScreen {
         return new BitmapDrawable(getContext().getResources(), bitmapOrig);
     }
 
-    private void updateSettings() {
+    private void launchCustomApp(String uri) {
+        try {
+            Intent intent = Intent.parseUri(uri, 0);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            mContext.startActivity(intent);
+        } catch (URISyntaxException e) {
+            Log.e(TAG, "URISyntaxException: [" + uri + "]");
+        }
+    }
+
+    protected void updateSettings() {
         ContentResolver resolver = mContext.getContentResolver();
 
         mLockscreenTargets = Settings.System.getInt(resolver,
