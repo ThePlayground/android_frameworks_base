@@ -101,12 +101,12 @@ LOCAL_SRC_FILES += \
         FMA2DPWriter.cpp
 
 LOCAL_C_INCLUDES += \
-	external/alsa-lib/include/sound \
-        hardware/qcom/display/libgralloc \
-        hardware/qcom/display/libqcomui \
-        vendor/qcom/opensource/omx/mm-core/omxcore/inc \
-        system/core/include \
-        hardware/libhardware_legacy/include
+	$(TOP)/external/alsa-lib/include/sound \
+        $(TOP)/hardware/qcom/display/libgralloc \
+        $(TOP)/hardware/qcom/display/libqcomui \
+        $(TOP)/vendor/qcom/opensource/omx/mm-core/omxcore/inc \
+        $(TOP)/system/core/include \
+        $(TOP)/hardware/libhardware_legacy/include
 
 LOCAL_SHARED_LIBRARIES += \
         libhardware_legacy
