@@ -1371,14 +1371,6 @@ public final class Settings {
         public static final String SCREEN_OFF_TIMEOUT = "screen_off_timeout";
 
         /**
-         * If 0, the compatibility mode is off for all applications.
-         * If 1, older applications run under compatibility mode.
-         * TODO: remove this settings before code freeze (bug/1907571)
-         * @hide
-         */
-        public static final String COMPATIBILITY_MODE = "compatibility_mode";
-
-        /**
          * The screen backlight brightness between 0 and 255.
          */
         public static final String SCREEN_BRIGHTNESS = "screen_brightness";
@@ -1953,13 +1945,6 @@ public final class Settings {
         public static final String NOTIFICATION_LIGHT_PULSE_CUSTOM_VALUES = "notification_light_pulse_custom_values";
 
         /**
-         * Whether the soft keys should display if device already has hard keys. The
-         * value is boolean (1 or 0).
-         * @hide
-         */
-        public static final String DUAL_PANE_SETTINGS = "dual_pane_settings";
-
-        /**
          * Show pointer location on screen?
          * 0 = no
          * 1 = yes
@@ -2234,6 +2219,23 @@ public final class Settings {
          * @hide
          */
         public static final String STATUS_BAR_SIGNAL_TEXT = "status_bar_signal";
+
+        /**
+         * If 0, the compatibility mode is off for all applications.
+         * If 1, older applications run under compatibility mode.
+         * TODO: remove this settings before code freeze (bug/1907571)
+         * @hide
+         */
+        public static final String COMPATIBILITY_MODE = "compatibility_mode";
+        
+        /**
+         * Whether the soft keys should display if device already has hard keys. The
+         * value is boolean (1 or 0).
+         * @hide
+         */
+        public static final String DUAL_PANE_SETTINGS = "dual_pane_settings";
+        
+        public static final String EXTERNAL_CACHE = "external_cache";
 
         /**
          * Custom Carrier text on the systemui.
