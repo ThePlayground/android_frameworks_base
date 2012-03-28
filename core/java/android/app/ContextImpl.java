@@ -467,6 +467,10 @@ class ContextImpl extends Context {
                     return new ProfileManager (outerContext, ctx.mMainThread.getHandler());
             }});
 
+        registerService(WimaxManagerConstants.WIMAX_SERVICE, new ServiceFetcher() {
+                public Object createService(ContextImpl ctx) {
+                    return WimaxHelper.createWimaxService(ctx, ctx.mMainThread.getHandler());
+                }});
     }
 
     static ContextImpl getImpl(Context context) {
