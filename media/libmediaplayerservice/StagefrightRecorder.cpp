@@ -1,4 +1,5 @@
 /*
+ * Portions Copyright (C) 2012 VMware, Inc. All Rights Reserved.
  * Copyright (C) 2009 The Android Open Source Project
  * Copyright (c) 2011, Code Aurora Forum. All rights reserved.
  *
@@ -1549,7 +1550,6 @@ status_t StagefrightRecorder::setupVideoEncoder(
         return INVALID_OPERATION;
       }
     }
-#endif
 
     /*
      * can set profile from the app as a parameter.
