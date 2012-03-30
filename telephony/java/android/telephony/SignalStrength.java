@@ -307,6 +307,8 @@ public class SignalStrength implements Parcelable {
         boolean is6Bar = true;
 
         if (isGsm) {
+            // TODO Need solve the discrepancy of invalid values between
+            // RIL_LTE_SignalStrength and here.
             if ((mLteSignalStrength == -1)
                     && (mLteRsrp == -1)
                     && (mLteRsrq == -1)

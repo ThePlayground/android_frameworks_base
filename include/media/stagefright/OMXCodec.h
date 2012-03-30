@@ -276,10 +276,14 @@ private:
     status_t setAACFormat(int32_t numChannels, int32_t sampleRate, int32_t bitRate);
 #ifdef QCOM_HARDWARE
     void setEVRCFormat( int32_t sampleRate, int32_t numChannels, int32_t bitRate);
+#endif
+#ifdef QCOM_HARDWARE
     void setG711Format(int32_t numChannels, int32_t sampleRate);
-    void setQCELPFormat( int32_t sampleRate, int32_t numChannels, int32_t bitRate);
 #else
     void setG711Format(int32_t numChannels);
+#endif
+#ifdef QCOM_HARDWARE
+    void setQCELPFormat( int32_t sampleRate, int32_t numChannels, int32_t bitRate);
 #endif
 
     status_t setVideoPortFormatType(
@@ -395,10 +399,9 @@ private:
 #endif
     status_t parseAVCCodecSpecificData(
             const void *data, size_t size,
-#ifdef QCOM_HARDWARE
             unsigned *profile, unsigned *level, const sp<MetaData> &meta);
-#else
-            unsigned *profile, unsigned *level);
+#ifdef QCOM_HARDWARE
+    void parseFlags( uint32_t flags );
 #endif
 
 #ifdef QCOM_HARDWARE

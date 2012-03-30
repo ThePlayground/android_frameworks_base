@@ -58,6 +58,7 @@ Copyright (c) 2011-2012, Code Aurora Forum. All rights reserved.
 #include <OMX_Component.h>
 
 #ifdef QCOM_HARDWARE
+#include <cutils/properties.h>
 #include <OMX_QCOMExtns.h>
 
 #include <gralloc_priv.h>
@@ -224,6 +225,22 @@ static sp<MediaSource> InstantiateSoftwareDecoder(
 #undef FACTORY_CREATE
 
 static const CodecInfo kDecoderInfo[] = {
+#ifdef SAMSUNG_OMX
+    { MEDIA_MIMETYPE_AUDIO_MPEG, "OMX.SEC.mp3.dec" },
+    { MEDIA_MIMETYPE_AUDIO_AMR_NB, "OMX.SEC.amr.dec" },
+    { MEDIA_MIMETYPE_AUDIO_AMR_WB, "OMX.SEC.amr.dec" },
+    { MEDIA_MIMETYPE_AUDIO_AAC, "OMX.SEC.aac.dec" },
+    { MEDIA_MIMETYPE_AUDIO_FLAC, "OMX.SEC.flac.dec" },
+    { MEDIA_MIMETYPE_VIDEO_MPEG4, "OMX.SEC.mpeg4.dec" },
+    { MEDIA_MIMETYPE_VIDEO_H263, "OMX.SEC.h263.dec" },
+    { MEDIA_MIMETYPE_VIDEO_H263, "OMX.SEC.h263sr.dec" },
+    { MEDIA_MIMETYPE_VIDEO_AVC, "OMX.SEC.avc.dec" },
+    { MEDIA_MIMETYPE_CONTAINER_WVM, "OMX.SEC.vc1.dec" },
+    { MEDIA_MIMETYPE_CONTAINER_WVM, "OMX.SEC.wma.dec" },
+    { MEDIA_MIMETYPE_CONTAINER_WVM, "OMX.SEC.wmv7.dec" },
+    { MEDIA_MIMETYPE_CONTAINER_WVM, "OMX.SEC.wmv8.dec" },
+    { MEDIA_MIMETYPE_VIDEO_VPX, "OMX.SEC.vp8.dec" },
+#endif
     { MEDIA_MIMETYPE_IMAGE_JPEG, "OMX.TI.JPEG.decode" },
 #ifdef QCOM_HARDWARE
     { MEDIA_MIMETYPE_AUDIO_MPEG, "OMX.qcom.audio.decoder.mp3" },
@@ -286,9 +303,11 @@ static const CodecInfo kDecoderInfo[] = {
 #endif
     { MEDIA_MIMETYPE_VIDEO_AVC, "OMX.TI.Video.Decoder" },
     { MEDIA_MIMETYPE_VIDEO_AVC, "OMX.SEC.AVC.Decoder" },
+    { MEDIA_MIMETYPE_VIDEO_AVC, "OMX.SEC.FP.AVC.Decoder" },
     { MEDIA_MIMETYPE_VIDEO_AVC, "OMX.google.h264.decoder" },
     { MEDIA_MIMETYPE_VIDEO_AVC, "OMX.google.avc.decoder" },
     { MEDIA_MIMETYPE_AUDIO_VORBIS, "OMX.google.vorbis.decoder" },
+    { MEDIA_MIMETYPE_VIDEO_VPX, "OMX.SEC.VP8.Decoder" },
 #ifdef QCOM_HARDWARE
     { MEDIA_MIMETYPE_VIDEO_VPX, "OMX.qcom.video.decoder.vp8" },
 #endif
@@ -889,7 +908,7 @@ sp<MediaSource> OMXCodec::Create(
 
         status_t err = omx->allocateNode(componentName, observer, &node);
         if (err == OK) {
-            LOGV("Successfully allocated OMX node '%s'", componentName);
+            LOGE("Successfully allocated OMX node '%s'", componentName);
 
             sp<OMXCodec> codec = new OMXCodec(
                     omx, node, quirks, flags,
@@ -945,26 +964,27 @@ status_t OMXCodec::parseAVCCodecSpecificData(
     size_t numSeqParameterSets = ptr[5] & 31;
 #ifdef QCOM_HARDWARE
     uint16_t spsSize = (((uint16_t)ptr[6]) << 8)
-      + (uint16_t)(ptr[7]);
+        + (uint16_t)(ptr[7]);
     CODEC_LOGV(" numSeqParameterSets = %d , spsSize = %d",numSeqParameterSets,spsSize);
     SpsInfo info;
     if ( parseSps( spsSize, ptr + 9, &info ) == OK ) {
-      mSPSParsed = true;
-      CODEC_LOGV("SPS parsed");
-      if (info.mInterlaced) {
-	mInterlaceFormatDetected = true;
-	meta->setInt32(kKeyUseArbitraryMode, 1);
-	CODEC_LOGI("Interlace format detected");
-      } else {
-	CODEC_LOGI("Non-Interlaced format detected");
-      }
+        mSPSParsed = true;
+        CODEC_LOGV("SPS parsed");
+        if (info.mInterlaced) {
+            mInterlaceFormatDetected = true;
+            meta->setInt32(kKeyUseArbitraryMode, 1);
+            CODEC_LOGI("Interlace format detected");
+        } else {
+            CODEC_LOGI("Non-Interlaced format detected");
+        }
     }
     else {
-      CODEC_LOGI("ParseSPS could not find if content is interlaced");
-      mSPSParsed = false;
-      mInterlaceFormatDetected = false;
+        CODEC_LOGI("ParseSPS could not find if content is interlaced");
+        mSPSParsed = false;
+        mInterlaceFormatDetected = false;
     }
 #endif
+
     ptr += 6;
     size -= 6;
 
@@ -1994,6 +2014,12 @@ status_t OMXCodec::setupH263EncoderParameters(const sp<MetaData>& meta) {
     return OK;
 }
 
+#ifdef QCOM_HARDWARE
+status_t OMXCodec::setupMPEG2EncoderParameters(const sp<MetaData>& meta) {
+    return OK;
+}
+#endif
+
 status_t OMXCodec::setupMPEG4EncoderParameters(const sp<MetaData>& meta) {
     int32_t iFramesInterval, frameRate, bitRate;
 #ifdef QCOM_HARDWARE
@@ -2779,8 +2805,21 @@ status_t OMXCodec::allocateOutputBuffersFromNativeWindow() {
     format ^= (mInterlaceFormatDetected ? HAL_PIXEL_FORMAT_INTERLACE : 0);
 #endif
 
-#ifdef SAMSUNG_CODEC_SUPPORT
+#ifndef SAMSUNG_CODEC_SUPPORT
+    err = native_window_set_buffers_geometry(
+                                             mNativeWindow.get(),
+#ifdef QCOM_HARDWARE
+                                             def.format.video.nStride,
+                                             def.format.video.nSliceHeight,
+                                             format);
+#else
+    def.format.video.nFrameWidth,
+    def.format.video.nFrameHeight,
+    def.format.video.eColorFormat);
+#endif
+#else
     OMX_COLOR_FORMATTYPE eColorFormat;
+    
     switch (def.format.video.eColorFormat) {
         case OMX_SEC_COLOR_FormatNV12TPhysicalAddress:
             eColorFormat = (OMX_COLOR_FORMATTYPE)HAL_PIXEL_FORMAT_CUSTOM_YCbCr_420_SP_TILED;
@@ -2793,30 +2832,13 @@ status_t OMXCodec::allocateOutputBuffersFromNativeWindow() {
             eColorFormat = (OMX_COLOR_FORMATTYPE)HAL_PIXEL_FORMAT_YCbCr_420_P;
             break;
     }
-#endif
-
-#ifdef QCOM_HARDWARE
+    
     err = native_window_set_buffers_geometry(
-            mNativeWindow.get(),
-            def.format.video.nStride,
-            def.format.video.nSliceHeight,
-            format);
-#else
-#ifdef SAMSUNG_CODEC_SUPPORT
-    err = native_window_set_buffers_geometry(
-            mNativeWindow.get(),
-            def.format.video.nFrameWidth,
-            def.format.video.nFrameHeight,
-            eColorFormat);
-#else
-    err = native_window_set_buffers_geometry(
-            mNativeWindow.get(),
-            def.format.video.nFrameWidth,
-            def.format.video.nFrameHeight,
-            def.format.video.eColorFormat);
+                                             mNativeWindow.get(),
+                                             def.format.video.nFrameWidth,
+                                             def.format.video.nFrameHeight,
+                                             eColorFormat);
 #endif
-#endif
-
     if (err != 0) {
         LOGE("native_window_set_buffers_geometry failed: %s (%d)",
                 strerror(-err), -err);
@@ -2932,6 +2954,7 @@ status_t OMXCodec::allocateOutputBuffersFromNativeWindow() {
         return err;
     }
 #endif
+
     CODEC_LOGV("allocating %lu buffers from a native window of size %lu on "
             "output port", def.nBufferCountActual, def.nBufferSize);
 
@@ -5166,7 +5189,7 @@ void OMXCodec::setG711Format(int32_t numChannels) {
 
 void OMXCodec::setImageOutputFormat(
         OMX_COLOR_FORMATTYPE format, OMX_U32 width, OMX_U32 height) {
-    CODEC_LOGV("setImageOutputFormat(%ld, %ld)", width, height);
+    CODEC_LOGE("setImageOutputFormat(%ld, %ld)", width, height);
 
 #if 0
     OMX_INDEXTYPE index;

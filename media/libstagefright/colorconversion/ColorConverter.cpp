@@ -29,6 +29,12 @@
 #include <QOMX_AudioExtensions.h>
 #endif
 
+#ifdef QCOM_HARDWARE
+#include <dlfcn.h>
+#include <OMX_QCOMExtns.h>
+#include <QOMX_AudioExtensions.h>
+#endif
+
 namespace android {
 
 ColorConverter::ColorConverter(

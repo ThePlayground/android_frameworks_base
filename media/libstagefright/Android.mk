@@ -3,10 +3,6 @@ include $(CLEAR_VARS)
 
 include frameworks/base/media/libstagefright/codecs/common/Config.mk
 
-ifeq ($(BOARD_HAVE_CODEC_SUPPORT),SAMSUNG_CODEC_SUPPORT)
-    LOCAL_CFLAGS     += -DSAMSUNG_CODEC_SUPPORT
-endif
-
 LOCAL_SRC_FILES:=                         \
         ACodec.cpp                        \
         AACExtractor.cpp                  \
@@ -15,7 +11,6 @@ LOCAL_SRC_FILES:=                         \
         AMRWriter.cpp                     \
         AudioPlayer.cpp                   \
         AudioSource.cpp                   \
-        AVIExtractor.cpp                  \
         AwesomePlayer.cpp                 \
         CameraSource.cpp                  \
         CameraSourceTimeLapse.cpp         \
@@ -93,6 +88,14 @@ LOCAL_STATIC_LIBRARIES := \
         libstagefright_httplive \
         libstagefright_id3 \
         libFLAC \
+
+ifeq ($(BOARD_HAVE_CODEC_SUPPORT),SAMSUNG_CODEC_SUPPORT)
+LOCAL_CFLAGS     += -DSAMSUNG_CODEC_SUPPORT
+endif
+
+ifeq ($(BOARD_USES_PROPRIETARY_OMX),SAMSUNG)
+LOCAL_CFLAGS     += -DSAMSUNG_OMX
+endif
 
 ifeq ($(BOARD_USES_QCOM_HARDWARE),true)
 LOCAL_SRC_FILES += \
@@ -211,15 +214,6 @@ LOCAL_SHARED_LIBRARIES += \
         libdl
 
 LOCAL_CFLAGS += -Wno-multichar
-
-ifeq ($(BOARD_USES_QCOM_HARDWARE),true)
-        LOCAL_C_INCLUDES += $(TOP)/hardware/qcom/display/libgralloc
-        LOCAL_C_INCLUDES += $(TOP)/hardware/qcom/display/libqcomui \
-        LOCAL_C_INCLUDES += $(TOP)/vendor/qcom/opensource/omx/mm-core/omxcore/inc
-        LOCAL_C_INCLUDES += $(TOP)/system/core/include
-        LOCAL_C_INCLUDES += $(TOP)/hardware/libhardware_legacy/include
-        LOCAL_CFLAGS += -DQCOM_HARDWARE
-endif
 
 LOCAL_MODULE:= libstagefright
 

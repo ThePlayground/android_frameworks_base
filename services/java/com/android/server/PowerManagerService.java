@@ -492,6 +492,7 @@ public class PowerManagerService extends IPowerManager.Stub
         }
 
         public void update(Observable o, Object arg) {
+
             synchronized (mLocks) {
                 // STAY_ON_WHILE_PLUGGED_IN, default to when plugged into AC
                 mStayOnConditions = getInt(STAY_ON_WHILE_PLUGGED_IN,
@@ -2720,6 +2721,7 @@ public class PowerManagerService extends IPowerManager.Stub
             }
             return;
         }
+
 
         // do not allow light sensor value to decrease unless
         // user has actively permitted it

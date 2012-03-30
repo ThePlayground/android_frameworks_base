@@ -27,7 +27,6 @@
 #include "include/DRMExtractor.h"
 #include "include/FLACExtractor.h"
 #include "include/AACExtractor.h"
-#include "include/AVIExtractor.h"
 #ifdef QCOM_HARDWARE
 #include "include/ExtendedExtractor.h"
 
@@ -79,7 +78,6 @@ bool DataSource::sniff(
     *mimeType = "";
     *confidence = 0.0f;
     meta->clear();
-
     Mutex::Autolock autoLock(gSnifferMutex);
     for (List<SnifferFunc>::iterator it = gSniffers.begin();
          it != gSniffers.end(); ++it) {
@@ -172,7 +170,6 @@ void DataSource::RegisterDefaultSniffers() {
     RegisterSniffer(SniffMPEG2TS);
     RegisterSniffer(SniffMP3);
     RegisterSniffer(SniffAAC);
-    RegisterSniffer(SniffAVI);
     RegisterSniffer(SniffMPEG2PS);
 #ifdef QCOM_HARDWARE
     ExtendedExtractor::RegisterSniffers();

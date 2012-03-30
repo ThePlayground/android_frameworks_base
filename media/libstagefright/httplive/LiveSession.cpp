@@ -516,14 +516,12 @@ rinse_repeat:
             if (unchanged) {
                 // We succeeded in fetching the playlist, but it was
                 // unchanged from the last time we tried.
-
             } else if (!mSeeking) {
-		LOGE("failed to load playlist at url '%s'", url.c_str());
+                LOGE("failed to load playlist at url '%s'", url.c_str());
                 mDataSource->queueEOS(ERROR_IO);
                 return;
             } else {
                 LOGV("fetchPlaylist stopped due to seek, let seek complete");
-                return;
             }
         } else {
             mPlaylist = playlist;
@@ -572,7 +570,7 @@ rinse_repeat:
         if (mPrevBandwidthIndex != (ssize_t)bandwidthIndex) {
             // Go back to the previous bandwidth.
 
-            LOGW("new bandwidth does not have the sequence number "
+            LOGI("new bandwidth does not have the sequence number "
                  "we're looking for, switching back to previous bandwidth");
 
             mLastPlaylistFetchTimeUs = -1;
@@ -592,7 +590,7 @@ rinse_repeat:
             // we've missed the boat, let's start from the lowest sequence
             // number available and signal a discontinuity.
 
-            LOGW("We've missed the boat, restarting playback.");
+            LOGI("We've missed the boat, restarting playback.");
             mSeqNumber = lastSeqNumberInPlaylist;
             explicitDiscontinuity = true;
 
@@ -694,7 +692,7 @@ rinse_repeat:
     if (explicitDiscontinuity || bandwidthChanged) {
         // Signal discontinuity.
 
-        LOGW("queueing discontinuity (explicit=%d, bandwidthChanged=%d)",
+        LOGI("queueing discontinuity (explicit=%d, bandwidthChanged=%d)",
               explicitDiscontinuity, bandwidthChanged);
 
         sp<ABuffer> tmp = new ABuffer(188);
@@ -899,20 +897,20 @@ void LiveSession::onSeek(const sp<AMessage> &msg) {
              int32_t newSeqNumber = mFirstSeqNumber + index;
 
              if (newSeqNumber == mSeqNumber) {
-                 LOGW("Seek not required current seq %d", mSeqNumber);
+                 LOGV("Seek not required current seq %d", mSeqNumber);
                  mSeekTimeUs = -1;
 
              } else {
                  mSeqNumber = newSeqNumber;
                  mDataSource->reset();
                  mSeekTimeUs = segmentStartUs;
-                 LOGW("Seeking to seq %d new seek time %0.2f secs", newSeqNumber, mSeekTimeUs/1E6);
+                 LOGV("Seeking to seq %d new seek time %0.2f secs", newSeqNumber, mSeekTimeUs/1E6);
              }
         }
     } else {
         mSeekTimeUs = -1;
         if( mPlaylist != NULL ) {
-           LOGW("Seeking Live Streams is not supported, ignore seek");
+           LOGI("Seeking Live Streams is not supported, ignore seek");
         } else {
            LOGE("onSeek error - Playlist is NULL");
         }

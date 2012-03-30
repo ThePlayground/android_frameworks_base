@@ -1521,7 +1521,6 @@ status_t StagefrightRecorder::setupVideoEncoder(
     }
 #endif
 
-
     enc_meta->setInt32(kKeyWidth, width);
     enc_meta->setInt32(kKeyHeight, height);
     enc_meta->setInt32(kKeyIFramesInterval, mIFramesIntervalSec);

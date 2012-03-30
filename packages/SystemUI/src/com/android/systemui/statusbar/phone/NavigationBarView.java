@@ -24,6 +24,8 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.Resources;
 import android.graphics.Rect;
+import android.os.Handler;
+import android.os.Message;
 import android.os.ServiceManager;
 import android.util.AttributeSet;
 import android.util.Slog;
@@ -38,6 +40,7 @@ import android.widget.LinearLayout;
 
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
+import java.lang.StringBuilder;
 
 import com.android.internal.statusbar.IStatusBarService;
 

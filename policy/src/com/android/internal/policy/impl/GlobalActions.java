@@ -64,6 +64,16 @@ import android.os.RemoteException;
 
 
 /**
+ * Needed for takeScreenshot
+ */
+import android.content.ServiceConnection;
+import android.content.ComponentName;
+import android.os.IBinder;
+import android.os.Messenger;
+import android.os.RemoteException;
+
+
+/**
  * Helper to show the global actions dialog.  Each item is an {@link Action} that
  * may show depending on whether the keyguard is showing, and whether the device
  * is provisioned.
@@ -377,7 +387,7 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
                             msg.arg2 = 1;
                          */                        
 
-                        /* wait for the dialog box to close */
+                        /* wait for the dislog box to close */
                         try {
                             Thread.sleep(1000); 
                         } catch (InterruptedException ie) {

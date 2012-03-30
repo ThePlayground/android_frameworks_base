@@ -93,7 +93,11 @@ void Layer::onFirstRef()
     mSurfaceTexture = new SurfaceTextureLayer(mTextureName, this);
     mSurfaceTexture->setFrameAvailableListener(new FrameQueuedListener(this));
     mSurfaceTexture->setSynchronousMode(true);
+#ifdef QCOM_HARDWARE
     mSurfaceTexture->setBufferCountServer(BUFFER_COUNT_SERVER);
+#else
+    mSurfaceTexture->setBufferCountServer(2);
+#endif
 }
 
 Layer::~Layer()
@@ -186,6 +190,7 @@ status_t Layer::setBuffers( uint32_t w, uint32_t h,
     return NO_ERROR;
 }
 
+#ifdef QCOM_HARDWARE
 bool Layer::isRotated() const {
 
     const Layer::State& front(drawingState());
@@ -196,6 +201,7 @@ bool Layer::isRotated() const {
     }
     return false;
 }
+#endif
 
 void Layer::setGeometry(hwc_layer_t* hwcl)
 {
@@ -319,33 +325,63 @@ void Layer::onDraw(const Region& clip) const
 	    clearWithOpenGL(clip, 0, 0, 0, 1);
         return;
 	}
-#endif
 
     GLuint currentTextureTarget = mSurfaceTexture->getCurrentTextureTarget();
+#endif
 
     if (!isProtected()) {
+#ifdef QCOM_HARDWARE
         glBindTexture(currentTextureTarget, mTextureName);
+#else
+        glBindTexture(GL_TEXTURE_EXTERNAL_OES, mTextureName);
+#endif
         GLenum filter = GL_NEAREST;
         if (getFiltering() || needsFiltering() || isFixedSize() || isCropped()) {
             // TODO: we could be more subtle with isFixedSize()
             filter = GL_LINEAR;
         }
+#ifdef QCOM_HARDWARE
         glTexParameterx(currentTextureTarget, GL_TEXTURE_MAG_FILTER, filter);
         glTexParameterx(currentTextureTarget, GL_TEXTURE_MIN_FILTER, filter);
+#else
+        glTexParameterx(GL_TEXTURE_EXTERNAL_OES, GL_TEXTURE_MAG_FILTER, filter);
+        glTexParameterx(GL_TEXTURE_EXTERNAL_OES, GL_TEXTURE_MIN_FILTER, filter);
+#endif
         glMatrixMode(GL_TEXTURE);
         glLoadMatrixf(mTextureMatrix);
         glMatrixMode(GL_MODELVIEW);
         glDisable(GL_TEXTURE_2D);
+#ifdef QCOM_HARDWARE
         glEnable(currentTextureTarget);
+#else
+        glEnable(GL_TEXTURE_EXTERNAL_OES);
+#endif
     } else {
+#ifdef QCOM_HARDWARE
         glBindTexture(currentTextureTarget, mFlinger->getProtectedTexName());
+#else
+        glBindTexture(GL_TEXTURE_2D, mFlinger->getProtectedTexName());
+#endif
         glMatrixMode(GL_TEXTURE);
         glLoadIdentity();
         glMatrixMode(GL_MODELVIEW);
+#ifdef QCOM_HARDWARE
         glEnable(currentTextureTarget);
+#else
+        glDisable(GL_TEXTURE_EXTERNAL_OES);
+        glEnable(GL_TEXTURE_2D);
+#endif
     }
 
+#ifdef QCOM_HARDWARE
+    int composeS3DFormat = mQCLayer->needsS3DCompose();
+    if (composeS3DFormat)
+        drawS3DUIWithOpenGL(clip);
+    else
+        drawWithOpenGL(clip);
+#else
     drawWithOpenGL(clip);
+#endif
 
     glDisable(GL_TEXTURE_EXTERNAL_OES);
     glDisable(GL_TEXTURE_2D);

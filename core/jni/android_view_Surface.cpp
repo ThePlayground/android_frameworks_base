@@ -572,7 +572,7 @@ static jobject Surface_screenshotAll(JNIEnv* env, jobject clazz, jint width, jin
 }
 
 static jobject Surface_screenshot(JNIEnv* env, jobject clazz, jint width, jint height,
-        jint minLayer, jint maxLayer)
+        jint minLayer, jint maxLayer, bool allLayers)
 {
     return doScreenshot(env, clazz, width, height, minLayer, maxLayer, false);
 }
@@ -610,6 +610,7 @@ static void Surface_setSize(
     }
 }
 
+#ifdef QCOM_HARDWARE
 static void Surface_setStereoscopic3DFormat(JNIEnv* env, jobject clazz, jint f)
 {
     const sp<Surface>& surface(getSurface(env, clazz));
@@ -621,6 +622,7 @@ static void Surface_setStereoscopic3DFormat(JNIEnv* env, jobject clazz, jint f)
         doThrowIAE(env);
     }
 }
+#endif
 
 static void Surface_hide(
         JNIEnv* env, jobject clazz)

@@ -1,21 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- 
-/* //device/apps/common/assets/res/any/strings.xml
-**
-** Copyright 2006, The Android Open Source Project
-**
-** Licensed under the Apache License, Version 2.0 (the "License");
-** you may not use this file except in compliance with the License.
-** You may obtain a copy of the License at
-**
-**     http://www.apache.org/licenses/LICENSE-2.0
-**
-** Unless required by applicable law or agreed to in writing, software
-** distributed under the License is distributed on an "AS IS" BASIS,
-** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-** See the License for the specific language governing permissions and
-** limitations under the License.
-*/
+ /* //device/apps/common/assets/res/any/strings.xml
+ **
+ ** Copyright 2006, The Android Open Source Project
+ **
+ ** Licensed under the Apache License, Version 2.0 (the "License");
+ ** you may not use this file except in compliance with the License.
+ ** You may obtain a copy of the License at
+ **
+ **     http://www.apache.org/licenses/LICENSE-2.0
+ **
+ ** Unless required by applicable law or agreed to in writing, software
+ ** distributed under the License is distributed on an "AS IS" BASIS,
+ ** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ ** See the License for the specific language governing permissions and
+ ** limitations under the License.
+ */
  -->
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
@@ -137,12 +137,9 @@
     <string name="turn_off_radio" msgid="8198784949987062346">"ワイヤレス接続をOFFにする"</string>
     <string name="screen_lock" msgid="799094655496098153">"画面をロック"</string>
     <string name="power_off" msgid="4266614107412865048">"電源を切る"</string>
-    <!-- no translation found for silent_mode_silent (319298163018473078) -->
-    <skip />
-    <!-- no translation found for silent_mode_vibrate (7072043388581551395) -->
-    <skip />
-    <!-- no translation found for silent_mode_ring (8592241816194074353) -->
-    <skip />
+    <string name="silent_mode_silent" msgid="319298163018473078">"着信音オフ"</string>
+    <string name="silent_mode_vibrate" msgid="7072043388581551395">"バイブレーション着信"</string>
+    <string name="silent_mode_ring" msgid="8592241816194074353">"着信音オン"</string>
     <string name="shutdown_progress" msgid="2281079257329981203">"シャットダウン中..."</string>
     <string name="shutdown_confirm" product="tablet" msgid="3385745179555731470">"タブレットの電源をOFFにします。"</string>
     <string name="shutdown_confirm" product="default" msgid="649792175242821353">"携帯電話の電源を切ります。"</string>
@@ -534,49 +531,49 @@
     <string name="policydesc_encryptedStorage" msgid="2504984732631479399">"保存したアプリケーションデータが暗号化されるようにする"</string>
     <string name="policylab_disableCamera" msgid="6395301023152297826">"カメラを無効にする"</string>
     <string name="policydesc_disableCamera" msgid="5680054212889413366">"すべての端末カメラを使用できないようにします"</string>
-  <string-array name="phoneTypes">
-    <item msgid="8901098336658710359">"自宅"</item>
-    <item msgid="869923650527136615">"携帯"</item>
-    <item msgid="7897544654242874543">"仕事"</item>
-    <item msgid="1103601433382158155">"FAX（仕事）"</item>
-    <item msgid="1735177144948329370">"FAX（自宅）"</item>
-    <item msgid="603878674477207394">"ポケベル"</item>
-    <item msgid="1650824275177931637">"その他"</item>
-    <item msgid="9192514806975898961">"カスタム"</item>
-  </string-array>
-  <string-array name="emailAddressTypes">
-    <item msgid="8073994352956129127">"自宅"</item>
-    <item msgid="7084237356602625604">"仕事"</item>
-    <item msgid="1112044410659011023">"その他"</item>
-    <item msgid="2374913952870110618">"カスタム"</item>
-  </string-array>
-  <string-array name="postalAddressTypes">
-    <item msgid="6880257626740047286">"自宅"</item>
-    <item msgid="5629153956045109251">"仕事"</item>
-    <item msgid="4966604264500343469">"その他"</item>
-    <item msgid="4932682847595299369">"カスタム"</item>
-  </string-array>
-  <string-array name="imAddressTypes">
-    <item msgid="1738585194601476694">"自宅"</item>
-    <item msgid="1359644565647383708">"仕事"</item>
-    <item msgid="7868549401053615677">"その他"</item>
-    <item msgid="3145118944639869809">"カスタム"</item>
-  </string-array>
-  <string-array name="organizationTypes">
-    <item msgid="7546335612189115615">"仕事"</item>
-    <item msgid="4378074129049520373">"その他"</item>
-    <item msgid="3455047468583965104">"カスタム"</item>
-  </string-array>
-  <string-array name="imProtocols">
-    <item msgid="8595261363518459565">"AIM"</item>
-    <item msgid="7390473628275490700">"Windows Live"</item>
-    <item msgid="7882877134931458217">"Yahoo"</item>
-    <item msgid="5035376313200585242">"Skype"</item>
-    <item msgid="7532363178459444943">"QQ"</item>
-    <item msgid="3713441034299660749">"Googleトーク"</item>
-    <item msgid="2506857312718630823">"ICQ"</item>
-    <item msgid="1648797903785279353">"Jabber"</item>
-  </string-array>
+    <string-array name="phoneTypes">
+        <item msgid="8901098336658710359">"自宅"</item>
+        <item msgid="869923650527136615">"携帯"</item>
+        <item msgid="7897544654242874543">"仕事"</item>
+        <item msgid="1103601433382158155">"FAX（仕事）"</item>
+        <item msgid="1735177144948329370">"FAX（自宅）"</item>
+        <item msgid="603878674477207394">"ポケベル"</item>
+        <item msgid="1650824275177931637">"その他"</item>
+        <item msgid="9192514806975898961">"カスタム"</item>
+    </string-array>
+    <string-array name="emailAddressTypes">
+        <item msgid="8073994352956129127">"自宅"</item>
+        <item msgid="7084237356602625604">"仕事"</item>
+        <item msgid="1112044410659011023">"その他"</item>
+        <item msgid="2374913952870110618">"カスタム"</item>
+    </string-array>
+    <string-array name="postalAddressTypes">
+        <item msgid="6880257626740047286">"自宅"</item>
+        <item msgid="5629153956045109251">"仕事"</item>
+        <item msgid="4966604264500343469">"その他"</item>
+        <item msgid="4932682847595299369">"カスタム"</item>
+    </string-array>
+    <string-array name="imAddressTypes">
+        <item msgid="1738585194601476694">"自宅"</item>
+        <item msgid="1359644565647383708">"仕事"</item>
+        <item msgid="7868549401053615677">"その他"</item>
+        <item msgid="3145118944639869809">"カスタム"</item>
+    </string-array>
+    <string-array name="organizationTypes">
+        <item msgid="7546335612189115615">"仕事"</item>
+        <item msgid="4378074129049520373">"その他"</item>
+        <item msgid="3455047468583965104">"カスタム"</item>
+    </string-array>
+    <string-array name="imProtocols">
+        <item msgid="8595261363518459565">"AIM"</item>
+        <item msgid="7390473628275490700">"Windows Live"</item>
+        <item msgid="7882877134931458217">"Yahoo"</item>
+        <item msgid="5035376313200585242">"Skype"</item>
+        <item msgid="7532363178459444943">"QQ"</item>
+        <item msgid="3713441034299660749">"Googleトーク"</item>
+        <item msgid="2506857312718630823">"ICQ"</item>
+        <item msgid="1648797903785279353">"Jabber"</item>
+    </string-array>
     <string name="phoneTypeCustom" msgid="1644738059053355820">"カスタム"</string>
     <string name="phoneTypeHome" msgid="2570923463033985887">"自宅"</string>
     <string name="phoneTypeMobile" msgid="6501463557754751037">"携帯"</string>
@@ -781,75 +778,75 @@
     <string name="searchview_description_voice" msgid="2453203695674994440">"音声検索"</string>
     <string name="oneMonthDurationPast" msgid="7396384508953779925">"1か月前"</string>
     <string name="beforeOneMonthDurationPast" msgid="909134546836499826">"1か月前"</string>
-  <plurals name="num_seconds_ago">
-    <item quantity="one" msgid="4869870056547896011">"1秒前"</item>
-    <item quantity="other" msgid="3903706804349556379">"<xliff:g id="COUNT">%d</xliff:g>秒前"</item>
-  </plurals>
-  <plurals name="num_minutes_ago">
-    <item quantity="one" msgid="3306787433088810191">"1分前"</item>
-    <item quantity="other" msgid="2176942008915455116">"<xliff:g id="COUNT">%d</xliff:g>分前"</item>
-  </plurals>
-  <plurals name="num_hours_ago">
-    <item quantity="one" msgid="9150797944610821849">"1時間前"</item>
-    <item quantity="other" msgid="2467273239587587569">"<xliff:g id="COUNT">%d</xliff:g>時間前"</item>
-  </plurals>
-  <plurals name="last_num_days">
-    <item quantity="other" msgid="3069992808164318268">"過去<xliff:g id="COUNT">%d</xliff:g>日間"</item>
-  </plurals>
+    <plurals name="num_seconds_ago">
+        <item quantity="one" msgid="4869870056547896011">"1秒前"</item>
+        <item quantity="other" msgid="3903706804349556379">"<xliff:g id="COUNT">%d</xliff:g>秒前"</item>
+    </plurals>
+    <plurals name="num_minutes_ago">
+        <item quantity="one" msgid="3306787433088810191">"1分前"</item>
+        <item quantity="other" msgid="2176942008915455116">"<xliff:g id="COUNT">%d</xliff:g>分前"</item>
+    </plurals>
+    <plurals name="num_hours_ago">
+        <item quantity="one" msgid="9150797944610821849">"1時間前"</item>
+        <item quantity="other" msgid="2467273239587587569">"<xliff:g id="COUNT">%d</xliff:g>時間前"</item>
+    </plurals>
+    <plurals name="last_num_days">
+        <item quantity="other" msgid="3069992808164318268">"過去<xliff:g id="COUNT">%d</xliff:g>日間"</item>
+    </plurals>
     <string name="last_month" msgid="3959346739979055432">"先月"</string>
     <string name="older" msgid="5211975022815554840">"もっと前"</string>
-  <plurals name="num_days_ago">
-    <item quantity="one" msgid="861358534398115820">"昨日"</item>
-    <item quantity="other" msgid="2479586466153314633">"<xliff:g id="COUNT">%d</xliff:g>日前"</item>
-  </plurals>
-  <plurals name="in_num_seconds">
-    <item quantity="one" msgid="2729745560954905102">"1秒後"</item>
-    <item quantity="other" msgid="1241926116443974687">"<xliff:g id="COUNT">%d</xliff:g>秒後"</item>
-  </plurals>
-  <plurals name="in_num_minutes">
-    <item quantity="one" msgid="8793095251325200395">"1分後"</item>
-    <item quantity="other" msgid="3330713936399448749">"<xliff:g id="COUNT">%d</xliff:g>分後"</item>
-  </plurals>
-  <plurals name="in_num_hours">
-    <item quantity="one" msgid="7164353342477769999">"1時間後"</item>
-    <item quantity="other" msgid="547290677353727389">"<xliff:g id="COUNT">%d</xliff:g>時間後"</item>
-  </plurals>
-  <plurals name="in_num_days">
-    <item quantity="one" msgid="5413088743009839518">"明日"</item>
-    <item quantity="other" msgid="5109449375100953247">"<xliff:g id="COUNT">%d</xliff:g>日後"</item>
-  </plurals>
-  <plurals name="abbrev_num_seconds_ago">
-    <item quantity="one" msgid="1849036840200069118">"1秒前"</item>
-    <item quantity="other" msgid="3699169366650930415">"<xliff:g id="COUNT">%d</xliff:g>秒前"</item>
-  </plurals>
-  <plurals name="abbrev_num_minutes_ago">
-    <item quantity="one" msgid="6361490147113871545">"1分前"</item>
-    <item quantity="other" msgid="851164968597150710">"<xliff:g id="COUNT">%d</xliff:g>分前"</item>
-  </plurals>
-  <plurals name="abbrev_num_hours_ago">
-    <item quantity="one" msgid="4796212039724722116">"1時間前"</item>
-    <item quantity="other" msgid="6889970745748538901">"<xliff:g id="COUNT">%d</xliff:g>時間前"</item>
-  </plurals>
-  <plurals name="abbrev_num_days_ago">
-    <item quantity="one" msgid="8463161711492680309">"昨日"</item>
-    <item quantity="other" msgid="3453342639616481191">"<xliff:g id="COUNT">%d</xliff:g>日前"</item>
-  </plurals>
-  <plurals name="abbrev_in_num_seconds">
-    <item quantity="one" msgid="5842225370795066299">"1秒後"</item>
-    <item quantity="other" msgid="5495880108825805108">"<xliff:g id="COUNT">%d</xliff:g>秒後"</item>
-  </plurals>
-  <plurals name="abbrev_in_num_minutes">
-    <item quantity="one" msgid="562786149928284878">"1分後"</item>
-    <item quantity="other" msgid="4216113292706568726">"<xliff:g id="COUNT">%d</xliff:g>分後"</item>
-  </plurals>
-  <plurals name="abbrev_in_num_hours">
-    <item quantity="one" msgid="3274708118124045246">"1時間後"</item>
-    <item quantity="other" msgid="3705373766798013406">"<xliff:g id="COUNT">%d</xliff:g>時間後"</item>
-  </plurals>
-  <plurals name="abbrev_in_num_days">
-    <item quantity="one" msgid="2178576254385739855">"明日"</item>
-    <item quantity="other" msgid="2973062968038355991">"<xliff:g id="COUNT">%d</xliff:g>日後"</item>
-  </plurals>
+    <plurals name="num_days_ago">
+        <item quantity="one" msgid="861358534398115820">"昨日"</item>
+        <item quantity="other" msgid="2479586466153314633">"<xliff:g id="COUNT">%d</xliff:g>日前"</item>
+    </plurals>
+    <plurals name="in_num_seconds">
+        <item quantity="one" msgid="2729745560954905102">"1秒後"</item>
+        <item quantity="other" msgid="1241926116443974687">"<xliff:g id="COUNT">%d</xliff:g>秒後"</item>
+    </plurals>
+    <plurals name="in_num_minutes">
+        <item quantity="one" msgid="8793095251325200395">"1分後"</item>
+        <item quantity="other" msgid="3330713936399448749">"<xliff:g id="COUNT">%d</xliff:g>分後"</item>
+    </plurals>
+    <plurals name="in_num_hours">
+        <item quantity="one" msgid="7164353342477769999">"1時間後"</item>
+        <item quantity="other" msgid="547290677353727389">"<xliff:g id="COUNT">%d</xliff:g>時間後"</item>
+    </plurals>
+    <plurals name="in_num_days">
+        <item quantity="one" msgid="5413088743009839518">"明日"</item>
+        <item quantity="other" msgid="5109449375100953247">"<xliff:g id="COUNT">%d</xliff:g>日後"</item>
+    </plurals>
+    <plurals name="abbrev_num_seconds_ago">
+        <item quantity="one" msgid="1849036840200069118">"1秒前"</item>
+        <item quantity="other" msgid="3699169366650930415">"<xliff:g id="COUNT">%d</xliff:g>秒前"</item>
+    </plurals>
+    <plurals name="abbrev_num_minutes_ago">
+        <item quantity="one" msgid="6361490147113871545">"1分前"</item>
+        <item quantity="other" msgid="851164968597150710">"<xliff:g id="COUNT">%d</xliff:g>分前"</item>
+    </plurals>
+    <plurals name="abbrev_num_hours_ago">
+        <item quantity="one" msgid="4796212039724722116">"1時間前"</item>
+        <item quantity="other" msgid="6889970745748538901">"<xliff:g id="COUNT">%d</xliff:g>時間前"</item>
+    </plurals>
+    <plurals name="abbrev_num_days_ago">
+        <item quantity="one" msgid="8463161711492680309">"昨日"</item>
+        <item quantity="other" msgid="3453342639616481191">"<xliff:g id="COUNT">%d</xliff:g>日前"</item>
+    </plurals>
+    <plurals name="abbrev_in_num_seconds">
+        <item quantity="one" msgid="5842225370795066299">"1秒後"</item>
+        <item quantity="other" msgid="5495880108825805108">"<xliff:g id="COUNT">%d</xliff:g>秒後"</item>
+    </plurals>
+    <plurals name="abbrev_in_num_minutes">
+        <item quantity="one" msgid="562786149928284878">"1分後"</item>
+        <item quantity="other" msgid="4216113292706568726">"<xliff:g id="COUNT">%d</xliff:g>分後"</item>
+    </plurals>
+    <plurals name="abbrev_in_num_hours">
+        <item quantity="one" msgid="3274708118124045246">"1時間後"</item>
+        <item quantity="other" msgid="3705373766798013406">"<xliff:g id="COUNT">%d</xliff:g>時間後"</item>
+    </plurals>
+    <plurals name="abbrev_in_num_days">
+        <item quantity="one" msgid="2178576254385739855">"明日"</item>
+        <item quantity="other" msgid="2973062968038355991">"<xliff:g id="COUNT">%d</xliff:g>日後"</item>
+    </plurals>
     <string name="preposition_for_date" msgid="9093949757757445117">"<xliff:g id="DATE">%s</xliff:g>"</string>
     <string name="preposition_for_time" msgid="5506831244263083793">"<xliff:g id="TIME">%s</xliff:g>"</string>
     <string name="preposition_for_year" msgid="5040395640711867177">"<xliff:g id="YEAR">%s</xliff:g>年"</string>
@@ -957,14 +954,14 @@
     <string name="ringtone_silent" msgid="4440324407807468713">"サイレント"</string>
     <string name="ringtone_picker_title" msgid="3515143939175119094">"着信音"</string>
     <string name="ringtone_unknown" msgid="5477919988701784788">"不明な着信音"</string>
-  <plurals name="wifi_available">
-    <item quantity="one" msgid="6654123987418168693">"Wi-Fiを利用できます"</item>
-    <item quantity="other" msgid="4192424489168397386">"Wi-Fiを利用できます"</item>
-  </plurals>
-  <plurals name="wifi_available_detailed">
-    <item quantity="one" msgid="1634101450343277345">"Wi-Fiオープンネットワークが利用できます"</item>
-    <item quantity="other" msgid="7915895323644292768">"Wi-Fiオープンネットワークが利用できます"</item>
-  </plurals>
+    <plurals name="wifi_available">
+        <item quantity="one" msgid="6654123987418168693">"Wi-Fiを利用できます"</item>
+        <item quantity="other" msgid="4192424489168397386">"Wi-Fiを利用できます"</item>
+    </plurals>
+    <plurals name="wifi_available_detailed">
+        <item quantity="one" msgid="1634101450343277345">"Wi-Fiオープンネットワークが利用できます"</item>
+        <item quantity="other" msgid="7915895323644292768">"Wi-Fiオープンネットワークが利用できます"</item>
+    </plurals>
     <string name="wifi_available_sign_in" msgid="9157196203958866662">"Wi-Fiネットワークにログイン"</string>
     <!-- no translation found for wifi_available_sign_in_detailed (6797764740339907572) -->
     <skip />
@@ -1106,10 +1103,10 @@
     <string name="throttled_notification_message" msgid="4712369856601275146">"タップしてモバイルデータ利用の詳細を表示します"</string>
     <string name="no_matches" msgid="8129421908915840737">"該当なし"</string>
     <string name="find_on_page" msgid="1946799233822820384">"ページ内を検索"</string>
-  <plurals name="matches_found">
-    <item quantity="one" msgid="8167147081136579439">"1件一致"</item>
-    <item quantity="other" msgid="4641872797067609177">"<xliff:g id="INDEX">%d</xliff:g>/<xliff:g id="TOTAL">%d</xliff:g>件"</item>
-  </plurals>
+    <plurals name="matches_found">
+        <item quantity="one" msgid="8167147081136579439">"1件一致"</item>
+        <item quantity="other" msgid="4641872797067609177">"<xliff:g id="INDEX">%d</xliff:g>/<xliff:g id="TOTAL">%d</xliff:g>件"</item>
+    </plurals>
     <string name="action_mode_done" msgid="7217581640461922289">"完了"</string>
     <string name="progress_unmounting" product="nosdcard" msgid="535863554318797377">"USBストレージのマウント解除中..."</string>
     <string name="progress_unmounting" product="default" msgid="5556813978958789471">"SDカードのマウント解除中..."</string>
@@ -1230,4 +1227,56 @@
     <string name="sending" msgid="8715108995741758718">"送信しています..."</string>
     <string name="launchBrowserDefault" msgid="2057951947297614725">"ブラウザを起動しますか？"</string>
     <string name="SetupCallDefault" msgid="6870275517518479651">"通話を受けますか？"</string>
+    
+    <!-- CM Extra entries -->
+    <!-- Button to reboot the phone, within the Phone Options dialog -->
+    <string name="reboot_system" product="tablet">タブレットを再起動</string>
+    <string name="reboot_system" product="default">携帯電話を再起動</string>
+    
+    <!-- label for item that screenshots in phone options dialog -->
+    <string name="global_action_screenshot">スクリーンショット</string>
+    
+    <!-- Button to reboot the phone, within the Reboot Options dialog -->
+    <string name="reboot_reboot">再起動</string>
+    <!-- Button to reboot the phone into recovery, within the Reboot Options dialog -->
+    <string name="reboot_recovery">リカバリー</string>
+    <!-- Button to reboot the phone into bootloader, within the Reboot Options dialog -->
+    <string name="reboot_bootloader">ブートローダー</string>
+    <!-- Button to reboot the phone into bootmenu, within the Reboot Options dialog -->
+    <string name="reboot_bootmenu">ブートメニュー</string>
+    <!-- Button to reboot the phone into fastboot, within the Reboot Options dialog -->
+    <string name="reboot_fastboot">ファストブート</string>
+    <!-- Button to reboot the phone into download, within the Reboot Options dialog -->
+    <string name="reboot_download">ダウンロード</string>
+    
+    <!-- Reboot Progress Dialog. This is shown if the user chooses to reboot the phone. -->
+    <string name="reboot_progress">再起動中\u2026</string>
+    <!-- Reboot Confirmation Dialog.  When the user chooses to reboot the phone, there will be a confirmation dialog.  This is the message. -->
+    <string name="reboot_confirm">端末は再起動します</string>
+    <!-- label for item that reboots the phone in phone options dialog -->
+    <string name="global_action_reboot">再起動</string>
+    <!-- label for item that reboots the phone in phone options dialog -->
+    <string name="global_action_choose_profile">プロファイル選択</string>
+    <!-- Title of an application permission, listed so the user can choose whether they want to allow the application to do this. -->
+    <string name="permlab_preventpower">電源キーを保護</string>
+    <!-- Description of an application permission, listed so the user can choose whether they want to allow the application to do this. -->
+    <string name="permdesc_preventpower">アプリケーションが電源キーを置き換えるのを許可する</string>
+    
+    <!-- Names of default profiles. -->
+    <string name="profileNameDefault">デフォルト</string>
+    <string name="profileNameWork">仕事</string>
+    <string name="profileNameHome">自宅</string>
+    <string name="profileNameSilent">サイレント</string>
+    <string name="profileNameNight">夜</string>
+    
+    <!-- Names of application groups. -->
+    <string name="profileGroupPhone">電話</string>
+    <string name="profileGroupCalendar">カレンダー</string>
+    <string name="profileGroupGmail">Gmail</string>
+    <string name="profileGroupEmail">Eメール</string>
+    <string name="profileGroupSMS">SMS</string>
+    
+    <!-- Name of wildcard profile. -->
+    <string name="wildcardProfile">その他</string>
+    
 </resources>

@@ -142,7 +142,9 @@ SurfaceTexture::SurfaceTexture(GLuint tex, bool allowSynchronousMode,
     mUseFenceSync(false),
 #endif
     mTexTarget(texTarget),
+#ifdef QCOM_HARDWARE
     mS3DFormat(0),
+#endif
     mFrameCounter(0) {
     // Choose a name using the PID and a process-unique ID.
     mName = String8::format("unnamed-%d-%d", getpid(), createProcessUniqueId());
@@ -868,7 +870,7 @@ status_t SurfaceTexture::updateTexImage() {
         EGLDisplay dpy = eglGetCurrentDisplay();
 #ifdef QCOM_HARDWARE
         if (isGPUSupportedFormat(mSlots[buf].mGraphicBuffer->format)) {
-#else
+#endif
         if (image == EGL_NO_IMAGE_KHR) {
             if (mSlots[buf].mGraphicBuffer == 0) {
                 ST_LOGE("buffer at slot %d is null", buf);
@@ -877,8 +879,6 @@ status_t SurfaceTexture::updateTexImage() {
             image = createImage(dpy, mSlots[buf].mGraphicBuffer);
             mSlots[buf].mEglImage = image;
             mSlots[buf].mEglDisplay = dpy;
-#endif
-            if (image == EGL_NO_IMAGE_KHR) {
 #ifdef QCOM_HARDWARE
 		EGLDisplay dpy = eglGetCurrentDisplay();
                 if (mSlots[buf].mGraphicBuffer == 0) {
@@ -1241,9 +1241,11 @@ int SurfaceTexture::query(int what, int* outValue)
         value = mSynchronousMode ?
                 (MIN_UNDEQUEUED_BUFFERS-1) : MIN_UNDEQUEUED_BUFFERS;
         break;
+#ifdef QCOM_HARDWARE
     case NATIVE_WINDOW_NUM_BUFFERS:
         value = mBufferCount;
         break;
+#endif
     default:
         return BAD_VALUE;
     }

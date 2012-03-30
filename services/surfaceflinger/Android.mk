@@ -18,8 +18,7 @@ LOCAL_SRC_FILES:= \
     MessageQueue.cpp 						\
     SurfaceFlinger.cpp 						\
     SurfaceTextureLayer.cpp 				\
-    Transform.cpp 							\
-    
+    Transform.cpp
 
 LOCAL_CFLAGS:= -DLOG_TAG=\"SurfaceFlinger\"
 LOCAL_CFLAGS += -DGL_GLEXT_PROTOTYPES -DEGL_EGLEXT_PROTOTYPES
@@ -34,6 +33,7 @@ ifeq ($(TARGET_BOARD_PLATFORM), s5pc110)
 	LOCAL_CFLAGS += -DHAS_CONTEXT_PRIORITY -DNEVER_DEFAULT_TO_ASYNC_MODE -DSCREEN_RELEASE
 	LOCAL_CFLAGS += -DREFRESH_RATE=56
 endif
+
 ifeq ($(BOARD_USES_QCOM_HARDWARE),true)
 LOCAL_SHARED_LIBRARIES := \
 	libQcomUI
@@ -53,6 +53,12 @@ LOCAL_SHARED_LIBRARIES := \
 
 # this is only needed for DDMS debugging
 LOCAL_SHARED_LIBRARIES += libdvm libandroid_runtime
+
+ifeq ($(BOARD_USES_LGE_HDMI_ROTATION),true)
+LOCAL_CFLAGS += -DUSE_LGE_HDMI
+LOCAL_SHARED_LIBRARIES += \
+	libnvdispmgr_d
+endif
 
 ifeq ($(TARGET_HAVE_BYPASS),true)
     LOCAL_CFLAGS += -DBUFFER_COUNT_SERVER=3

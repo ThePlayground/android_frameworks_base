@@ -6618,6 +6618,7 @@ package android.content.res {
     method public int getDimensionPixelSize(int) throws android.content.res.Resources.NotFoundException;
     method public android.util.DisplayMetrics getDisplayMetrics();
     method public android.graphics.drawable.Drawable getDrawable(int) throws android.content.res.Resources.NotFoundException;
+    method public android.graphics.drawable.Drawable getDrawableForDensity(int, int) throws android.content.res.Resources.NotFoundException;
     method public float getFraction(int, int, int);
     method public int getIdentifier(java.lang.String, java.lang.String, java.lang.String);
     method public int[] getIntArray(int) throws android.content.res.Resources.NotFoundException;
@@ -6640,6 +6641,7 @@ package android.content.res {
     method public java.lang.CharSequence[] getTextArray(int) throws android.content.res.Resources.NotFoundException;
     method public void getValue(int, android.util.TypedValue, boolean) throws android.content.res.Resources.NotFoundException;
     method public void getValue(java.lang.String, android.util.TypedValue, boolean) throws android.content.res.Resources.NotFoundException;
+    method public void getValueForDensity(int, int, android.util.TypedValue, boolean) throws android.content.res.Resources.NotFoundException;
     method public android.content.res.XmlResourceParser getXml(int) throws android.content.res.Resources.NotFoundException;
     method public final android.content.res.Resources.Theme newTheme();
     method public android.content.res.TypedArray obtainAttributes(android.util.AttributeSet, int[]);
@@ -15525,12 +15527,6 @@ package android.preference {
     method public void setEntryValues(int);
     method public void setValue(java.lang.String);
     method public void setValueIndex(int);
-  }
-
-  public class ListPreferenceMultiSelect extends android.preference.ListPreference {
-    ctor public ListPreferenceMultiSelect(android.content.Context);
-    ctor public ListPreferenceMultiSelect(android.content.Context, android.util.AttributeSet);
-    method public static java.lang.String[] parseStoredValue(java.lang.CharSequence);
   }
 
   public class MultiSelectListPreference extends android.preference.DialogPreference {
