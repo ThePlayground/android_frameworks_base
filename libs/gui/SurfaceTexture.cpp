@@ -142,9 +142,7 @@ SurfaceTexture::SurfaceTexture(GLuint tex, bool allowSynchronousMode,
     mUseFenceSync(false),
 #endif
     mTexTarget(texTarget),
-#ifdef QCOM_HARDWARE
     mS3DFormat(0),
-#endif
     mFrameCounter(0) {
     // Choose a name using the PID and a process-unique ID.
     mName = String8::format("unnamed-%d-%d", getpid(), createProcessUniqueId());
@@ -853,34 +851,25 @@ status_t SurfaceTexture::updateTexImage() {
 #endif
     ST_LOGV("updateTexImage");
     Mutex::Autolock lock(mMutex);
-
+    
     if (mAbandoned) {
         ST_LOGE("calling updateTexImage() on an abandoned SurfaceTexture");
         return NO_INIT;
     }
-
+    
     // In asynchronous mode the list is guaranteed to be one buffer
     // deep, while in synchronous mode we use the oldest buffer.
     if (!mQueue.empty()) {
         Fifo::iterator front(mQueue.begin());
         int buf = *front;
-
+        
         // Update the GL texture object.
         EGLImageKHR image = mSlots[buf].mEglImage;
         EGLDisplay dpy = eglGetCurrentDisplay();
 #ifdef QCOM_HARDWARE
         if (isGPUSupportedFormat(mSlots[buf].mGraphicBuffer->format)) {
 #endif
-        if (image == EGL_NO_IMAGE_KHR) {
-            if (mSlots[buf].mGraphicBuffer == 0) {
-                ST_LOGE("buffer at slot %d is null", buf);
-                return BAD_VALUE;
-            }
-            image = createImage(dpy, mSlots[buf].mGraphicBuffer);
-            mSlots[buf].mEglImage = image;
-            mSlots[buf].mEglDisplay = dpy;
-#ifdef QCOM_HARDWARE
-		EGLDisplay dpy = eglGetCurrentDisplay();
+            if (image == EGL_NO_IMAGE_KHR) {
                 if (mSlots[buf].mGraphicBuffer == 0) {
                     ST_LOGE("buffer at slot %d is null", buf);
                     return BAD_VALUE;
@@ -888,23 +877,24 @@ status_t SurfaceTexture::updateTexImage() {
                 image = createImage(dpy, mSlots[buf].mGraphicBuffer);
                 mSlots[buf].mEglImage = image;
                 mSlots[buf].mEglDisplay = dpy;
-
+                
+#ifdef QCOM_HARDWARE
                 // GPU is not efficient in handling GL_TEXTURE_EXTERNAL_OES
                 // texture target. Depending on the image format, decide,
                 // the texture target to be used
-
+                
                 if (isComposition) {
-                mTexTarget =
-                   decideTextureTarget (mSlots[buf].mGraphicBuffer->format);
+                    mTexTarget =
+                    decideTextureTarget (mSlots[buf].mGraphicBuffer->format);
                 }
-
-                if (image == EGL_NO_IMAGE_KHR) {
 #endif
-                // NOTE: if dpy was invalid, createImage() is guaranteed to
-                // fail. so we'd end up here.
-                return -EINVAL;
+                
+                if (image == EGL_NO_IMAGE_KHR) {
+                    // NOTE: if dpy was invalid, createImage() is guaranteed to
+                    // fail. so we'd end up here.
+                    return -EINVAL;
+                }
             }
-        }
 
         GLint error;
         while ((error = glGetError()) != GL_NO_ERROR) {
@@ -1241,11 +1231,9 @@ int SurfaceTexture::query(int what, int* outValue)
         value = mSynchronousMode ?
                 (MIN_UNDEQUEUED_BUFFERS-1) : MIN_UNDEQUEUED_BUFFERS;
         break;
-#ifdef QCOM_HARDWARE
     case NATIVE_WINDOW_NUM_BUFFERS:
         value = mBufferCount;
         break;
-#endif
     default:
         return BAD_VALUE;
     }
