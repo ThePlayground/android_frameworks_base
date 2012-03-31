@@ -33,19 +33,20 @@
         android:clipToPadding="false"
         android:clipChildren="false">
 
-        <com.android.systemui.recent.RecentsHorizontalScrollView android:id="@+id/recents_container"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_marginRight="@dimen/status_bar_recents_right_glow_margin"
-            android:divider="@null"
-            android:stackFromBottom="true"
-            android:fadingEdge="horizontal"
-            android:scrollbars="none"
-            android:fadingEdgeLength="@dimen/status_bar_recents_fading_edge_length"
-            android:layout_gravity="bottom|left"
+        <com.android.systemui.recent.RecentsHorizontalScrollView
+            android:layout_gravity="bottom|left|center"
             android:orientation="horizontal"
+            android:id="@+id/recents_container"
+            android:scrollbars="none"
+            android:fadingEdge="none"
+            android:fadingEdgeLength="0.0dip"
+            android:clipChildren="false"
             android:clipToPadding="false"
-            android:clipChildren="false">
+            android:layout_width="wrap_content"
+            android:layout_height="fill_parent"
+            android:layout_marginRight="@dimen/status_bar_recents_right_glow_margin"
+            android:stackFromBottom="true"
+            android:divider="@null">
 
             <LinearLayout android:id="@+id/recents_linear_layout"
                 android:layout_width="wrap_content"
