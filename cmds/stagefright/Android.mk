@@ -36,7 +36,6 @@ LOCAL_MODULE_TAGS := debug
 
 ifeq ($(BOARD_USES_QCOM_HARDWARE),true)
 	LOCAL_C_INCLUDES += $(TOP)/vendor/qcom/opensource/omx/mm-core/omxcore/inc
-	LOCAL_CFLAGS += -DQCOM_HARDWARE
 endif
 
 LOCAL_MODULE:= stagefright
@@ -62,10 +61,6 @@ LOCAL_C_INCLUDES:= \
 LOCAL_CFLAGS += -Wno-multichar
 
 LOCAL_MODULE_TAGS := debug
-
-ifeq ($(BOARD_USES_QCOM_HARDWARE),true)
-	LOCAL_CFLAGS += -DQCOM_HARDWARE
-endif
 
 LOCAL_MODULE:= record
 
@@ -99,7 +94,6 @@ LOCAL_MODULE_TAGS := debug
 
 ifeq ($(BOARD_USES_QCOM_HARDWARE),true)
 	LOCAL_C_INCLUDES += $(TOP)/vendor/qcom/opensource/omx/mm-core/omxcore/inc
-	LOCAL_CFLAGS += -DQCOM_HARDWARE
 endif
 
 LOCAL_MODULE:= recordvideo
@@ -133,10 +127,6 @@ LOCAL_CFLAGS += -Wno-multichar
 
 LOCAL_MODULE_TAGS := debug
 
-ifeq ($(BOARD_USES_QCOM_HARDWARE),true)
-	LOCAL_CFLAGS += -DQCOM_HARDWARE
-endif
-
 LOCAL_MODULE:= audioloop
 
 include $(BUILD_EXECUTABLE)
@@ -169,7 +159,6 @@ LOCAL_MODULE_TAGS := debug
 
 ifeq ($(BOARD_USES_QCOM_HARDWARE),true)
 	LOCAL_C_INCLUDES += $(TOP)/vendor/qcom/opensource/omx/mm-core/omxcore/inc
-	LOCAL_CFLAGS += -DQCOM_HARDWARE
 endif
 
 LOCAL_MODULE:= stream
@@ -204,7 +193,6 @@ LOCAL_MODULE_TAGS := debug
 
 ifeq ($(BOARD_USES_QCOM_HARDWARE),true)
 	LOCAL_C_INCLUDES += $(TOP)/vendor/qcom/opensource/omx/mm-core/omxcore/inc
-	LOCAL_CFLAGS += -DQCOM_HARDWARE
 endif
 
 LOCAL_MODULE:= sf2
