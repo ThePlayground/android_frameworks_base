@@ -315,7 +315,8 @@ public class PowerManagerService extends IPowerManager.Stub
     
     private native void nativeInit();
     private native void nativeSetPowerState(boolean screenOn, boolean screenBright);
-    private native void nativeStartSurfaceFlingerAnimation(int mode);
+    private native void nativeStartSurfaceFlingerOffAnimation(int mode);
+    private native void nativeStartSurfaceFlingerOnAnimation(int mode);
 
     /*
     static PrintStream mLog;
@@ -2283,6 +2284,14 @@ public class PowerManagerService extends IPowerManager.Stub
             }
         }
 
+        void jumpToTarget() {
+            if (mSpew) Slog.d(TAG, "jumpToTarget targetValue=" + targetValue + ": " + mask);
+                setLightBrightness(mask, targetValue);
+                final int tv = targetValue;
+                curValue = tv;
+                targetValue = -1;
+        }
+
         public void run() {
             synchronized (mLocks) {
                 final boolean turningOn = animating && (int)curValue == Power.BRIGHTNESS_OFF;
@@ -2290,8 +2299,9 @@ public class PowerManagerService extends IPowerManager.Stub
                 // Check for the electron beam for fully on/off transitions.
                 // Otherwise, allow it to fade the brightness as normal.
                 final boolean electrifying =
-                (mElectronBeamAnimationOff && turningOff);
-                if (!electrifying && mAnimateScreenLights) {
+                        ((mElectronBeamAnimationOff && turningOff) ||
+                         (mElectronBeamAnimationOn && turningOn));
+                if (!electrifying && (mAnimateScreenLights || !turningOff)) {
                     long now = SystemClock.uptimeMillis();
                     boolean more = mScreenBrightness.stepLocked();
                     if (more) {
@@ -2300,12 +2310,22 @@ public class PowerManagerService extends IPowerManager.Stub
                 } else {
                     // It's pretty scary to hold mLocks for this long, and we should
                     // redesign this, but it works for now.
-                    if (electrifying) {
-                        nativeStartSurfaceFlingerAnimation(
-                                mScreenOffReason == WindowManagerPolicy.OFF_BECAUSE_OF_PROX_SENSOR
-                                ? 0 : mAnimationSetting);
+                    if (turningOff) {
+                        if (electrifying) {
+                            nativeStartSurfaceFlingerOffAnimation(
+                                    mScreenOffReason == WindowManagerPolicy.OFF_BECAUSE_OF_PROX_SENSOR
+                                    ? 0 : mAnimationSetting);
+                        }
+                        mScreenBrightness.jumpToTargetLocked();
+                    } else if (turningOn) {
+                        if (electrifying) {
+                            jumpToTarget();
+                            nativeStartSurfaceFlingerOnAnimation(mAnimationSetting);
+                            animating = false;
+                        } else {
+                            mScreenBrightness.jumpToTargetLocked();
+                        }
                     }
-                    mScreenBrightness.jumpToTargetLocked();
                 }
             }
         }
@@ -2980,7 +3000,7 @@ public class PowerManagerService extends IPowerManager.Stub
         mCustomLightEnabled = Settings.System.getInt(cr,
                 Settings.System.LIGHT_SENSOR_CUSTOM, 0) != 0;
         mLightDecrease = Settings.System.getInt(cr,
-                Settings.System.LIGHT_DECREASE, 1) != 0;
+                Settings.System.LIGHT_DECREASE, 0) != 0;
         mLightHysteresis = Settings.System.getInt(cr,
                 Settings.System.LIGHT_HYSTERESIS, 50) / 100f;
         mLightFilterEnabled = Settings.System.getInt(cr,

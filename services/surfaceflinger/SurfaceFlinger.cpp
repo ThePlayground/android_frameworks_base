@@ -2324,7 +2324,7 @@ status_t SurfaceFlinger::electronBeamOnAnimationImplLocked()
     const DisplayHardware& hw(graphicPlane(0).displayHardware());
     const uint32_t hw_w = hw.getWidth();
     const uint32_t hw_h = hw.getHeight();
-    const Region screenBounds(hw.bounds());
+    const Region screenBounds(hw.getBounds());
 
     GLfloat u, v;
     GLuint tname;
@@ -2334,9 +2334,9 @@ status_t SurfaceFlinger::electronBeamOnAnimationImplLocked()
     }
 
     GLfloat vtx[8];
-    const GLfloat texCoords[4][2] = { {0,v}, {0,0}, {u,0}, {u,v} };
+    const GLfloat texCoords[4][2] = { {0,0}, {0,v}, {u,v}, {u,0} };
     glBindTexture(GL_TEXTURE_2D, tname);
-    glTexEnvx(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+    glTexEnvx(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
     glTexParameterx(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameterx(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexCoordPointer(2, GL_FLOAT, 0, texCoords);
@@ -2393,7 +2393,7 @@ status_t SurfaceFlinger::electronBeamOnAnimationImplLocked()
     };
 
     // the full animation is 12 frames
-    int nbFrames = 8;
+    int nbFrames = 12;
     s_curve_interpolator itr(nbFrames, 7.5f);
     s_curve_interpolator itg(nbFrames, 8.0f);
     s_curve_interpolator itb(nbFrames, 8.5f);
@@ -2411,8 +2411,13 @@ status_t SurfaceFlinger::electronBeamOnAnimationImplLocked()
         hw.flip(screenBounds);
     }
 
-    nbFrames = 4;
     v_stretch vverts(hw_w, hw_h);
+
+    glMatrixMode(GL_TEXTURE);
+    glLoadIdentity();
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+
     glEnable(GL_BLEND);
     glBlendFunc(GL_ONE, GL_ONE);
     for (int i=nbFrames-1 ; i>=0 ; i--) {
@@ -2439,6 +2444,12 @@ status_t SurfaceFlinger::electronBeamOnAnimationImplLocked()
         // draw the blue plane
         vverts(vtx, vb);
         glColorMask(0,0,1,1);
+        glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+
+        // draw the white highlight (we use the last vertices)
+        glDisable(GL_TEXTURE_2D);
+        glColorMask(1,1,1,1);
+        glColor4f(vg, vg, vg, 1);
         glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
 
         hw.flip(screenBounds);
@@ -2521,12 +2532,10 @@ status_t SurfaceFlinger::turnElectronBeamOff(int32_t mode)
 status_t SurfaceFlinger::turnElectronBeamOnImplLocked(int32_t mode)
 {
     DisplayHardware& hw(graphicPlane(0).editDisplayHardware());
-/* HACK: Fix Electron Beam
     if (hw.canDraw()) {
         // we're already on
         return NO_ERROR;
     }
-*/
     if (mode & ISurfaceComposer::eElectronBeamAnimationOn) {
         electronBeamOnAnimationImplLocked();
     }
