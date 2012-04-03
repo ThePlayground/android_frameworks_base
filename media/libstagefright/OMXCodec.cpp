@@ -2138,6 +2138,7 @@ status_t OMXCodec::setupMPEG4EncoderParameters(const sp<MetaData>& meta) {
         mpeg4type.nAllowedPictureTypes |= OMX_VIDEO_PictureTypeB;
         mpeg4type.nBFrames = 1;
         mNumBFrames = 1;
+        mpeg4type.nPFrames = mpeg4type.nPFrames / 2;
     }
 #endif
 
@@ -2219,6 +2220,7 @@ status_t OMXCodec::setupAVCEncoderParameters(const sp<MetaData>& meta) {
         h264type.nPFrames = setPFramesSpacing(iFramesInterval, frameRate);
         h264type.nBFrames = 1;
         mNumBFrames = 1;
+        h264type.nPFrames = h264type.nPFrames / 2;
     }
 #endif
 
