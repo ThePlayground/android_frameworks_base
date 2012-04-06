@@ -269,7 +269,9 @@ static const CodecInfo kDecoderInfo[] = {
     { MEDIA_MIMETYPE_AUDIO_AMR_WB, "OMX.TI.WBAMR.decode" },
     { MEDIA_MIMETYPE_AUDIO_AMR_WB, "OMX.google.amrwb.decoder" },
 #ifdef QCOM_HARDWARE
+#ifdef USE_AAC_HW_DEC
     { MEDIA_MIMETYPE_AUDIO_AAC, "OMX.qcom.audio.decoder.aac" },
+#endif
 #endif
 //    { MEDIA_MIMETYPE_AUDIO_AAC, "OMX.Nvidia.aac.decoder" },
     { MEDIA_MIMETYPE_AUDIO_AAC, "OMX.TI.AAC.decode" },
@@ -590,12 +592,14 @@ uint32_t OMXCodec::getComponentQuirks(
         quirks |= kSupportsMultipleFramesPerInputBuffer;
     }
 #ifdef QCOM_HARDWARE
+#ifdef USE_AAC_HW_DEC
     if (!strcmp(componentName, "OMX.qcom.audio.decoder.aac")) {
         quirks |= kRequiresAllocateBufferOnInputPorts;
         quirks |= kRequiresAllocateBufferOnOutputPorts;
         LOGV("setting kRequiresGlobalFlush for AAC");
         quirks |= kRequiresGlobalFlush;
     }
+#endif
 
     if (!strcmp(componentName, "OMX.qcom.audio.encoder.evrc")) {
         quirks |= kRequiresAllocateBufferOnInputPorts;
@@ -879,17 +883,20 @@ sp<MediaSource> OMXCodec::Create(
 
         LOGV("Attempting to allocate OMX node '%s'", componentName);
 #endif
+
+#if USE_AAC_HW_DEC
         int aacformattype = 0;
         int aacLTPType = 0;
         sp<MetaData> metadata = source->getFormat();
         metadata->findInt32(kkeyAacFormatAdif, &aacformattype);
         metadata->findInt32(kkeyAacFormatLtp, &aacLTPType);
-
+        
         if ((aacformattype == true)|| aacLTPType == true)  {
             LOGE("This is ADIF/LTP clip , so using sw decoder ");
             componentName= "OMX.google.aac.decoder";
             componentNameBase = "OMX.google.aac.decoder";
         }
+#endif
 
         uint32_t quirks = getComponentQuirks(componentNameBase, createEncoder);
 #ifdef QCOM_HARDWARE
