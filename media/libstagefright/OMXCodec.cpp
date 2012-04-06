@@ -879,7 +879,6 @@ sp<MediaSource> OMXCodec::Create(
 
         LOGV("Attempting to allocate OMX node '%s'", componentName);
 #endif
-
         int aacformattype = 0;
         int aacLTPType = 0;
         sp<MetaData> metadata = source->getFormat();
@@ -911,8 +910,7 @@ sp<MediaSource> OMXCodec::Create(
               componentName= "OMX.qcom.audio.decoder.wmaLossLess";
            }
         }
-#ifndef QCOM_HARDWARE
-//#ifdef OMAP_COMPAT
+#else
         if (!strcmp(componentName, "OMX.TI.Video.Decoder")) {
             int32_t width, height;
             bool success = meta->findInt32(kKeyWidth, &width);
@@ -925,18 +923,6 @@ sp<MediaSource> OMXCodec::Create(
                 LOGE("Format exceed the decoder's capabilities. %d", width*height);
                 continue;
             }
-        }
-//#endif
-#endif
-        int aacformattype = 0;
-        int aacLTPType = 0;
-        sp<MetaData> metadata = source->getFormat();
-        metadata->findInt32(kkeyAacFormatAdif, &aacformattype);
-        metadata->findInt32(kkeyAacFormatLtp, &aacLTPType);
-
-        if ((aacformattype == true)|| aacLTPType == true)  {
-            LOGE("This is ADIF/LTP clip , so using sw decoder ");
-            componentName= "OMX.google.aac.decoder";
         }
 #endif
         if (!createEncoder
