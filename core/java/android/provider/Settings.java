@@ -2244,6 +2244,8 @@ public final class Settings {
          * @hide
          */
         public static final String COMPATIBILITY_MODE = "compatibility_mode";
+
+        public static final String SHUTTER_SOUND = "shutter_sound";
         
         /**
          * Whether the soft keys should display if device already has hard keys. The
