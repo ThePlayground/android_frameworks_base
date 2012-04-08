@@ -17,12 +17,11 @@
 package android.hardware;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
-import android.os.SystemProperties;
 import android.util.Log;
 import android.provider.Settings;
-import android.provider.Settings.SettingNotFoundException;
 
 
 import java.io.IOException;
@@ -65,8 +64,9 @@ public class CameraSound {
     public static final int STOP_VIDEO_RECORDING  = 3;
 
     private static final int NUM_SOUNDS           = 4;
-    private CameraSoundPlayer[] mCameraSoundPlayers;
     private Context mContext;
+    private boolean cameraSounds = true;
+    private CameraSoundPlayer[] mCameraSoundPlayers;
 
     public CameraSound() {
     }
@@ -93,7 +93,7 @@ public class CameraSound {
      * @see #STOP_VIDEO_RECORDING
      */
     public void playSound(int soundId) {
-        boolean cameraSounds = Settings.System.getInt(mContext.getContentResolver(), Settings.System.SHUTTER_SOUND, 1) != 0;
+        cameraSounds = Settings.System.getInt(mContext.getContentResolver(), Settings.System.SHUTTER_SOUND, 1) != 0;
         if (cameraSounds) {
             if (mCameraSoundPlayers == null) {
                 mCameraSoundPlayers = new CameraSoundPlayer[NUM_SOUNDS];

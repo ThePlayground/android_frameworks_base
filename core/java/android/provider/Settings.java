@@ -2155,6 +2155,13 @@ public final class Settings {
         public static final String NAV_BUTTONS = "nav_buttons";
 
         /**
+         * Whether the soft keys should display if device already has hard keys. The
+         * value is boolean (1 or 0).
+         * @hide
+         */
+        public static final String NAVIGATION_BAR_VISIBLE = "navigation_bar_visible";
+
+        /**
         * Notification Power Widget - Custom Brightness Mode
         * @hide
         */
