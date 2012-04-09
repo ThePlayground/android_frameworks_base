@@ -46,6 +46,10 @@ LOCAL_C_INCLUDES += hardware/qcom/display/libqcomui
 LOCAL_CFLAGS += -DQCOM_HARDWARE
 endif
 
+ifeq ($(BOARD_USE_ADRENO_130_GPU),true)
+	LOCAL_CFLAGS += -DADRENO_130_GPU
+endif
+
 LOCAL_SHARED_LIBRARIES := \
 	libcutils \
 	libhardware \
