@@ -21,7 +21,7 @@ import android.content.res.Resources;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.util.Log;
-import android.provider.Settings;
+import static android.provider.Settings.System.SHUTTER_SOUND;
 
 
 import java.io.IOException;
@@ -64,8 +64,8 @@ public class CameraSound {
     public static final int STOP_VIDEO_RECORDING  = 3;
 
     private static final int NUM_SOUNDS           = 4;
-    private Context mContext;
     private boolean cameraSounds = true;
+    private Context mContext;
     private CameraSoundPlayer[] mCameraSoundPlayers;
 
     public CameraSound() {
@@ -92,9 +92,10 @@ public class CameraSound {
      * @see #START_VIDEO_RECORDING
      * @see #STOP_VIDEO_RECORDING
      */
+
     public void playSound(int soundId) {
-        cameraSounds = Settings.System.getInt(mContext.getContentResolver(), Settings.System.SHUTTER_SOUND, 1) != 0;
-        if (cameraSounds) {
+        //cameraSounds = Settings.System.getInt(mContext.getContentResolver(), Settings.System.SHUTTER_SOUND, 1) != 0;
+        //if (cameraSounds) {
             if (mCameraSoundPlayers == null) {
                 mCameraSoundPlayers = new CameraSoundPlayer[NUM_SOUNDS];
             }
@@ -102,7 +103,7 @@ public class CameraSound {
                 mCameraSoundPlayers[soundId] = new CameraSoundPlayer(soundId);
             }
             mCameraSoundPlayers[soundId].play();
-        }
+        //}
     }
 
     public void release() {
