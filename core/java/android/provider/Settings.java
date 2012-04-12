@@ -2253,6 +2253,8 @@ public final class Settings {
         public static final String COMPATIBILITY_MODE = "compatibility_mode";
 
         public static final String SHUTTER_SOUND = "shutter_sound";
+
+        public static final String FAST_CHARGE = "force_fast_charge";
         
         /**
          * Whether the soft keys should display if device already has hard keys. The
