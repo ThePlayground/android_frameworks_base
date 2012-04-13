@@ -762,10 +762,7 @@ sp<MediaSource> OMXCodec::Create(
         flags |= kIgnoreCodecSpecificData;
         flags |= kUseSecureInputBuffers;
         flags |= kEnableGrallocUsageProtected;
-    }
-    else
-    {
-        flags &= ~kEnableGrallocUsageProtected;
+        flags |= kEnableGrallocUsagePrivateCPBuffer;
     }
 
     const char *mime;
@@ -2529,7 +2526,8 @@ status_t OMXCodec::allocateBuffersOnPort(OMX_U32 portIndex) {
         return allocateOutputBuffersFromNativeWindow();
     }
 
-    if ((mFlags & kEnableGrallocUsageProtected) && portIndex == kPortIndexOutput) {
+    if ((mFlags & kEnableGrallocUsageProtected) && (mFlags & kEnableGrallocUsagePrivateCPBuffer)
+          && portIndex == kPortIndexOutput) {
         LOGE("protected output buffers must be stent to an ANativeWindow");
         return PERMISSION_DENIED;
     }
@@ -2811,6 +2809,10 @@ status_t OMXCodec::allocateOutputBuffersFromNativeWindow() {
     }
     if (mFlags & kEnableGrallocUsageProtected) {
         usage |= GRALLOC_USAGE_PROTECTED;
+    }
+
+    if(mFlags & kEnableGrallocUsagePrivateCPBuffer) {
+        usage |= GRALLOC_USAGE_PRIVATE_CP_BUFFER;
     }
 
     // Make sure to check whether either Stagefright or the video decoder
@@ -3855,7 +3857,7 @@ void OMXCodec::onStateChange(OMX_STATETYPE newState) {
                              -err);
                     }
 
-                    if (mFlags & kEnableGrallocUsageProtected) {
+                    if ((mFlags & kEnableGrallocUsageProtected) && (mFlags & kEnableGrallocUsagePrivateCPBuffer)) {
                         // We push enough 1x1 blank buffers to ensure that one of
                         // them has made it to the display.  This allows the OMX
                         // component teardown to zero out any protected buffers

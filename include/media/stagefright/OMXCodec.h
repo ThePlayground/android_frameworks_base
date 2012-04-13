@@ -63,6 +63,8 @@ struct OMXCodec : public MediaSource,
 #ifdef QCOM_HARDWARE
         kEnableThumbnailMode = 512,
 
+        kEnableGrallocUsagePrivateCPBuffer = 16384,
+
         kUseMinBufferCount = 32768,
 #else
         kPreferThumbnailMode               = 0x8,
