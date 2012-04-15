@@ -2179,23 +2179,27 @@ void ACodec::UninitializedState::onSetup(
         mCodec->mPortEOS[kPortIndexOutput] = false;
 
     mCodec->mInputEOSResult = OK;
-#ifdef QCOM_HARDWARE
-    char value[PROPERTY_VALUE_MAX];
-    if(property_get("hls.enable.smooth.streaming", value, NULL) &&
-      (!strcasecmp(value, "true") || !strcmp(value, "1")) &&
-      (!strcmp("OMX.qcom.video.decoder.avc", mCodec->mComponentName.c_str())) ) {
 
-        LOGI("Enable Smooth streaming");
-        mCodec->mSmoothStreaming = true;
-        status_t err = mCodec->InitSmoothStreaming();
-        if (err != OK) {
-           LOGE("Error in enabling smooth streaming, ignore & disable ");
-           mCodec->mSmoothStreaming = false;
+    int32_t value;
+    if (msg->findInt32("smooth-streaming", &value) && (value == 1) &&
+       !strcmp("OMX.qcom.video.decoder.avc", mCodec->mComponentName.c_str())) {
+
+        char value_ss[PROPERTY_VALUE_MAX];
+        if (property_get("hls.disable.smooth.streaming", value_ss, NULL) &&
+           (!strcasecmp(value_ss, "true") || !strcmp(value_ss, "1"))) {
+
+            LOGW("Dont enable Smooth streaming, disable property is set");
         } else {
-            LOGI("Smooth streaming is enabled ");
+            mCodec->mSmoothStreaming = true;
+            status_t err = mCodec->InitSmoothStreaming();
+            if (err != OK) {
+                LOGE("Error in enabling smooth streaming, ignore & disable ");
+                mCodec->mSmoothStreaming = false;
+            } else {
+                LOGI("Smooth streaming is enabled ");
+            }
         }
     }
-#endif
     mCodec->configureCodec(mime.c_str(), msg);
 
     sp<RefBase> obj;
