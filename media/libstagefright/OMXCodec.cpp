@@ -22,17 +22,13 @@ Copyright (c) 2011-2012, Code Aurora Forum. All rights reserved.
 #define LOG_TAG "OMXCodec"
 #include <utils/Log.h>
 
-#ifdef QCOM_HARDWARE
 #include "include/AACDecoder.h"
-#endif
 #include "include/AACEncoder.h"
 #include "include/AMRNBEncoder.h"
 #include "include/AMRWBEncoder.h"
 #include "include/AVCEncoder.h"
 #include "include/M4vH263Encoder.h"
-#ifdef QCOM_HARDWARE
 #include "include/MP3Decoder.h"
-#endif
 
 #include "include/ESDS.h"
 
@@ -50,21 +46,16 @@ Copyright (c) 2011-2012, Code Aurora Forum. All rights reserved.
 #include <media/stagefright/OMXCodec.h>
 #include <media/stagefright/Utils.h>
 #include <utils/Vector.h>
-#ifdef QCOM_HARDWARE
 #include <cutils/properties.h>
-#endif
 
 #include <OMX_Audio.h>
 #include <OMX_Component.h>
 
-#ifdef QCOM_HARDWARE
-#include <cutils/properties.h>
 #include <OMX_QCOMExtns.h>
 
 #include <gralloc_priv.h>
 #include <qcom_ui.h>
 #include <QOMX_AudioExtensions.h>
-#endif
 #include "include/avc_utils.h"
 #ifdef SAMSUNG_CODEC_SUPPORT
 #include "include/ColorFormat.h"
@@ -98,17 +89,14 @@ const static int64_t kBufferFilledEventTimeOutNs = 3000000000LL;
 // component in question is buggy or not.
 const static uint32_t kMaxColorFormatSupported = 1000;
 
-#ifdef QCOM_HARDWARE
 static const int QOMX_COLOR_FormatYUV420PackedSemiPlanar64x32Tile2m8ka = 0x7FA30C03;
 static const int OMX_QCOM_COLOR_FormatYVU420SemiPlanar = 0x7FA30C00;
-#endif
 
 struct CodecInfo {
     const char *mime;
     const char *codec;
 };
 
-#ifdef QCOM_HARDWARE
 class ColorFormatInfo {
     private:
         enum {
@@ -162,7 +150,6 @@ const int32_t ColorFormatInfo::preferredColorFormat[] = {
 static sp<MediaSource> Make##name(const sp<MediaSource> &source) { \
     return new name(source); \
 }
-#endif
 
 #define FACTORY_CREATE_ENCODER(name) \
 static sp<MediaSource> Make##name(const sp<MediaSource> &source, const sp<MetaData> &meta) { \
@@ -171,10 +158,8 @@ static sp<MediaSource> Make##name(const sp<MediaSource> &source, const sp<MetaDa
 
 #define FACTORY_REF(name) { #name, Make##name },
 
-#ifdef QCOM_HARDWARE
 FACTORY_CREATE(MP3Decoder)
 FACTORY_CREATE(AACDecoder)
-#endif
 FACTORY_CREATE_ENCODER(AMRNBEncoder)
 FACTORY_CREATE_ENCODER(AMRWBEncoder)
 FACTORY_CREATE_ENCODER(AACEncoder)
@@ -206,7 +191,6 @@ static sp<MediaSource> InstantiateSoftwareEncoder(
     return NULL;
 }
 
-#ifdef QCOM_HARDWARE
 static sp<MediaSource> InstantiateSoftwareDecoder(
         const char *name, const sp<MediaSource> &source) {
     struct FactoryInfo {
@@ -227,7 +211,6 @@ static sp<MediaSource> InstantiateSoftwareDecoder(
 
     return NULL;
 }
-#endif
 
 #undef FACTORY_REF
 #undef FACTORY_CREATE
@@ -250,14 +233,10 @@ static const CodecInfo kDecoderInfo[] = {
     { MEDIA_MIMETYPE_VIDEO_VPX, "OMX.SEC.vp8.dec" },
 #endif
     { MEDIA_MIMETYPE_IMAGE_JPEG, "OMX.TI.JPEG.decode" },
-#ifdef QCOM_HARDWARE
     { MEDIA_MIMETYPE_AUDIO_MPEG, "OMX.qcom.audio.decoder.mp3" },
-#endif
 //    { MEDIA_MIMETYPE_AUDIO_MPEG, "OMX.TI.MP3.decode" },
     { MEDIA_MIMETYPE_AUDIO_MPEG, "OMX.google.mp3.decoder" },
-#ifdef QCOM_HARDWARE
     { MEDIA_MIMETYPE_AUDIO_MPEG, "MP3Decoder" },
-#endif
     { MEDIA_MIMETYPE_AUDIO_MPEG_LAYER_II, "OMX.Nvidia.mp2.decoder" },
 #ifndef QCOM_HARDWARE
     { MEDIA_MIMETYPE_AUDIO_MPEG_LAYER_II, "OMX.TI.Video.Decoder" },
@@ -268,26 +247,20 @@ static const CodecInfo kDecoderInfo[] = {
 //    { MEDIA_MIMETYPE_AUDIO_AMR_NB, "OMX.Nvidia.amrwb.decoder" },
     { MEDIA_MIMETYPE_AUDIO_AMR_WB, "OMX.TI.WBAMR.decode" },
     { MEDIA_MIMETYPE_AUDIO_AMR_WB, "OMX.google.amrwb.decoder" },
-#ifdef QCOM_HARDWARE
 #ifdef USE_AAC_HW_DEC
     { MEDIA_MIMETYPE_AUDIO_AAC, "OMX.qcom.audio.decoder.aac" },
-#endif
 #endif
 //    { MEDIA_MIMETYPE_AUDIO_AAC, "OMX.Nvidia.aac.decoder" },
     { MEDIA_MIMETYPE_AUDIO_AAC, "OMX.TI.AAC.decode" },
     { MEDIA_MIMETYPE_AUDIO_AAC, "OMX.google.aac.decoder" },
-#ifdef QCOM_HARDWARE
     { MEDIA_MIMETYPE_AUDIO_AAC, "AACDecoder" },
-#endif
     { MEDIA_MIMETYPE_AUDIO_G711_ALAW, "OMX.google.g711.alaw.decoder" },
     { MEDIA_MIMETYPE_AUDIO_G711_MLAW, "OMX.google.g711.mlaw.decoder" },
     { MEDIA_MIMETYPE_VIDEO_MPEG4, "OMX.TI.DUCATI1.VIDEO.DECODER" },
     { MEDIA_MIMETYPE_VIDEO_MPEG4, "OMX.Nvidia.mp4.decode" },
     { MEDIA_MIMETYPE_VIDEO_MPEG4, "OMX.qcom.7x30.video.decoder.mpeg4" },
     { MEDIA_MIMETYPE_VIDEO_MPEG4, "OMX.qcom.video.decoder.mpeg4" },
-#ifdef QCOM_HARDWARE
     { MEDIA_MIMETYPE_VIDEO_MPEG4, "OMX.ittiam.video.decoder.mpeg4" },
-#endif
     { MEDIA_MIMETYPE_VIDEO_MPEG4, "OMX.TI.Video.Decoder" },
 #ifndef QCOM_HARDWARE
     { MEDIA_MIMETYPE_VIDEO_MPEG4, "OMX.TI.720P.Decoder" },
@@ -304,24 +277,16 @@ static const CodecInfo kDecoderInfo[] = {
     { MEDIA_MIMETYPE_VIDEO_AVC, "OMX.Nvidia.h264.decode" },
     { MEDIA_MIMETYPE_VIDEO_AVC, "OMX.qcom.7x30.video.decoder.avc" },
     { MEDIA_MIMETYPE_VIDEO_AVC, "OMX.qcom.video.decoder.avc" },
-#ifdef QCOM_HARDWARE
     { MEDIA_MIMETYPE_VIDEO_AVC, "OMX.ittiam.video.decoder.avc" },
-#else
-    { MEDIA_MIMETYPE_VIDEO_AVC, "OMX.TI.720P.Decoder" },
-#endif
     { MEDIA_MIMETYPE_VIDEO_AVC, "OMX.TI.Video.Decoder" },
     { MEDIA_MIMETYPE_VIDEO_AVC, "OMX.SEC.AVC.Decoder" },
     { MEDIA_MIMETYPE_VIDEO_AVC, "OMX.SEC.FP.AVC.Decoder" },
     { MEDIA_MIMETYPE_VIDEO_AVC, "OMX.google.h264.decoder" },
     { MEDIA_MIMETYPE_VIDEO_AVC, "OMX.google.avc.decoder" },
     { MEDIA_MIMETYPE_AUDIO_VORBIS, "OMX.google.vorbis.decoder" },
-    { MEDIA_MIMETYPE_VIDEO_VPX, "OMX.SEC.VP8.Decoder" },
-#ifdef QCOM_HARDWARE
     { MEDIA_MIMETYPE_VIDEO_VPX, "OMX.qcom.video.decoder.vp8" },
-#endif
     { MEDIA_MIMETYPE_VIDEO_VPX, "OMX.google.vpx.decoder" },
     { MEDIA_MIMETYPE_VIDEO_MPEG2, "OMX.Nvidia.mpeg2v.decode" },
-#ifdef QCOM_HARDWARE
     { MEDIA_MIMETYPE_VIDEO_MPEG2, "OMX.qcom.video.decoder.mpeg2" },
     { MEDIA_MIMETYPE_VIDEO_DIVX, "OMX.qcom.video.decoder.divx"},
     { MEDIA_MIMETYPE_VIDEO_DIVX311, "OMX.qcom.video.decoder.divx311"},
@@ -335,7 +300,6 @@ static const CodecInfo kDecoderInfo[] = {
     { MEDIA_MIMETYPE_AUDIO_WMA, "OMX.qcom.audio.decoder.wmaLossLess"},
     { MEDIA_MIMETYPE_AUDIO_WMA, "OMX.qcom.audio.decoder.wma10Pro"},
     { MEDIA_MIMETYPE_VIDEO_WMV, "OMX.qcom.video.decoder.vc1"},
-#endif
 };
 
 static const CodecInfo kEncoderInfo[] = {
@@ -352,16 +316,12 @@ static const CodecInfo kEncoderInfo[] = {
     { MEDIA_MIMETYPE_AUDIO_AMR_WB, "OMX.TI.WBAMR.encode" },
     { MEDIA_MIMETYPE_AUDIO_AMR_WB, "AMRWBEncoder" },
     { MEDIA_MIMETYPE_AUDIO_AAC, "OMX.TI.AAC.encode" },
-#ifdef QCOM_HARDWARE
     { MEDIA_MIMETYPE_AUDIO_AAC, "OMX.qcom.audio.encoder.aac" },
-#endif
     { MEDIA_MIMETYPE_AUDIO_AAC, "AACEncoder" },
     { MEDIA_MIMETYPE_VIDEO_MPEG4, "OMX.TI.DUCATI1.VIDEO.MPEG4E" },
     { MEDIA_MIMETYPE_VIDEO_MPEG4, "OMX.qcom.7x30.video.encoder.mpeg4" },
-#ifdef QCOM_HARDWARE
     { MEDIA_MIMETYPE_AUDIO_EVRC,   "OMX.qcom.audio.encoder.evrc" },
     { MEDIA_MIMETYPE_AUDIO_QCELP,  "OMX.qcom.audio.encoder.qcelp13" },
-#endif
     { MEDIA_MIMETYPE_VIDEO_MPEG4, "OMX.qcom.video.encoder.mpeg4" },
     { MEDIA_MIMETYPE_VIDEO_MPEG4, "OMX.TI.Video.encoder" },
 #ifndef QCOM_HARDWARE
@@ -424,25 +384,20 @@ private:
     OMXCodecObserver &operator=(const OMXCodecObserver &);
 };
 
-#ifdef QCOM_HARDWARE
 char *HwAacRoles[]={
 "OMX.qcom.audio.decoder.multiaac",
 "OMX.qcom.audio.decoder.aac",
 };
-#endif
 
 static const char *GetCodec(const CodecInfo *info, size_t numInfos,
                             const char *mime, int index) {
     CHECK(index >= 0);
-#ifdef QCOM_HARDWARE
     char value[PROPERTY_VALUE_MAX];
-#endif
 
     for(size_t i = 0; i < numInfos; ++i) {
         if (!strcasecmp(mime, info[i].mime)) {
             if (index == 0) {
 
-#ifdef QCOM_HARDWARE
                 if (!strcasecmp(mime, MEDIA_MIMETYPE_AUDIO_AAC)){
                     if (property_get("media.aaccodectype", value, NULL)){
                         LOGE("using h/w aac decoder");
@@ -452,7 +407,6 @@ static const char *GetCodec(const CodecInfo *info, size_t numInfos,
                             LOGE("media.aaccodectype value not supported");
                     }
                 }
-#endif
 
                 return info[i].codec;
             }
@@ -521,12 +475,8 @@ static void InitOMXParams(T *params) {
 }
 
 static bool IsSoftwareCodec(const char *componentName) {
-#ifdef QCOM_HARDWARE
     if (!strncmp("OMX.google.", componentName, 11)
 	    || !strncmp("OMX.PV.", componentName, 7)) {
-#else
-    if (!strncmp("OMX.google.", componentName, 11)) {
-#endif
         return true;
     }
 
@@ -591,7 +541,6 @@ uint32_t OMXCodec::getComponentQuirks(
         quirks |= kRequiresFlushCompleteEmulation;
         quirks |= kSupportsMultipleFramesPerInputBuffer;
     }
-#ifdef QCOM_HARDWARE
 #ifdef USE_AAC_HW_DEC
     if (!strcmp(componentName, "OMX.qcom.audio.decoder.aac")) {
         quirks |= kRequiresAllocateBufferOnInputPorts;
@@ -650,7 +599,6 @@ uint32_t OMXCodec::getComponentQuirks(
        LOGV("setting kRequiresGlobalFlush for WMALossLess");
        quirks |= kRequiresGlobalFlush;
     }
-#endif
 
     if (!strncmp(componentName, "OMX.qcom.video.encoder.", 23)) {
         quirks |= kRequiresLoadedToIdleAfterAllocation;
@@ -663,27 +611,20 @@ uint32_t OMXCodec::getComponentQuirks(
             // the worst/least compression ratio is 0.5. It is found that
             // sometimes, the output buffer size is larger than
             // size advertised by the encoder.
-
-#ifndef QCOM_HARDWARE
-            quirks |= kRequiresLargerEncoderOutputBuffer;
-#endif
+            //quirks |= kRequiresLargerEncoderOutputBuffer;
         }
     }
     if (!strncmp(componentName, "OMX.qcom.7x30.video.encoder.", 28)) {
     }
     if (!strncmp(componentName, "OMX.qcom.video.decoder.", 23)) {
-#ifdef QCOM_HARDWARE
         quirks |= kRequiresAllocateBufferOnInputPorts;
-#endif
         quirks |= kRequiresAllocateBufferOnOutputPorts;
         quirks |= kDefersOutputBufferAllocation;
     }
-#ifdef QCOM_HARDWARE
     if (!strncmp(componentName, "OMX.ittiam.video.decoder.", 25)) {
         quirks |= kRequiresAllocateBufferOnOutputPorts;
         quirks |= kDefersOutputBufferAllocation;
     }
-#endif
     if (!strncmp(componentName, "OMX.qcom.7x30.video.decoder.", 28)) {
         quirks |= kRequiresAllocateBufferOnInputPorts;
         quirks |= kRequiresAllocateBufferOnOutputPorts;
@@ -742,7 +683,6 @@ uint32_t OMXCodec::getComponentQuirks(
         quirks |= kOutputBuffersAreUnreadable;
     }
 
-#ifdef QCOM_HARDWARE
     if(!strcmp(componentName,"OMX.qcom.audio.decoder.ac3")) {
         LOGV("AC3 enabling allocate buffer on input and output ports");
         quirks |= kRequiresAllocateBufferOnInputPorts;
@@ -752,7 +692,6 @@ uint32_t OMXCodec::getComponentQuirks(
     if (!strcmp(componentName, "OMX.qcom.audio.decoder.wma")) {
         quirks |= kRequiresWMAProComponent;
     }
-#endif
 
     return quirks;
 }
@@ -897,7 +836,6 @@ sp<MediaSource> OMXCodec::Create(
             componentNameBase = "OMX.google.aac.decoder";
         }
 #endif
-
         uint32_t quirks = getComponentQuirks(componentNameBase, createEncoder);
 #ifdef QCOM_HARDWARE
         if(quirks & kRequiresWMAProComponent)
@@ -1016,7 +954,6 @@ status_t OMXCodec::parseAVCCodecSpecificData(
     // CHECK((ptr[5] >> 5) == 7);  // reserved
 
     size_t numSeqParameterSets = ptr[5] & 31;
-#ifdef QCOM_HARDWARE
     uint16_t spsSize = (((uint16_t)ptr[6]) << 8)
       + (uint16_t)(ptr[7]);
     CODEC_LOGV("numSeqParameterSets = %d , spsSize = %d",
@@ -1038,8 +975,6 @@ status_t OMXCodec::parseAVCCodecSpecificData(
         mSPSParsed = false;
         mInterlaceFormatDetected = false;
     }
-#endif
-
     ptr += 6;
     size -= 6;
 
@@ -1102,9 +1037,7 @@ status_t OMXCodec::configureCodec(const sp<MetaData> &meta) {
         uint32_t type;
         const void *data;
         size_t size;
-#ifdef QCOM_HARDWARE
         const char *mime_type;
-#endif
 
         if (!strncasecmp(mMIME, "video/", 6)) {
             int32_t arbitraryMode = 1;
@@ -1190,17 +1123,13 @@ status_t OMXCodec::configureCodec(const sp<MetaData> &meta) {
 
             CHECK(meta->findData(kKeyVorbisBooks, &type, &data, &size));
             addCodecSpecificData(data, size);
-#ifdef QCOM_HARDWARE
         } else if (meta->findData(kKeyRawCodecSpecificData, &type, &data, &size)) {
             LOGV("OMXCodec::configureCodec found kKeyRawCodecSpecificData of size %d\n", size);
             addCodecSpecificData(data, size);
         }
-#else
-        }
-#endif
+
     }
 
-#ifdef QCOM_HARDWARE
     if (!strcasecmp(MEDIA_MIMETYPE_VIDEO_DIVX, mMIME) ||
         !strcasecmp(MEDIA_MIMETYPE_VIDEO_DIVX4, mMIME) ||
         !strcasecmp(MEDIA_MIMETYPE_VIDEO_DIVX311, mMIME)) {
@@ -1232,7 +1161,6 @@ status_t OMXCodec::configureCodec(const sp<MetaData> &meta) {
             return err;
         }
     }
-#endif
 
     int32_t bitRate = 0;
     if (mIsEncoder) {
@@ -1247,13 +1175,10 @@ status_t OMXCodec::configureCodec(const sp<MetaData> &meta) {
         CHECK(meta->findInt32(kKeyChannelCount, &numChannels));
         CHECK(meta->findInt32(kKeySampleRate, &sampleRate));
 
-#ifdef QCOM_HARDWARE
         meta->findInt32(kKeyBitRate, &bitRate);
         meta->findInt32(kkeyAacFormatAdif, &mIsAacFormatAdif);
-#endif
         status_t err = setAACFormat(numChannels, sampleRate, bitRate);
 
-#ifdef QCOM_HARDWARE
         uint32_t type;
         const void *data;
         size_t size;
@@ -1262,13 +1187,11 @@ status_t OMXCodec::configureCodec(const sp<MetaData> &meta) {
             LOGV("OMXCodec:: configureCodec found kKeyAacCodecSpecificData of size %d\n", size);
             addCodecSpecificData(data, size);
         }
-#endif
 
         if (err != OK) {
             CODEC_LOGE("setAACFormat() failed (err = %d)", err);
             return err;
         }
-#ifdef QCOM_HARDWARE
     } else if (!strcasecmp(MEDIA_MIMETYPE_AUDIO_AC3, mMIME)) {
         return BAD_TYPE;
         /*int32_t numChannels, sampleRate;
@@ -1290,7 +1213,6 @@ status_t OMXCodec::configureCodec(const sp<MetaData> &meta) {
         if(err!=OK){
            return err;
         }
-#endif
     } else if (!strcasecmp(MEDIA_MIMETYPE_AUDIO_G711_ALAW, mMIME)
             || !strcasecmp(MEDIA_MIMETYPE_AUDIO_G711_MLAW, mMIME)) {
         // These are PCM-like formats with a fixed sample rate but
@@ -1302,9 +1224,7 @@ status_t OMXCodec::configureCodec(const sp<MetaData> &meta) {
         int32_t numChannels;
 #endif
         CHECK(meta->findInt32(kKeyChannelCount, &numChannels));
-#ifdef QCOM_HARDWARE
         CHECK(meta->findInt32(kKeySampleRate, &sampleRate));
-#endif
 
 #ifdef QCOM_HARDWARE
         setG711Format(numChannels, sampleRate);
@@ -1314,7 +1234,6 @@ status_t OMXCodec::configureCodec(const sp<MetaData> &meta) {
     }
 
     if (!strncasecmp(mMIME, "video/", 6)) {
-#ifdef QCOM_HARDWARE
         if (mThumbnailMode) {
             LOGV("Enabling thumbnail mode.");
             QOMX_ENABLETYPE enableType;
@@ -1333,7 +1252,6 @@ status_t OMXCodec::configureCodec(const sp<MetaData> &meta) {
 
             LOGV("Thumbnail mode enabled.");
         }
-#endif
 
         if (mIsEncoder) {
             setVideoInputFormat(mMIME, meta);
@@ -1349,7 +1267,6 @@ status_t OMXCodec::configureCodec(const sp<MetaData> &meta) {
                 return err;
             }
 
-#ifdef QCOM_HARDWARE
             if (mUseArbitraryMode) {
                 CODEC_LOGI("Decoder should be in arbitrary mode");
                 // Is it required to set OMX_QCOM_FramePacking_Arbitrary ??
@@ -1365,7 +1282,6 @@ status_t OMXCodec::configureCodec(const sp<MetaData> &meta) {
                     LOGW("Failed to set frame packing format on component");
                 }
             }
-#endif
         }
     }
 
@@ -1404,7 +1320,6 @@ status_t OMXCodec::configureCodec(const sp<MetaData> &meta) {
     }
 
     initOutputFormat(meta);
-#ifdef QCOM_HARDWARE
     if ((!strncasecmp(mMIME, "audio/", 6)) && (!strncmp(mComponentName, "OMX.qcom.", 9))) {
         OMX_PARAM_SUSPENSIONPOLICYTYPE suspensionPolicy;
         // Suspension policy for the OMX component to honor the Power collapse (TCXO shutdown)
@@ -1424,7 +1339,6 @@ status_t OMXCodec::configureCodec(const sp<MetaData> &meta) {
                 "policy parameters in output port ");
         }
     }
-#endif
     if ((mFlags & kClientNeedsFramebuffer)
             && !strncmp(mComponentName, "OMX.SEC.", 8)) {
         OMX_INDEXTYPE index;
@@ -1675,8 +1589,7 @@ void OMXCodec::setVideoInputFormat(
         const char *mime, const sp<MetaData>& meta) {
 
     int32_t width, height, frameRate, bitRate, stride, sliceHeight;
-#ifdef QCOM_HARDWARE
-    int32_t hfr = 0;
+    int32_t hfr = 0, hfrRatio = 0;
 
     char value[PROPERTY_VALUE_MAX];
     if ( property_get("encoder.video.bitrate", value, 0) > 0 && atoi(value) > 0){
@@ -1684,22 +1597,19 @@ void OMXCodec::setVideoInputFormat(
         meta->setInt32(kKeyBitRate, atoi(value));
     }
 
-#endif
     bool success = meta->findInt32(kKeyWidth, &width);
     success = success && meta->findInt32(kKeyHeight, &height);
     success = success && meta->findInt32(kKeyFrameRate, &frameRate);
     success = success && meta->findInt32(kKeyBitRate, &bitRate);
     success = success && meta->findInt32(kKeyStride, &stride);
     success = success && meta->findInt32(kKeySliceHeight, &sliceHeight);
-#ifdef QCOM_HARDWARE
     meta->findInt32(kKeyHFR, &hfr);
-#endif
     CHECK(success);
     CHECK(stride != 0);
 
-#ifdef QCOM_HARDWARE
+    hfrRatio = hfr/frameRate;
     frameRate = hfr?hfr:frameRate;
-#endif
+    bitRate = hfr ? (hfrRatio*bitRate) : bitRate;
 
     OMX_VIDEO_CODINGTYPE compressionFormat = OMX_VIDEO_CodingUnused;
     if (!strcasecmp(MEDIA_MIMETYPE_VIDEO_AVC, mime)) {
@@ -1708,7 +1618,6 @@ void OMXCodec::setVideoInputFormat(
         compressionFormat = OMX_VIDEO_CodingMPEG4;
     } else if (!strcasecmp(MEDIA_MIMETYPE_VIDEO_H263, mime)) {
         compressionFormat = OMX_VIDEO_CodingH263;
-#ifdef QCOM_HARDWARE
     } else if (!strcasecmp(MEDIA_MIMETYPE_VIDEO_DIVX, mime)){
         compressionFormat= (OMX_VIDEO_CODINGTYPE)QOMX_VIDEO_CodingDivx;
     } else if (!strcasecmp(MEDIA_MIMETYPE_VIDEO_DIVX4, mime)){
@@ -1719,7 +1628,6 @@ void OMXCodec::setVideoInputFormat(
         compressionFormat = OMX_VIDEO_CodingWMV;
     } else if (!strcasecmp(MEDIA_MIMETYPE_CONTAINER_MPEG2, mime)){
         compressionFormat = OMX_VIDEO_CodingMPEG2;
-#endif
     } else {
         LOGE("Not a supported video mime type: %s", mime);
         CHECK(!"Should not be here. Not a supported video mime type.");
@@ -1827,7 +1735,6 @@ void OMXCodec::setVideoInputFormat(
             break;
     }
 
-#ifdef QCOM_HARDWARE
     //If compression is AVC and 3D encoding is requested, we'll inform the encoder
     int32_t want3D = 0;
     if (meta->findInt32(kKey3D, &want3D) && want3D) {
@@ -1867,7 +1774,6 @@ void OMXCodec::setVideoInputFormat(
             LOGI("Enabled 3d");
 
     }
-#endif
 }
 
 static OMX_U32 setPFramesSpacing(int32_t iFramesInterval, int32_t frameRate) {
@@ -2007,10 +1913,8 @@ status_t OMXCodec::getVideoProfileLevel(
             // via OMX_SetParameter call.
             profileLevel.mProfile = profile;
             profileLevel.mLevel = level;
-#ifdef QCOM_HARDWARE
             CODEC_LOGV("profile: %d, level %d is supported",
                        profile, level);
-#endif
             return OK;
         }
     }
@@ -2022,15 +1926,11 @@ status_t OMXCodec::getVideoProfileLevel(
 
 status_t OMXCodec::setupH263EncoderParameters(const sp<MetaData>& meta) {
     int32_t iFramesInterval, frameRate, bitRate;
-#ifdef QCOM_HARDWARE
-    int32_t hfr = 0;
-#endif
+    int32_t hfr = 0, hfrRatio = 0;
     bool success = meta->findInt32(kKeyBitRate, &bitRate);
     success = success && meta->findInt32(kKeyFrameRate, &frameRate);
     success = success && meta->findInt32(kKeyIFramesInterval, &iFramesInterval);
-#ifdef QCOM_HARDWARE
     meta->findInt32(kKeyHFR, &hfr);
-#endif
     CHECK(success);
     OMX_VIDEO_PARAM_H263TYPE h263type;
     InitOMXParams(&h263type);
@@ -2039,14 +1939,14 @@ status_t OMXCodec::setupH263EncoderParameters(const sp<MetaData>& meta) {
     status_t err = mOMX->getParameter(
             mNode, OMX_IndexParamVideoH263, &h263type, sizeof(h263type));
     CHECK_EQ(err, (status_t)OK);
+    hfrRatio = hfr ? hfr/frameRate : 1;
 
-#ifdef QCOM_HARDWARE
     frameRate = hfr ? hfr : frameRate;
-#endif
+    bitRate = hfr ? (hfrRatio*bitRate) : bitRate;
     h263type.nAllowedPictureTypes =
         OMX_VIDEO_PictureTypeI | OMX_VIDEO_PictureTypeP;
 
-    h263type.nPFrames = setPFramesSpacing(iFramesInterval, frameRate);
+    h263type.nPFrames = setPFramesSpacing(iFramesInterval, frameRate / hfrRatio);
     if (h263type.nPFrames == 0) {
         h263type.nAllowedPictureTypes = OMX_VIDEO_PictureTypeI;
     }
@@ -2076,23 +1976,18 @@ status_t OMXCodec::setupH263EncoderParameters(const sp<MetaData>& meta) {
     return OK;
 }
 
-#ifdef QCOM_HARDWARE
+
 status_t OMXCodec::setupMPEG2EncoderParameters(const sp<MetaData>& meta) {
     return OK;
 }
-#endif
 
 status_t OMXCodec::setupMPEG4EncoderParameters(const sp<MetaData>& meta) {
     int32_t iFramesInterval, frameRate, bitRate;
-#ifdef QCOM_HARDWARE
-    int32_t hfr = 0;
-#endif
+    int32_t hfr = 0, hfrRatio = 0;
     bool success = meta->findInt32(kKeyBitRate, &bitRate);
     success = success && meta->findInt32(kKeyFrameRate, &frameRate);
     success = success && meta->findInt32(kKeyIFramesInterval, &iFramesInterval);
-#ifdef QCOM_HARDWARE
     meta->findInt32(kKeyHFR, &hfr);
-#endif
     CHECK(success);
     OMX_VIDEO_PARAM_MPEG4TYPE mpeg4type;
     InitOMXParams(&mpeg4type);
@@ -2108,11 +2003,11 @@ status_t OMXCodec::setupMPEG4EncoderParameters(const sp<MetaData>& meta) {
 
     mpeg4type.nAllowedPictureTypes =
         OMX_VIDEO_PictureTypeI | OMX_VIDEO_PictureTypeP;
+    hfrRatio = hfr ? hfr/frameRate : 1;
 
-#ifdef QCOM_HARDWARE
     frameRate = hfr ? hfr : frameRate;
-#endif
-    mpeg4type.nPFrames = setPFramesSpacing(iFramesInterval, frameRate);
+    bitRate = hfr ? (hfrRatio*bitRate) : bitRate;
+    mpeg4type.nPFrames = setPFramesSpacing(iFramesInterval, frameRate / hfrRatio);
     if (mpeg4type.nPFrames == 0) {
         mpeg4type.nAllowedPictureTypes = OMX_VIDEO_PictureTypeI;
     }
@@ -2133,14 +2028,12 @@ status_t OMXCodec::setupMPEG4EncoderParameters(const sp<MetaData>& meta) {
     mpeg4type.eProfile = static_cast<OMX_VIDEO_MPEG4PROFILETYPE>(profileLevel.mProfile);
     mpeg4type.eLevel = static_cast<OMX_VIDEO_MPEG4LEVELTYPE>(profileLevel.mLevel);
 
-#ifdef QCOM_HARDWARE
     if (mpeg4type.eProfile > OMX_VIDEO_MPEG4ProfileSimple) {
         mpeg4type.nAllowedPictureTypes |= OMX_VIDEO_PictureTypeB;
         mpeg4type.nBFrames = 1;
         mNumBFrames = 1;
         mpeg4type.nPFrames = mpeg4type.nPFrames / 2;
     }
-#endif
 
     err = mOMX->setParameter(
             mNode, OMX_IndexParamVideoMpeg4, &mpeg4type, sizeof(mpeg4type));
@@ -2154,16 +2047,11 @@ status_t OMXCodec::setupMPEG4EncoderParameters(const sp<MetaData>& meta) {
 
 status_t OMXCodec::setupAVCEncoderParameters(const sp<MetaData>& meta) {
     int32_t iFramesInterval, frameRate, bitRate;
-#ifdef QCOM_HARDWARE
-    int32_t hfr = 0;
-#endif
+    int32_t hfr = 0, hfrRatio = 0;
     bool success = meta->findInt32(kKeyBitRate, &bitRate);
     success = success && meta->findInt32(kKeyFrameRate, &frameRate);
     success = success && meta->findInt32(kKeyIFramesInterval, &iFramesInterval);
-#ifdef QCOM_HARDWARE
     meta->findInt32(kKeyHFR, &hfr);
-    success = success && meta->findInt32(kKeyHFR, &hfr);
-#endif
     CHECK(success);
 
     OMX_VIDEO_PARAM_AVCTYPE h264type;
@@ -2185,10 +2073,9 @@ status_t OMXCodec::setupAVCEncoderParameters(const sp<MetaData>& meta) {
     if (err != OK) return err;
     h264type.eProfile = static_cast<OMX_VIDEO_AVCPROFILETYPE>(profileLevel.mProfile);
     h264type.eLevel = static_cast<OMX_VIDEO_AVCLEVELTYPE>(profileLevel.mLevel);
-
-#ifdef QCOM_HARDWARE
+    hfrRatio = hfr ? hfr/frameRate : 1;
     frameRate = hfr ? hfr : frameRate;
-#endif
+    bitRate = hfr ? (hfrRatio*bitRate) : bitRate;
 
     // FIXME:
     // Remove the workaround after the work in done.
@@ -2201,7 +2088,7 @@ status_t OMXCodec::setupAVCEncoderParameters(const sp<MetaData>& meta) {
         h264type.bUseHadamard = OMX_TRUE;
         h264type.nRefFrames = 1;
         h264type.nBFrames = 0;
-        h264type.nPFrames = setPFramesSpacing(iFramesInterval, frameRate);
+        h264type.nPFrames = setPFramesSpacing(iFramesInterval, frameRate / hfrRatio);
         if (h264type.nPFrames == 0) {
             h264type.nAllowedPictureTypes = OMX_VIDEO_PictureTypeI;
         }
@@ -2215,14 +2102,13 @@ status_t OMXCodec::setupAVCEncoderParameters(const sp<MetaData>& meta) {
         h264type.nCabacInitIdc = 0;
     }
 
-#ifdef QCOM_HARDWARE
+
     if (h264type.eProfile > OMX_VIDEO_AVCProfileBaseline) {
-        h264type.nPFrames = setPFramesSpacing(iFramesInterval, frameRate);
+        h264type.nPFrames = setPFramesSpacing(iFramesInterval, frameRate / hfrRatio);
         h264type.nBFrames = 1;
         mNumBFrames = 1;
         h264type.nPFrames = h264type.nPFrames / 2;
     }
-#endif
 
     if (h264type.nBFrames != 0) {
         h264type.nAllowedPictureTypes |= OMX_VIDEO_PictureTypeB;
@@ -2264,7 +2150,6 @@ status_t OMXCodec::setVideoOutputFormat(
         compressionFormat = OMX_VIDEO_CodingVPX;
     } else if (!strcasecmp(MEDIA_MIMETYPE_VIDEO_MPEG2, mime)) {
         compressionFormat = OMX_VIDEO_CodingMPEG2;
-#ifdef QCOM_HARDWARE
     } else if(!strcasecmp(MEDIA_MIMETYPE_VIDEO_DIVX, mime)) {
         compressionFormat = (OMX_VIDEO_CODINGTYPE)QOMX_VIDEO_CodingDivx;
     } else if(!strcasecmp(MEDIA_MIMETYPE_VIDEO_DIVX311, mime)) {
@@ -2273,7 +2158,6 @@ status_t OMXCodec::setVideoOutputFormat(
         compressionFormat = (OMX_VIDEO_CODINGTYPE)QOMX_VIDEO_CodingDivx;
     } else if (!strcasecmp(MEDIA_MIMETYPE_VIDEO_WMV, mime)){
         compressionFormat = OMX_VIDEO_CodingWMV;
-#endif
     } else {
         LOGE("Not a supported video mime type: %s", mime);
         CHECK(!"Should not be here. Not a supported video mime type.");
@@ -2286,7 +2170,6 @@ status_t OMXCodec::setVideoOutputFormat(
         return err;
     }
 
-#ifdef QCOM_HARDWARE
     //Enable decoder to report if there is any SEI data
     //(supported only by H264)
     if (compressionFormat == OMX_VIDEO_CodingAVC)
@@ -2301,14 +2184,12 @@ status_t OMXCodec::setVideoOutputFormat(
         if (err != OK)
             LOGV("Not supported parameter OMX_QcomIndexParamFrameInfoExtraData");
     }
-#endif
 
 #if 1
     {
         OMX_VIDEO_PARAM_PORTFORMATTYPE format;
         InitOMXParams(&format);
         format.nPortIndex = kPortIndexOutput;
-#ifdef QCOM_HARDWARE
         if (!strncmp(mComponentName, "OMX.qcom",8)) {
             int32_t reqdColorFormat = ColorFormatInfo::getPreferredColorFormat(mOMXLivesLocally);
             for(format.nIndex = 0;
@@ -2318,13 +2199,10 @@ status_t OMXCodec::setVideoOutputFormat(
                     break;
             }
         } else
-#endif
         format.nIndex = 0;
 
-#ifdef QCOM_HARDWARE
         CODEC_LOGV("Video O/P format.nIndex 0x%x",format.nIndex);
         CODEC_LOGE("Video O/P format.eColorFormat 0x%x",format.eColorFormat);
-#endif
 
         status_t err = mOMX->getParameter(
                 mNode, OMX_IndexParamVideoPortFormat,
@@ -2443,9 +2321,7 @@ OMXCodec::OMXCodec(
       mState(LOADED),
       mInitialBufferSubmit(true),
       mSignalledEOS(false),
-#ifdef QCOM_HARDWARE
       mFinalStatus(OK),
-#endif
       mNoMoreOutputData(false),
       mOutputPortSettingsHaveChanged(false),
       mSeekTimeUs(-1),
@@ -2454,7 +2330,6 @@ OMXCodec::OMXCodec(
       mOutputPortSettingsChangedPending(false),
       mLeftOverBuffer(NULL),
       mPaused(false),
-#ifdef QCOM_HARDWARE
       mIsAacFormatAdif(0),
       mInterlaceFormatDetected(false),
       mSPSParsed(false),
@@ -2464,16 +2339,13 @@ OMXCodec::OMXCodec(
       LC_level(0),
       mThumbnailMode(false),
       m3DVideoDetected(false),
-#endif
       mNativeWindow(
               (!strncmp(componentName, "OMX.google.", 11)
               || !strcmp(componentName, "OMX.Nvidia.mpeg2v.decode"))
                         ? NULL : nativeWindow),
       mNumBFrames(0),
       mUseArbitraryMode(true) {
-#ifdef QCOM_HARDWARE
     parseFlags();
-#endif
     mPortStatus[kPortIndexInput] = ENABLED;
     mPortStatus[kPortIndexOutput] = ENABLED;
 
@@ -2507,26 +2379,22 @@ void OMXCodec::setComponentRole(
             "audio_decoder.aac", "audio_encoder.aac" },
         { MEDIA_MIMETYPE_AUDIO_VORBIS,
             "audio_decoder.vorbis", "audio_encoder.vorbis" },
-#ifdef QCOM_HARDWARE
         { MEDIA_MIMETYPE_AUDIO_EVRC,
             "audio_decoder.evrchw", "audio_encoder.evrc" },
         { MEDIA_MIMETYPE_AUDIO_QCELP,
             "audio_decoder,qcelp13Hw", "audio_encoder.qcelp13" },
-#endif
         { MEDIA_MIMETYPE_VIDEO_AVC,
             "video_decoder.avc", "video_encoder.avc" },
         { MEDIA_MIMETYPE_VIDEO_MPEG4,
             "video_decoder.mpeg4", "video_encoder.mpeg4" },
         { MEDIA_MIMETYPE_VIDEO_H263,
             "video_decoder.h263", "video_encoder.h263" },
-#ifdef QCOM_HARDWARE
         { MEDIA_MIMETYPE_VIDEO_DIVX,
             "video_decoder.divx", NULL },
         { MEDIA_MIMETYPE_AUDIO_AC3,
             "audio_decoder.ac3", NULL },
         { MEDIA_MIMETYPE_VIDEO_DIVX311,
             "video_decoder.divx", NULL },
-#endif
     };
 
     static const size_t kNumMimeToRole =
@@ -2616,10 +2484,8 @@ status_t OMXCodec::init() {
 
     err = allocateBuffers();
     if (err != (status_t)OK) {
-#ifdef QCOM_HARDWARE
         CODEC_LOGE("Allocate Buffer failed - error = %d", err);
         setState(ERROR);
-#endif
         return err;
     }
 
@@ -2643,10 +2509,8 @@ bool OMXCodec::isIntermediateState(State state) {
         || state == IDLE_TO_EXECUTING
         || state == EXECUTING_TO_IDLE
         || state == IDLE_TO_LOADED
-#ifdef QCOM_HARDWARE
         || state == PAUSING
         || state == FLUSHING
-#endif
         || state == RECONFIGURING;
 }
 
@@ -2694,7 +2558,6 @@ status_t OMXCodec::allocateBuffersOnPort(OMX_U32 portIndex) {
         return err;
     }
 
-#ifdef QCOM_HARDWARE
     if (mFlags & kUseMinBufferCount) {
         def.nBufferCountActual = def.nBufferCountMin;
         if (!mIsEncoder) {
@@ -2712,7 +2575,6 @@ status_t OMXCodec::allocateBuffersOnPort(OMX_U32 portIndex) {
             return err;
         }
     }
-#endif
 
     CODEC_LOGV("allocating %lu buffers of size %lu on %s port",
             def.nBufferCountActual, def.nBufferSize,
@@ -2867,7 +2729,6 @@ status_t OMXCodec::allocateOutputBuffersFromNativeWindow() {
         return err;
     }
 
-#ifdef QCOM_HARDWARE
     int format = (def.format.video.eColorFormat ==
                   QOMX_COLOR_FormatYUV420PackedSemiPlanar64x32Tile2m8ka)?
                  HAL_PIXEL_FORMAT_YCbCr_420_SP_TILED : def.format.video.eColorFormat;
@@ -2877,7 +2738,6 @@ status_t OMXCodec::allocateOutputBuffersFromNativeWindow() {
         format = HAL_PIXEL_FORMAT_YCrCb_420_SP_ADRENO;
 
     format ^= (mInterlaceFormatDetected ? HAL_PIXEL_FORMAT_INTERLACE : 0);
-#endif
 
 #ifndef SAMSUNG_CODEC_SUPPORT
     err = native_window_set_buffers_geometry(
@@ -2919,7 +2779,6 @@ status_t OMXCodec::allocateOutputBuffersFromNativeWindow() {
         return err;
     }
 
-#ifdef QCOM_HARDWARE
     // Crop the native window to the proper display resolution
     int32_t left, top, right, bottom;
     CHECK(mOutputFormat->findRect(
@@ -2936,7 +2795,6 @@ status_t OMXCodec::allocateOutputBuffersFromNativeWindow() {
     if (err != OK) {
         LOGE("native_window_set_crop failed: %s (%d)", strerror(-err), -err);
     }
-#endif
 
     err = applyRotation();
     if (err != OK) {
@@ -3019,7 +2877,6 @@ status_t OMXCodec::allocateOutputBuffersFromNativeWindow() {
         return err;
     }
 
-#ifdef QCOM_HARDWARE
     err = mNativeWindow.get()->perform(mNativeWindow.get(),
                              NATIVE_WINDOW_SET_BUFFERS_SIZE, def.nBufferSize);
     if (err != 0) {
@@ -3027,8 +2884,6 @@ status_t OMXCodec::allocateOutputBuffersFromNativeWindow() {
                 -err);
         return err;
     }
-#endif
-
     CODEC_LOGV("allocating %lu buffers from a native window of size %lu on "
             "output port", def.nBufferCountActual, def.nBufferSize);
 
@@ -3041,14 +2896,12 @@ status_t OMXCodec::allocateOutputBuffersFromNativeWindow() {
             break;
         }
 
-#ifdef QCOM_HARDWARE
         private_handle_t *handle = (private_handle_t *)buf->handle;
         if(!handle) {
                 LOGE("Native Buffer handle is NULL");
                 break;
         }
         CHECK_EQ(def.nBufferSize, handle->size); //otherwise it might cause memory corruption issues. It may fail because of alignment or extradata.
-#endif
 
         sp<GraphicBuffer> graphicBuffer(new GraphicBuffer(buf, false));
         BufferInfo info;
@@ -3362,13 +3215,11 @@ void OMXCodec::on_message(const omx_message &msg) {
 
             BufferInfo* info = &buffers->editItemAt(i);
             info->mStatus = OWNED_BY_US;
-#ifdef QCOM_HARDWARE
             if ((mState == ERROR)  && (bInvalidState == true)) {
               CODEC_LOGV("mState ERROR, freeing i/p buffer %p", buffer);
               status_t err = freeBuffer(kPortIndexInput, i);
               CHECK_EQ(err, (status_t)OK);
             }
-#endif
 
             // Buffer could not be released until empty buffer done is called.
             if (info->mMediaBuffer != NULL) {
@@ -3413,7 +3264,6 @@ void OMXCodec::on_message(const omx_message &msg) {
                  msg.u.extended_buffer_data.timestamp,
                  msg.u.extended_buffer_data.timestamp / 1E6);
 
-#ifdef QCOM_HARDWARE
             if (!strncasecmp(mMIME, "video/", 6) && mOMXLivesLocally
                && msg.u.extended_buffer_data.range_length > 0) {
 
@@ -3421,7 +3271,6 @@ void OMXCodec::on_message(const omx_message &msg) {
               if (!mThumbnailMode)
                   processSEIData();
             }
-#endif
 
             Vector<BufferInfo> *buffers = &mPortBuffers[kPortIndexOutput];
             size_t i = 0;
@@ -3438,13 +3287,11 @@ void OMXCodec::on_message(const omx_message &msg) {
             }
 
             info->mStatus = OWNED_BY_US;
-#ifdef QCOM_HARDWARE
             if ((mState == ERROR) && (bInvalidState == true)) {
               CODEC_LOGV("mState ERROR, freeing o/p buffer %p", buffer);
               status_t err = freeBuffer(kPortIndexOutput, i);
               CHECK_EQ(err, (status_t)OK);
             }
-#endif
 
             if (mPortStatus[kPortIndexOutput] == DISABLING) {
                 CODEC_LOGV("Port is disabled, freeing buffer %p", buffer);
@@ -3527,11 +3374,9 @@ void OMXCodec::on_message(const omx_message &msg) {
 
                 if (mIsEncoder) {
                     int64_t decodingTimeUs = retrieveDecodingTimeUs(isCodecSpecific);
-#ifdef QCOM_HARDWARE
                     CODEC_LOGV("kkeyTime = %lld, kKeyDecodingTime = %lld, ctts = %lld",
                                msg.u.extended_buffer_data.timestamp, decodingTimeUs,
                                msg.u.extended_buffer_data.timestamp - decodingTimeUs);
-#endif
                     buffer->meta_data()->setInt64(kKeyDecodingTime, decodingTimeUs);
                 }
 
@@ -3664,13 +3509,11 @@ void OMXCodec::onEvent(OMX_EVENTTYPE event, OMX_U32 data1, OMX_U32 data2) {
         case OMX_EventError:
         {
             CODEC_LOGE("ERROR(0x%08lx, %ld)", data1, data2);
-#ifdef QCOM_HARDWARE
             if (data1 == OMX_ErrorInvalidState) {
                 bInvalidState = true;
                 mPortStatus[kPortIndexInput] = SHUTTING_DOWN;
                 mPortStatus[kPortIndexOutput] = SHUTTING_DOWN;
             }
-#endif
 
             setState(ERROR);
             break;
@@ -3681,7 +3524,6 @@ void OMXCodec::onEvent(OMX_EVENTTYPE event, OMX_U32 data1, OMX_U32 data2) {
             CODEC_LOGV("OMX_EventPortSettingsChanged(port=%ld, data2=0x%08lx)",
                        data1, data2);
 
-#ifdef QCOM_HARDWARE
             if ((mState != EXECUTING) && (mState != FLUSHING)) {
                 CODEC_LOGE("Ignore PortSettingsChanged event mState == %d ", mState);
                 break;
@@ -3692,7 +3534,6 @@ void OMXCodec::onEvent(OMX_EVENTTYPE event, OMX_U32 data1, OMX_U32 data2) {
                 // Seek is completed and waiting for FBD, at this instance
                 // Port reconfig is received rather than FBD.
             }
-#endif
 
             if (data2 == 0 || data2 == OMX_IndexParamPortDefinition) {
                 // There is no need to check whether mFilledBuffers is empty or not
@@ -3758,7 +3599,6 @@ void OMXCodec::onEvent(OMX_EVENTTYPE event, OMX_U32 data1, OMX_U32 data2) {
             }
             break;
         }
-#ifdef QCOM_HARDWARE
         case OMX_EventIndexsettingChanged:
         {
             OMX_INTERLACETYPE format = (OMX_INTERLACETYPE)data1;
@@ -3770,7 +3610,6 @@ void OMXCodec::onEvent(OMX_EVENTTYPE event, OMX_U32 data1, OMX_U32 data2) {
             }
             break;
         }
-#endif
 #if 0
         case OMX_EventBufferFlag:
         {
@@ -3801,12 +3640,10 @@ void OMXCodec::onCmdComplete(OMX_COMMANDTYPE cmd, OMX_U32 data) {
 
         case OMX_CommandPortDisable:
         {
-#ifdef QCOM_HARDWARE
             if(mState == ERROR) {
               CODEC_LOGE("Ignoring OMX_CommandPortDisable in ERROR state");
               break;
             }
-#endif
             OMX_U32 portIndex = data;
             CODEC_LOGV("PORT_DISABLED(%ld)", portIndex);
 
@@ -3850,12 +3687,10 @@ void OMXCodec::onCmdComplete(OMX_COMMANDTYPE cmd, OMX_U32 data) {
             OMX_U32 portIndex = data;
             CODEC_LOGV("PORT_ENABLED(%ld)", portIndex);
 
-#ifdef QCOM_HARDWARE
             if(ERROR == mState) {
               CODEC_LOGE("Ignoring port Enable since component is in ERROR state");
               break;
             }
-#endif
 
             CHECK(mState == EXECUTING || mState == RECONFIGURING);
             CHECK_EQ((int)mPortStatus[portIndex], (int)ENABLING);
@@ -3900,13 +3735,10 @@ void OMXCodec::onCmdComplete(OMX_COMMANDTYPE cmd, OMX_U32 data) {
                      mPortBuffers[portIndex].size());
 #endif
 
-
-#ifdef QCOM_HARDWARE
             if(mState == ERROR) {
               CODEC_LOGE("Ignoring OMX_CommandFlush in ERROR state");
               break;
             }
-#endif
 
             if (mState == RECONFIGURING) {
                 CHECK_EQ(portIndex, (OMX_U32)kPortIndexOutput);
@@ -4019,7 +3851,7 @@ void OMXCodec::onStateChange(OMX_STATETYPE newState) {
                                                      NATIVE_WINDOW_SET_BUFFERS_SIZE,
                                                      0);
                     if (err != 0) {
-                        LOGE("set_buffers_size failed: %s (%d)", strerror(-err),
+                        ALOGE("set_buffers_size failed: %s (%d)", strerror(-err),
                              -err);
                     }
 
@@ -4071,10 +3903,8 @@ void OMXCodec::onStateChange(OMX_STATETYPE newState) {
 
         case OMX_StateLoaded:
         {
-#ifdef QCOM_HARDWARE
             if (mState == ERROR)
                 CODEC_LOGE("We are in error state, should have been in idle->loaded");
-#endif
 
             CHECK_EQ((int)mState, (int)IDLE_TO_LOADED);
 
@@ -4083,7 +3913,6 @@ void OMXCodec::onStateChange(OMX_STATETYPE newState) {
             setState(LOADED);
             break;
         }
-#ifdef QCOM_HARDWARE
         case OMX_StatePause:
         {
            CODEC_LOGV("Now paused.");
@@ -4093,7 +3922,6 @@ void OMXCodec::onStateChange(OMX_STATETYPE newState) {
            setState(PAUSED);
            break;
         }
-#endif
         case OMX_StateInvalid:
         {
             setState(ERROR);
@@ -4178,13 +4006,11 @@ status_t OMXCodec::freeBuffer(OMX_U32 portIndex, size_t bufIndex) {
     if (err == OK) {
         buffers->removeAt(bufIndex);
     }
-#ifdef QCOM_HARDWARE
     else {
         LOGW("Warning, free Buffer failed, to be freed later"
              " returning OK to prevent crash..");
         return OK;
     }
-#endif
 
     return err;
 }
@@ -4221,12 +4047,10 @@ bool OMXCodec::flushPortAsync(OMX_U32 portIndex) {
             || mState == EXECUTING_TO_IDLE);
 #endif
 
-#ifdef QCOM_HARDWARE
     if ( portIndex == -1 ) {
         mPortStatus[kPortIndexInput] = SHUTTING_DOWN;
         mPortStatus[kPortIndexOutput] = SHUTTING_DOWN;
     } else {
-#endif
     CODEC_LOGV("flushPortAsync(%ld): we own %d out of %d buffers already.",
          portIndex, countBuffersWeOwn(mPortBuffers[portIndex]),
          mPortBuffers[portIndex].size());
@@ -4241,10 +4065,8 @@ bool OMXCodec::flushPortAsync(OMX_U32 portIndex) {
         // flush-complete event in this case.
 
         return false;
+        }
     }
-#ifdef QCOM_HARDWARE
-    }
-#endif
 
     status_t err =
         mOMX->sendCommand(mNode, OMX_CommandFlush, portIndex);
@@ -4343,9 +4165,7 @@ void OMXCodec::drainInputBuffers() {
             }
         }
     } else {
-#ifdef QCOM_HARDWARE
         size_t CAMERA_BUFFERS = 4;
-#endif
         Vector<BufferInfo> *buffers = &mPortBuffers[kPortIndexInput];
         for (size_t i = 0; i < buffers->size(); ++i) {
             BufferInfo *info = &buffers->editItemAt(i);
@@ -4354,10 +4174,8 @@ void OMXCodec::drainInputBuffers() {
                 continue;
             }
 
-#ifdef QCOM_HARDWARE
-            if(mIsEncoder && (mQuirks & kAvoidMemcopyInputRecordingFrames) && (i == CAMERA_BUFFERS))
+            if(mIsEncoder && (i == CAMERA_BUFFERS))
                 break;
-#endif
 
             if (!drainInputBuffer(info)) {
                 break;
@@ -4567,10 +4385,8 @@ bool OMXCodec::drainInputBuffer(BufferInfo *info) {
             OMX_BUFFERHEADERTYPE *header =
                 (OMX_BUFFERHEADERTYPE *)info->mBuffer;
 
-#ifdef QCOM_HARDWARE
             //not commenting this one for now. XXX - remove when memcopy can be avoided
             //for encoder
-#endif
             CHECK(header->pBuffer == info->mData);
 
             header->pBuffer =
@@ -4640,9 +4456,7 @@ bool OMXCodec::drainInputBuffer(BufferInfo *info) {
         CHECK(srcBuffer->meta_data()->findInt64(kKeyTime, &lastBufferTimeUs));
         CHECK(lastBufferTimeUs >= 0);
         if (mIsEncoder) {
-#ifdef QCOM_HARDWARE
             CODEC_LOGV("pushing %lld to mDecodingTimeList", lastBufferTimeUs);
-#endif
             mDecodingTimeList.push_back(lastBufferTimeUs);
         }
 
@@ -4694,15 +4508,12 @@ bool OMXCodec::drainInputBuffer(BufferInfo *info) {
 
     OMX_U32 flags = OMX_BUFFERFLAG_ENDOFFRAME;
 
-#ifdef QCOM_HARDWARE
     if(mInterlaceFormatDetected) {
       mInterlaceFrame++;
     }
-#endif
 
     if (signalEOS) {
         flags |= OMX_BUFFERFLAG_EOS;
-#ifdef QCOM_HARDWARE
     } else if ((mThumbnailMode && !mInterlaceFormatDetected)
                || (mThumbnailMode && (mInterlaceFrame >= 2))) {
         // Because we don't get an EOS after getting the first frame, we
@@ -4716,7 +4527,6 @@ bool OMXCodec::drainInputBuffer(BufferInfo *info) {
         mNoMoreOutputData = false;
         mSignalledEOS = true;
         mFinalStatus = ERROR_END_OF_STREAM;
-#endif
     } else {
         mNoMoreOutputData = false;
     }
@@ -4839,14 +4649,12 @@ status_t OMXCodec::waitForBufferFilled_l() {
         return mBufferFilled.wait(mLock);
     }
     status_t err = mBufferFilled.waitRelative(mLock, kBufferFilledEventTimeOutNs);
-#ifdef QCOM_HARDWARE
     if ((err == -ETIMEDOUT) && (mPaused == true)){
         // When the audio playback is paused, the fill buffer maybe timed out
         // if input data is not available to decode. Hence, considering the
         // timed out as a valid case.
         err = OK;
     }
-#endif
     if (err != OK) {
         CODEC_LOGE("Timed out waiting for output buffers: %d/%d",
             countBuffersWeOwn(mPortBuffers[kPortIndexInput]),
@@ -4862,9 +4670,7 @@ void OMXCodec::setRawAudioFormat(
     OMX_PARAM_PORTDEFINITIONTYPE def;
     InitOMXParams(&def);
     def.nPortIndex = portIndex;
-#ifdef QCOM_HARDWARE
     def.format.audio.cMIMEType = NULL;
-#endif
     status_t err = mOMX->getParameter(
             mNode, OMX_IndexParamPortDefinition, &def, sizeof(def));
     CHECK_EQ(err, (status_t)OK);
@@ -5073,7 +4879,6 @@ status_t OMXCodec::setAACFormat(int32_t numChannels, int32_t sampleRate, int32_t
     return OK;
 }
 
-#ifdef QCOM_HARDWARE
 void OMXCodec::setAC3Format(int32_t /*numChannels*/, int32_t /*sampleRate*/) {
 /*
     QOMX_AUDIO_PARAM_AC3TYPE profileAC3;
@@ -5247,19 +5052,11 @@ status_t OMXCodec::setWMAFormat(const sp<MetaData> &meta)
 	        return err;
 	    }
 	}
-#endif
 
-#ifdef QCOM_HARDWARE
 void OMXCodec::setG711Format(int32_t numChannels, int32_t sampleRate) {
     CHECK(!mIsEncoder);
     setRawAudioFormat(kPortIndexInput, sampleRate, numChannels);
 }
-#else
-void OMXCodec::setG711Format(int32_t numChannels) {
-    CHECK(!mIsEncoder);
-    setRawAudioFormat(kPortIndexInput, 8000, numChannels);
-}
-#endif
 
 void OMXCodec::setImageOutputFormat(
         OMX_COLOR_FORMATTYPE format, OMX_U32 width, OMX_U32 height) {
@@ -5377,12 +5174,9 @@ void OMXCodec::clearCodecSpecificData() {
 }
 
 status_t OMXCodec::start(MetaData *meta) {
-#ifdef QCOM_HARDWARE
     CODEC_LOGV("OMXCodec::start ");
-#endif
     Mutex::Autolock autoLock(mLock);
 
-#ifdef QCOM_HARDWARE
     if(mPaused) {
         if (!strncmp(mComponentName, "OMX.qcom.", 9)) {
             while (isIntermediateState(mState)) {
@@ -5404,7 +5198,6 @@ status_t OMXCodec::start(MetaData *meta) {
             return OK;
         }
     }
-#endif
 
     if (mState != LOADED) {
         return UNKNOWN_ERROR;
@@ -5458,15 +5251,12 @@ status_t OMXCodec::stop() {
 
         case ERROR:
         {
-#ifdef QCOM_HARDWARE
             CODEC_LOGE("in error state, check omx il state and decide whether to free or skip");
-#endif
 
             OMX_STATETYPE state = OMX_StateInvalid;
             status_t err = mOMX->getState(mNode, &state);
             CHECK_EQ(err, (status_t)OK);
 
-#ifdef QCOM_HARDWARE
             CODEC_LOGE("OMX IL is in state %d", state);
 
             /* OMX IL spec page 98
@@ -5507,23 +5297,19 @@ status_t OMXCodec::stop() {
                 LOGW("%s IL component does not match conditions for free, skip freeing for later",
                      mComponentName);
             }
-#endif
+
             if (state != OMX_StateExecuting) {
                 break;
             }
-#ifdef QCOM_HARDWARE
             else {
                 CODEC_LOGV("Component is still in executing state, fall through and move component"
                            " to idle");
             }
-#endif
             // else fall through to the idling code
             isError = true;
         }
 
-#ifdef QCOM_HARDWARE
         case PAUSED:
-#endif
         case EXECUTING:
         {
             setState(EXECUTING_TO_IDLE);
@@ -5531,7 +5317,6 @@ status_t OMXCodec::stop() {
             if (mQuirks & kRequiresFlushBeforeShutdown) {
                 CODEC_LOGV("This component requires a flush before transitioning "
                      "from EXECUTING to IDLE...");
-#ifdef QCOM_HARDWARE
             //DSP supports flushing of ports simultaneously. Flushing individual port is not supported.
 
                 if(mQuirks & kRequiresGlobalFlush) {
@@ -5542,7 +5327,6 @@ status_t OMXCodec::stop() {
                   }
                 }
                 else {
-#endif
                 bool emulateInputFlushCompletion =
                     !flushPortAsync(kPortIndexInput);
 
@@ -5556,9 +5340,7 @@ status_t OMXCodec::stop() {
                 if (emulateOutputFlushCompletion) {
                     onCmdComplete(OMX_CommandFlush, kPortIndexOutput);
                 }
-#ifdef QCOM_HARDWARE
                }
-#endif
             } else {
                 mPortStatus[kPortIndexInput] = SHUTTING_DOWN;
                 mPortStatus[kPortIndexOutput] = SHUTTING_DOWN;
@@ -5669,7 +5451,6 @@ status_t OMXCodec::read(
         mFilledBuffers.clear();
 
         CHECK_EQ((int)mState, (int)EXECUTING);
-#ifdef QCOM_HARDWARE
         setState(FLUSHING);
         //DSP supports flushing of ports simultaneously. Flushing individual port is not supported.
 
@@ -5679,7 +5460,6 @@ status_t OMXCodec::read(
               onCmdComplete(OMX_CommandFlush, kPortIndexBoth);
           }
         } else {
-#endif
 
         bool emulateInputFlushCompletion = !flushPortAsync(kPortIndexInput);
         bool emulateOutputFlushCompletion = !flushPortAsync(kPortIndexOutput);
@@ -5690,9 +5470,7 @@ status_t OMXCodec::read(
 
         if (emulateOutputFlushCompletion) {
             onCmdComplete(OMX_CommandFlush, kPortIndexOutput);
-#ifdef QCOM_HARDWARE
         }
-#endif
         }
 
         while (mSeekTimeUs >= 0) {
@@ -5702,7 +5480,6 @@ status_t OMXCodec::read(
         }
     }
 
-#ifdef QCOM_HARDWARE
     if (!strncmp("OMX.ittiam.video.decoder", mComponentName, 24)) {
         OMX_INDEXTYPE index;
         OMX_U32 set_level = 0;
@@ -5744,7 +5521,6 @@ status_t OMXCodec::read(
           mOMX->setConfig(mNode, index, &LC_level, sizeof(LC_level));
         }
     }
-#endif
     while (mState != ERROR && !mNoMoreOutputData && mFilledBuffers.empty()) {
         if ((err = waitForBufferFilled_l()) != OK) {
             return err;
@@ -5754,12 +5530,10 @@ status_t OMXCodec::read(
     if (mState == ERROR) {
         return UNKNOWN_ERROR;
     }
-#ifdef QCOM_HARDWARE
     if(seeking) {
         CHECK_EQ((int)mState, (int)FLUSHING);
         setState(EXECUTING);
     }
-#endif
 
     if (mFilledBuffers.empty()) {
         return mSignalledEOS ? mFinalStatus : ERROR_END_OF_STREAM;
@@ -5805,10 +5579,8 @@ void OMXCodec::signalBufferReturned(MediaBuffer *buffer) {
                 if (!metaData->findInt32(kKeyRendered, &rendered)) {
                     rendered = 0;
                 }
-#ifdef QCOM_HARDWARE
                 // Set latenessUs here from kKeyLateness
                 metaData->findInt64(kKeyLateness, &latenessUs);
-#endif
                 if (!rendered) {
                     status_t err = cancelBufferToNativeWindow(info);
                     if (err < 0) {
@@ -6212,7 +5984,6 @@ void OMXCodec::initNativeWindowCrop() {
     crop.top = top;
     crop.right = right + 1;
     crop.bottom = bottom + 1;
-
     // We'll ignore any errors here, if the surface is
     // already invalid, we'll know soon enough.
     native_window_set_crop(mNativeWindow.get(), &crop);
@@ -6333,7 +6104,6 @@ void OMXCodec::initOutputFormat(const sp<MetaData> &inputFormat) {
                 mOutputFormat->setInt32(kKeyChannelCount, numChannels);
                 mOutputFormat->setInt32(kKeySampleRate, sampleRate);
                 mOutputFormat->setInt32(kKeyBitRate, bitRate);
-#ifdef QCOM_HARDWARE
             } else if (audio_def->eEncoding == OMX_AUDIO_CodingQCELP13 ) {
                 mOutputFormat->setCString(
                         kKeyMIMEType, MEDIA_MIMETYPE_AUDIO_QCELP);
@@ -6354,7 +6124,6 @@ void OMXCodec::initOutputFormat(const sp<MetaData> &inputFormat) {
                 mOutputFormat->setInt32(kKeyChannelCount, numChannels);
                 mOutputFormat->setInt32(kKeySampleRate, sampleRate);
                 mOutputFormat->setInt32(kKeyBitRate, bitRate);
-#endif
             } else {
                 CHECK(!"Should not be here. Unknown audio encoding.");
             }
@@ -6449,7 +6218,6 @@ void OMXCodec::initOutputFormat(const sp<MetaData> &inputFormat) {
                 if (mNativeWindow != NULL) {
                      initNativeWindowCrop();
                 }
-#ifdef QCOM_HARDWARE
             } else {
                 int32_t width, height;
                 bool success = inputFormat->findInt32(kKeyWidth, &width) &&
@@ -6464,7 +6232,6 @@ void OMXCodec::initOutputFormat(const sp<MetaData> &inputFormat) {
                 mOutputFormat->setInt32(kKeyHeight, height);
                 mOutputFormat->setInt32(kKeyHFR, hfr);
                 mOutputFormat->setInt32(kKeyFrameRate, frameRate);
-#endif
             }
             break;
         }
@@ -6630,7 +6397,6 @@ void OMXCodec::restorePatchedDataPointer(BufferInfo *info) {
     header->pBuffer = (OMX_U8 *)info->mData;
 }
 
-#ifdef QCOM_HARDWARE
 void OMXCodec::setEVRCFormat(int32_t numChannels, int32_t sampleRate, int32_t bitRate) {
     if (mIsEncoder) {
       CHECK(numChannels == 1);
@@ -6790,6 +6556,4 @@ status_t OMXCodec::processSEIData() {
     }
     return OK;
 }
-#endif
-
 }  // namespace android

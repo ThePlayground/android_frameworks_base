@@ -1,7 +1,6 @@
 /*
  * Copyright (C) 2009 The Android Open Source Project
  * Copyright (c) 2011-2012, Code Aurora Forum. All rights reserved.
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -63,6 +62,7 @@ struct OMXCodec : public MediaSource,
 
 #ifdef QCOM_HARDWARE
         kEnableThumbnailMode = 512,
+
         kUseMinBufferCount = 32768,
 #else
         kPreferThumbnailMode               = 0x8,
@@ -124,18 +124,14 @@ private:
         EXECUTING_TO_IDLE,
         IDLE_TO_LOADED,
         RECONFIGURING,
-#ifdef QCOM_HARDWARE
         PAUSING,
         FLUSHING,
         PAUSED,
-#endif
         ERROR
     };
 
     enum {
-#ifdef QCOM_HARDWARE
         kPortIndexBoth   = -1,
-#endif
         kPortIndexInput  = 0,
         kPortIndexOutput = 1
     };
@@ -163,11 +159,9 @@ private:
         kAvoidMemcopyInputRecordingFrames     = 2048,
         kRequiresLargerEncoderOutputBuffer    = 4096,
         kOutputBuffersAreUnreadable           = 8192,
-#ifdef QCOM_HARDWARE
         kStoreMetaDataInInputVideoBuffers     = 16384,
         kRequiresGlobalFlush                  = 0x20000000, // 2^29
         kRequiresWMAProComponent              = 0x40000000, //2^30
-#endif
     };
 
     enum BufferStatus {
@@ -221,9 +215,7 @@ private:
     ReadOptions::SeekMode mSeekMode;
     int64_t mTargetTimeUs;
     bool mOutputPortSettingsChangedPending;
-#ifdef QCOM_HARDWARE
     bool mThumbnailMode;
-#endif
 
     MediaBuffer *mLeftOverBuffer;
 
@@ -243,23 +235,19 @@ private:
     List<size_t> mFilledBuffers;
     Condition mBufferFilled;
 
-#ifdef QCOM_HARDWARE
     bool mIsMetaDataStoredInVideoBuffers;
     bool mOnlySubmitOneBufferAtOneTime;
     bool mInterlaceFormatDetected;
     bool mSPSParsed;
     bool bInvalidState;
-#endif
 
     // Used to record the decoding time for an output picture from
     // a video encoder.
     List<int64_t> mDecodingTimeList;
-#ifdef QCOM_HARDWARE
     bool m3DVideoDetected;
 
     //Used to indicate if the AAC container has ADIF format
     int32_t mIsAacFormatAdif;
-#endif
 
     OMXCodec(const sp<IOMX> &omx, IOMX::node_id node,
              uint32_t quirks, uint32_t flags,
@@ -298,9 +286,7 @@ private:
     status_t setupErrorCorrectionParameters();
     status_t setupH263EncoderParameters(const sp<MetaData>& meta);
     status_t setupMPEG4EncoderParameters(const sp<MetaData>& meta);
-#ifdef QCOM_HARDWARE
     status_t setupMPEG2EncoderParameters(const sp<MetaData>& meta);
-#endif
     status_t setupAVCEncoderParameters(const sp<MetaData>& meta);
     status_t findTargetColorFormat(
             const sp<MetaData>& meta, OMX_COLOR_FORMATTYPE *colorFormat);
@@ -394,23 +380,15 @@ private:
 
     int64_t retrieveDecodingTimeUs(bool isCodecSpecific);
 
-#ifdef QCOM_HARDWARE
     void parseFlags();
-#endif
     status_t parseAVCCodecSpecificData(
             const void *data, size_t size,
             unsigned *profile, unsigned *level, const sp<MetaData> &meta);
-#ifdef QCOM_HARDWARE
-    void parseFlags( uint32_t flags );
-#endif
 
-#ifdef QCOM_HARDWARE
     status_t processSEIData();
-#endif
 
     OMXCodec(const OMXCodec &);
     OMXCodec &operator=(const OMXCodec &);
-#ifdef QCOM_HARDWARE
     status_t setWMAFormat(const sp<MetaData> &inputFormat);
     void setAC3Format(int32_t numChannels, int32_t sampleRate);
 
@@ -420,7 +398,6 @@ private:
 
     int32_t mNumBFrames;
     bool mUseArbitraryMode;
-#endif
 };
 
 struct CodecCapabilities {
