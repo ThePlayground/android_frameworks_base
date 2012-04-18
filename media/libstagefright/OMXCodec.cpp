@@ -3851,7 +3851,7 @@ void OMXCodec::onStateChange(OMX_STATETYPE newState) {
                                                      NATIVE_WINDOW_SET_BUFFERS_SIZE,
                                                      0);
                     if (err != 0) {
-                        ALOGE("set_buffers_size failed: %s (%d)", strerror(-err),
+                        LOGE("set_buffers_size failed: %s (%d)", strerror(-err),
                              -err);
                     }
 
