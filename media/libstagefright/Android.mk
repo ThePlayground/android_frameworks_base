@@ -125,6 +125,9 @@ LOCAL_C_INCLUDES += \
         $(TOP)/system/core/include \
         $(TOP)/hardware/libhardware_legacy/include
 
+LOCAL_SHARED_LIBRARIES += \
+        libhardware_legacy
+
 LOCAL_STATIC_LIBRARIES += \
         libstagefright_aacdec \
         libstagefright_mp3dec
