@@ -252,7 +252,10 @@ const char CameraParameters::FOCUS_MODE_CONTINUOUS_VIDEO[] = "continuous-video";
 const char CameraParameters::FOCUS_MODE_CONTINUOUS_PICTURE[] = "continuous-picture";
 #if defined(QCOM_HARDWARE)
 const char CameraParameters::FOCUS_MODE_NORMAL[] = "normal";
-
+const char CameraParameters::KEY_CAF[] = "continuous-af";
+const char CameraParameters::KEY_CAM_ID[] = "back";
+const char CameraParameters::CAM_ID_SECOND[] = "1";
+const char CameraParameters::CAM_ID_MAIN[] = "0";
 
 const char CameraParameters::KEY_SKIN_TONE_ENHANCEMENT[] = "skinToneEnhancement";
 const char CameraParameters::KEY_SUPPORTED_SKIN_TONE_ENHANCEMENT_MODES[] = "skinToneEnhancement-values";
