@@ -188,12 +188,6 @@ public:
     static const char CAPTURE_MODE_HJR[];
     static const char CAPTURE_MODE_PANORAMA[];
 #endif
-#ifdef CAM_QSD8K
-    static const char KEY_CAF[];
-    static const char KEY_CAM_ID[];
-    static const char CAM_ID_SECOND[];
-    static const char CAM_ID_MAIN[];
-#endif
     // The dimensions for captured pictures in pixels (width x height).
     // Example value: "1024x768". Read/write.
     static const char KEY_PICTURE_SIZE[];
@@ -818,7 +812,11 @@ public:
 
     // Values for Continuous AF
     static const char CAF_OFF[] ;
-    static const char CAF_ON[] ;
+    static const char CAF_ON[] ; 
+    static const char KEY_CAF[];
+    static const char KEY_CAM_ID[];
+    static const char CAM_ID_SECOND[];
+    static const char CAM_ID_MAIN[];
     // Proprietaries from CodeAurora use these...
     static const char CONTINUOUS_AF_OFF[] ;
     static const char CONTINUOUS_AF_ON[] ;
