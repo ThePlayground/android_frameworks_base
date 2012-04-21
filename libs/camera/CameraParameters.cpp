@@ -41,7 +41,7 @@ const char CameraParameters::KEY_SUPPORTED_PREVIEW_FRAME_RATE_MODES[] = "preview
 const char CameraParameters::KEY_PREVIEW_FRAME_RATE_AUTO_MODE[] = "frame-rate-auto";
 const char CameraParameters::KEY_PREVIEW_FRAME_RATE_FIXED_MODE[] = "frame-rate-fixed";
 #endif
-#ifdef HTC_QSD8K
+#ifdef CAM_QSD8K
 const char CameraParameters::KEY_CAF[] = "continuous-af";
 const char CameraParameters::KEY_CAM_ID[] = "back";
 const char CameraParameters::CAM_ID_SECOND[] = "1";
