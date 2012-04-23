@@ -2407,6 +2407,12 @@ public final class Settings {
         public static final String LOCKSCREEN_LANDSCAPE = "lockscreen_landscape";
 
         /**
+         * Stores values for custom lockscreen targets
+         * @hide
+         */
+        public static final String LOCKSCREEN_TARGETS = "lockscreen_targets";
+
+        /**
          * Boolean value whether to link ringtone and notification volumes
          * 
          * @hide

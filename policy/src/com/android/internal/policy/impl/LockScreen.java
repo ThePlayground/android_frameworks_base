@@ -16,9 +16,12 @@
 
 package com.android.internal.policy.impl;
 
-import java.io.File;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
+import com.android.internal.R;
+import com.android.internal.widget.LockPatternUtils;
+import com.android.internal.widget.SlidingTab;
+import com.android.internal.widget.WaveView;
+import com.android.internal.widget.multiwaveview.MultiWaveView;
+import com.android.internal.widget.multiwaveview.TargetDrawable;
 
 import android.app.ActivityManager;
 import android.content.ContentResolver;
@@ -32,6 +35,9 @@ import android.database.ContentObserver;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.InsetDrawable;
+import android.graphics.drawable.LayerDrawable;
+import android.graphics.drawable.StateListDrawable;
 import android.media.AudioManager;
 import android.os.Handler;
 import android.provider.MediaStore;
@@ -45,11 +51,9 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.android.internal.R;
-import com.android.internal.widget.LockPatternUtils;
-import com.android.internal.widget.SlidingTab;
-import com.android.internal.widget.WaveView;
-import com.android.internal.widget.multiwaveview.MultiWaveView;
+import java.io.File;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
 
 /**
  * The screen within {@link LockPatternKeyguardView} that shows general information about the device
@@ -211,6 +215,8 @@ class LockScreen extends LinearLayout implements KeyguardScreen {
 
         private final MultiWaveView mMultiWaveView;
         private boolean mCameraDisabled;
+        private String[] mStoredTargets;
+        private int mTargetOffset;
 
         MultiWaveViewMethods(MultiWaveView multiWaveView) {
             mMultiWaveView = multiWaveView;
@@ -227,14 +233,75 @@ class LockScreen extends LinearLayout implements KeyguardScreen {
             }
         }
 
+        public boolean isScreenLarge() {
+            final int screenSize = Resources.getSystem().getConfiguration().screenLayout &
+                    Configuration.SCREENLAYOUT_SIZE_MASK;
+            boolean isScreenLarge = screenSize == Configuration.SCREENLAYOUT_SIZE_LARGE ||
+                    screenSize == Configuration.SCREENLAYOUT_SIZE_XLARGE;
+            return isScreenLarge;
+        }
+
         public void updateResources() {
-            boolean isLandscape = (mCreationOrientation == Configuration
-                    .ORIENTATION_LANDSCAPE);
-
-            targetController.setLandscape(isLandscape);
-            targetController.setupTargets();
-
-            mMultiWaveView.setTargetResources(targetController.getDrawables());
+            String storedVal = Settings.System.getString(mContext.getContentResolver(),
+                    Settings.System.LOCKSCREEN_TARGETS);
+            if (storedVal == null) {
+                int resId;
+                mStoredTargets = null;
+                if (mCameraDisabled) {
+                    // Fall back to showing ring/silence if camera is disabled by DPM...
+                    resId = mSilentMode ? R.array.lockscreen_targets_when_silent
+                            : R.array.lockscreen_targets_when_soundon;
+                } else {
+                    resId = R.array.lockscreen_targets_with_camera;
+                }
+                mMultiWaveView.setTargetResources(resId);
+            } else {
+                mStoredTargets = storedVal.split("\\|");
+                ArrayList<TargetDrawable> storedDraw = new ArrayList<TargetDrawable>();
+                Resources res = getResources();
+                int targetInset = isScreenLarge() ? MultiWaveView.TABLET_TARGET_INSET : MultiWaveView.PHONE_TARGET_INSET;
+                boolean isLandscape = mCreationOrientation == Configuration.ORIENTATION_LANDSCAPE;
+                // Shift targets for landscape lockscreen on phones
+                if (isLandscape && !isScreenLarge()) {
+                    storedDraw.add(new TargetDrawable(res, null));
+                    storedDraw.add(new TargetDrawable(res, null));
+                }
+                // Add unlock target
+                storedDraw.add(new TargetDrawable(res, res.getDrawable(R.drawable.ic_lockscreen_unlock)));
+                final PackageManager packMan = mContext.getPackageManager();
+                InsetDrawable naBack = new InsetDrawable(getResources().getDrawable(R.drawable.ic_lockscreen_lock_pressed), 0, 0, 0, 0);
+                InsetDrawable aBack = new InsetDrawable(getResources().getDrawable(R.drawable.ic_lockscreen_target_activated), 0, 0, 0, 0);
+                mTargetOffset = isLandscape && !isScreenLarge() ? 2 : 0;
+                for (int i = 0; i < 8 - mTargetOffset - 1; i++) {
+                    if (i < mStoredTargets.length) {
+                        String uri = mStoredTargets[i];
+                        if (!uri.equals(MultiWaveView.EMPTY_TARGET)) {
+                            try {
+                                Intent in = Intent.parseUri(uri,0);
+                                Drawable draw = packMan.getApplicationIcon(in.getComponent().getPackageName());
+                                InsetDrawable[] layersDrawable = new InsetDrawable[2];
+                                layersDrawable[0] = naBack;
+                                layersDrawable[1] = new InsetDrawable(draw, targetInset, targetInset, targetInset, targetInset);
+                                StateListDrawable states = new StateListDrawable();
+                                states.addState(new int[] {android.R.attr.state_enabled, -android.R.attr.state_active,
+                                        -android.R.attr.state_focused}, new LayerDrawable(layersDrawable));
+                                layersDrawable[0] = aBack;
+                                layersDrawable[1] = new InsetDrawable(draw, targetInset, targetInset, targetInset, targetInset);
+                                states.addState(new int[] {android.R.attr.state_enabled, android.R.attr.state_active,
+                                        -android.R.attr.state_focused}, new LayerDrawable(layersDrawable));
+                                storedDraw.add(new TargetDrawable(res, states));
+                            } catch (Exception e) {
+                                storedDraw.add(new TargetDrawable(res, null));
+                            }
+                        } else {
+                            storedDraw.add(new TargetDrawable(res, null));
+                        }
+                    } else {
+                        storedDraw.add(new TargetDrawable(res, null));
+                    }
+                }
+                mMultiWaveView.setTargetResources(storedDraw);
+            }
         }
 
         public void onGrabbed(View v, int handle) {
@@ -246,11 +313,41 @@ class LockScreen extends LinearLayout implements KeyguardScreen {
         }
 
         public void onTrigger(View v, int target) {
-            if (DBG)
-                Log.v(TAG, "onTrigger: target = " + target);
-            if (DBG)
-                Log.v(TAG, "onTrigger: Orientation = " + mCreationOrientation);
-            targetController.getTarget(target).doAction();
+            if (mStoredTargets == null) {
+                if (target == 0 || target == 1) { // 0 = unlock/portrait, 1 = unlock/landscape
+                    mCallback.goToUnlockScreen();
+                } else if (target == 2 || target == 3) { // 2 = alt/portrait, 3 = alt/landscape
+                    if (!mCameraDisabled) {
+                        // Start the Camera
+                        Intent intent = new Intent(MediaStore.INTENT_ACTION_STILL_IMAGE_CAMERA);
+                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        mContext.startActivity(intent);
+                        mCallback.goToUnlockScreen();
+                    } else {
+                        toggleRingMode();
+                        mUnlockWidgetMethods.updateResources();
+                        mCallback.pokeWakelock();
+                    }
+                }
+            } else {
+                final boolean isLand = mCreationOrientation == Configuration.ORIENTATION_LANDSCAPE;
+                if ((target == 0 && (isScreenLarge() || !isLand)) || (target == 2 && !isScreenLarge() && isLand)) {
+                    mCallback.goToUnlockScreen();
+                } else {
+                    target-= 1;
+                    target-= mTargetOffset;
+                    if (target < mStoredTargets.length && mStoredTargets[target] != null) {
+                        try {
+                            Intent tIntent = Intent.parseUri(mStoredTargets[target], 0);
+                            tIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                            mContext.startActivity(tIntent);
+                            mCallback.goToUnlockScreen();
+                            return;
+                        } catch (URISyntaxException e) {
+                        }
+                    }
+                }
+            }
         }
 
         public void onGrabbedStateChange(View v, int handle) {
