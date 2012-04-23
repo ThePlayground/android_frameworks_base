@@ -27,6 +27,7 @@ import android.app.ActivityManager;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
 import android.content.res.Configuration;
@@ -275,10 +276,16 @@ class LockScreen extends LinearLayout implements KeyguardScreen {
                 for (int i = 0; i < 8 - mTargetOffset - 1; i++) {
                     if (i < mStoredTargets.length) {
                         String uri = mStoredTargets[i];
-                        if (!uri.equals(MultiWaveView.EMPTY_TARGET)) {
+                        if (!uri.equals(MultiWaveView.EMPTY_TARGET.toLowerCase())) {
                             try {
                                 Intent in = Intent.parseUri(uri,0);
-                                Drawable draw = packMan.getApplicationIcon(in.getComponent().getPackageName());
+                                ActivityInfo aInfo = in.resolveActivityInfo(packMan, PackageManager.GET_ACTIVITIES);
+                                Drawable draw = null;
+                                if (aInfo != null) {
+                                    draw = aInfo.loadIcon(packMan);
+                                } else {
+                                    draw = mContext.getResources().getDrawable(android.R.drawable.sym_def_app_icon);
+                                }
                                 InsetDrawable[] layersDrawable = new InsetDrawable[2];
                                 layersDrawable[0] = naBack;
                                 layersDrawable[1] = new InsetDrawable(draw, targetInset, targetInset, targetInset, targetInset);
