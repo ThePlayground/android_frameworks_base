@@ -489,8 +489,6 @@ class LockScreen extends LinearLayout implements KeyguardScreen {
 
         // Update widget with initial ring state
         mUnlockWidgetMethods.updateResources();
-        // Update the settings everytime we draw lockscreen
-        updateSettings();
 
         if (DBG)
             Log.v(TAG, "*** LockScreen accel is "
@@ -531,7 +529,6 @@ class LockScreen extends LinearLayout implements KeyguardScreen {
                     + ", new config=" + getResources().getConfiguration());
         }
         updateConfiguration();
-        updateSettings();
     }
 
     /** {@inheritDoc} */
