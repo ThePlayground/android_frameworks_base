@@ -616,21 +616,6 @@ public class MultiWaveView extends View {
         updateTargetPositions();
     }
 
-    public void setTargetResources(ArrayList<TargetDrawable> drawList) {
-        if (mAnimatingTargets) {
-            // postpone this change until we return to the initial state
-            mNewTargetDrawables = drawList;
-        } else {
-            internalSetTargetResources(drawList);
-        }
-    }
-
-    private void internalSetTargetResources(ArrayList<TargetDrawable> drawList) {
-        mTargetResourceId = 0;
-        mTargetDrawables = drawList;
-        updateTargetPositions();
-    }
-
     public int getTargetResourceId() {
         return mTargetResourceId;
     }
