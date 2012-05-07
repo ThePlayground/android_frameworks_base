@@ -2381,10 +2381,7 @@ public class PowerManagerService extends IPowerManager.Stub
             brightness = 0;
         } else if (mButtonBrightnessOverride >= 0) {
             brightness = mButtonBrightnessOverride;
-        } else if (!mAutoBrightessEnabled && mKeyboardVisible) {
-            // Light sensor is not on, mLightSensorButtonBrightness has not been cleared
-            brightness = getPreferredBrightness();
-        } else if (mLightSensorKeyboardBrightness >= 0 && mUseSoftwareAutoBrightness) {
+        } else if (mLightSensorKeyboardBrightness >= 0 && mAutoBrightnessButtonKeyboard) {
             brightness =  mLightSensorKeyboardBrightness;
         }
         if (brightness > 0) {

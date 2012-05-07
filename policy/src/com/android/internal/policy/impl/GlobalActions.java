@@ -387,7 +387,7 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
                             msg.arg2 = 1;
                          */                        
 
-                        /* wait for the dislog box to close */
+                        /* wait for the dialog box to close */
                         try {
                             Thread.sleep(1000); 
                         } catch (InterruptedException ie) {

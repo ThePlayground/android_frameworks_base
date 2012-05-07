@@ -559,7 +559,7 @@ public class BluetoothA2dpService extends IBluetoothA2dp.Stub {
                     }
                 }
         }
-        mAudioManager.setParameters(BLUETOOTH_ENABLED + "=true");
+        mAudioManager.setParameters(BLUETOOTH_ENABLED+"=true");
         mAudioManager.setParameters("A2dpSuspended=false");
     }
 
@@ -709,7 +709,7 @@ public class BluetoothA2dpService extends IBluetoothA2dp.Stub {
     public synchronized boolean suspendSink(BluetoothDevice device) {
         mContext.enforceCallingOrSelfPermission(BLUETOOTH_ADMIN_PERM,
                             "Need BLUETOOTH_ADMIN permission");
-        if (DBG) log("suspendSink(" + device + "), mTargetA2dpState: "+ mTargetA2dpState);
+        if (DBG) log("suspendSink(" + device + "), mTargetA2dpState: "+mTargetA2dpState);
         if (device == null || mAudioDevices == null) {
             return false;
         }
@@ -726,7 +726,7 @@ public class BluetoothA2dpService extends IBluetoothA2dp.Stub {
     public synchronized boolean resumeSink(BluetoothDevice device) {
         mContext.enforceCallingOrSelfPermission(BLUETOOTH_ADMIN_PERM,
                             "Need BLUETOOTH_ADMIN permission");
-        if (DBG) log("resumeSink(" + device + "), mTargetA2dpState: "+ mTargetA2dpState);
+        if (DBG) log("resumeSink(" + device + "), mTargetA2dpState: "+mTargetA2dpState);
         if (device == null || mAudioDevices == null) {
             return false;
         }
@@ -833,7 +833,7 @@ public class BluetoothA2dpService extends IBluetoothA2dp.Stub {
 
         if (name.equals(PROPERTY_STATE)) {
             int state = convertBluezSinkStringToState(propValues[1]);
-            log("A2DP: onSinkPropertyChanged newState is: " + state + " mPlayingA2dpDevice: " + mPlayingA2dpDevice);
+            log("A2DP: onSinkPropertyChanged newState is: " + state + "mPlayingA2dpDevice: " + mPlayingA2dpDevice);
 
             if (mAudioDevices.get(device) == null) {
                 // This is for an incoming connection for a device not known to us.

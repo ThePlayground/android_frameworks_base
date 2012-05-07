@@ -87,6 +87,7 @@ LOCAL_SRC_FILES:= \
 	android_util_Process.cpp \
 	android_util_StringBlock.cpp \
 	android_util_XmlBlock.cpp \
+	android_util_PackageRedirectionMap.cpp \
 	android/graphics/AutoDecodeCancel.cpp \
 	android/graphics/Bitmap.cpp \
 	android/graphics/BitmapFactory.cpp \
@@ -156,7 +157,11 @@ LOCAL_SRC_FILES:= \
 	android_app_backup_FullBackup.cpp \
 	android_content_res_ObbScanner.cpp \
 	android_content_res_Configuration.cpp \
-    android_animation_PropertyValuesHolder.cpp
+        android_animation_PropertyValuesHolder.cpp
+
+ifeq ($(BOARD_USES_QCOM_HARDWARE),true)
+	LOCAL_SRC_FILES += org_codeaurora_Performance.cpp
+endif
 
 LOCAL_C_INCLUDES += \
 	$(JNI_H_INCLUDE) \
