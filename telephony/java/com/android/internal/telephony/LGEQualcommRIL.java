@@ -41,7 +41,7 @@ import java.util.ArrayList;
  * piggybacked in RIL_UNSOL_RESPONSE_RADIO_STATE_CHANGED. Instead,
  * these radios will send radio state and we have to query for SIM
  * status separately.
- * Custom Qualcomm No SimReady RIL for LGE
+ * Custom Qualcomm No SimReady RIL for LGE & HTC NG
  *
  * {@hide}
  */

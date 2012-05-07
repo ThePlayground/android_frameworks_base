@@ -671,9 +671,7 @@ final class GsmServiceStateTracker extends ServiceStateTracker {
     }
 
     private void setSignalStrengthDefaultValues() {
-        // TODO Make a constructor only has boolean gsm as parameter
-        mSignalStrength = new SignalStrength(99, -1, -1, -1, -1, -1, -1,
-                -1, -1, -1, SignalStrength.INVALID_SNR, -1, true);
+        mSignalStrength = new SignalStrength(99, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, true);
     }
 
     /**
@@ -1025,7 +1023,7 @@ final class GsmServiceStateTracker extends ServiceStateTracker {
         int lteSignalStrength = -1;
         int lteRsrp = -1;
         int lteRsrq = -1;
-        int lteRssnr = SignalStrength.INVALID_SNR;
+        int lteRssnr = -1;
         int lteCqi = -1;
 
         if (ar.exception != null) {
