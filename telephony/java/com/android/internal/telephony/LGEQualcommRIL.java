@@ -58,6 +58,7 @@ public class LGEQualcommRIL extends RIL implements CommandsInterface {
     private final int RIL_INT_RADIO_UNAVALIABLE = 1;
     private final int RIL_INT_RADIO_ON = 2;
     private final int RIL_INT_RADIO_ON_NG = 10;
+    private final int RIL_INT_RADIO_ON_HTC_NG = 13;
 
 
     public LGEQualcommRIL(Context context, int networkMode, int cdmaSubscription) {
@@ -313,6 +314,7 @@ public class LGEQualcommRIL extends RIL implements CommandsInterface {
                 break;
             case RIL_INT_RADIO_ON:
             case RIL_INT_RADIO_ON_NG:
+            case RIL_INT_RADIO_ON_HTC_NG:
                 if (mIccHandler == null) {
                     handlerThread = new HandlerThread("IccHandler");
                     mIccThread = handlerThread;
