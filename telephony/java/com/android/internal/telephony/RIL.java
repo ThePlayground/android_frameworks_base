@@ -2053,7 +2053,14 @@ public class RIL extends BaseCommands implements CommandsInterface {
         switch(stateInt) {
             case 0: state = RadioState.RADIO_OFF; break;
             case 1: state = RadioState.RADIO_UNAVAILABLE; break;
-            case 10: state = RadioState.RADIO_ON; break;
+            case 2: state = RadioState.SIM_NOT_READY; break;
+            case 3: state = RadioState.SIM_LOCKED_OR_ABSENT; break;
+            case 4: state = RadioState.SIM_READY; break;
+            case 5: state = RadioState.RUIM_NOT_READY; break;
+            case 6: state = RadioState.RUIM_READY; break;
+            case 7: state = RadioState.RUIM_LOCKED_OR_ABSENT; break;
+            case 8: state = RadioState.NV_NOT_READY; break;
+            case 9: state = RadioState.NV_READY; break;
 
             default:
                 throw new RuntimeException(
@@ -2937,6 +2944,7 @@ public class RIL extends BaseCommands implements CommandsInterface {
 
         return response;
     }
+
 
     protected Object
      responseICC_IO(Parcel p) {
