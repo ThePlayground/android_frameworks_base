@@ -2362,6 +2362,12 @@ public final class Settings {
         /* END Constants for Evervolv Toolbox */
 
         /**
+         * Whether or not volume button music controls should be enabled to seek media tracks
+         * @hide
+         */
+        public static final String VOLBTN_MUSIC_CONTROLS = "volbtn_music_controls";
+
+        /**
          * Whether national data roaming should be used.
          */
         public static final String MVNO_ROAMING = "mvno_roaming";
