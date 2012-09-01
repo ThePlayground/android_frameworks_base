@@ -51,8 +51,8 @@ namespace android {
 // Use "adb shell dumpsys media.camera -v 1" to change it.
 static volatile int32_t gLogLevel = 0;
 
-#define LOG1(...) ALOGD_IF(gLogLevel >= 1, __VA_ARGS__);
-#define LOG2(...) ALOGD_IF(gLogLevel >= 2, __VA_ARGS__);
+#define LOG1(...) LOGD_IF(gLogLevel >= 1, __VA_ARGS__);
+#define LOG2(...) LOGD_IF(gLogLevel >= 2, __VA_ARGS__);
 
 static void setLogLevel(int level) {
     android_atomic_write(level, &gLogLevel);
@@ -94,7 +94,7 @@ static CameraService *gCameraService;
 CameraService::CameraService()
 :mSoundRef(0), mModule(0)
 {
-    ALOGI("CameraService started (pid=%d)", getpid());
+    LOGI("CameraService started (pid=%d)", getpid());
     gCameraService = this;
 }
 
@@ -104,13 +104,13 @@ void CameraService::onFirstRef()
 
     if (hw_get_module(CAMERA_HARDWARE_MODULE_ID,
                 (const hw_module_t **)&mModule) < 0) {
-        ALOGE("Could not load camera HAL module");
+        LOGE("Could not load camera HAL module");
         mNumberOfCameras = 0;
     }
     else {
         mNumberOfCameras = mModule->get_number_of_cameras();
         if (mNumberOfCameras > MAX_CAMERAS) {
-            ALOGE("Number of cameras(%d) > MAX_CAMERAS(%d).",
+            LOGE("Number of cameras(%d) > MAX_CAMERAS(%d).",
                     mNumberOfCameras, MAX_CAMERAS);
             mNumberOfCameras = MAX_CAMERAS;
         }
@@ -123,7 +123,7 @@ void CameraService::onFirstRef()
 CameraService::~CameraService() {
     for (int i = 0; i < mNumberOfCameras; i++) {
         if (mBusy[i]) {
-            ALOGE("camera %d is still in use in destructor!", i);
+            LOGE("camera %d is still in use in destructor!", i);
         }
     }
 
@@ -159,13 +159,13 @@ sp<ICamera> CameraService::connect(
     LOG1("CameraService::connect E (pid %d, id %d)", callingPid, cameraId);
 
     if (!mModule) {
-        ALOGE("Camera HAL module not loaded");
+        LOGE("Camera HAL module not loaded");
         return NULL;
     }
 
     sp<Client> client;
     if (cameraId < 0 || cameraId >= mNumberOfCameras) {
-        ALOGE("CameraService::connect X (pid %d) rejected (invalid cameraId %d).",
+        LOGE("CameraService::connect X (pid %d) rejected (invalid cameraId %d).",
             callingPid, cameraId);
         return NULL;
     }
@@ -174,7 +174,7 @@ sp<ICamera> CameraService::connect(
     property_get("sys.secpolicy.camera.disabled", value, "0");
     if (strcmp(value, "1") == 0) {
         // Camera is disabled by DevicePolicyManager.
-        ALOGI("Camera is disabled. connect X (pid %d) rejected", callingPid);
+        LOGI("Camera is disabled. connect X (pid %d) rejected", callingPid);
         return NULL;
     }
 
@@ -191,7 +191,7 @@ sp<ICamera> CameraService::connect(
                     callingPid);
                 return client;
             } else {
-                ALOGW("CameraService::connect X (pid %d) rejected (existing client).",
+                LOGW("CameraService::connect X (pid %d) rejected (existing client).",
                     callingPid);
                 return NULL;
             }
@@ -200,14 +200,14 @@ sp<ICamera> CameraService::connect(
     }
 
     if (mBusy[cameraId]) {
-        ALOGW("CameraService::connect X (pid %d) rejected"
+        LOGW("CameraService::connect X (pid %d) rejected"
              " (camera %d is still busy).", callingPid, cameraId);
         return NULL;
     }
 
     struct camera_info info;
     if (mModule->get_camera_info(cameraId, &info) != OK) {
-        ALOGE("Invalid camera id %d", cameraId);
+        LOGE("Invalid camera id %d", cameraId);
         return NULL;
     }
 
@@ -278,7 +278,7 @@ status_t CameraService::onTransact(
                 if (!checkCallingPermission(
                         String16("android.permission.CAMERA"))) {
                     const int uid = getCallingUid();
-                    ALOGE("Permission Denial: "
+                    LOGE("Permission Denial: "
                          "can't use the camera pid=%d, uid=%d", pid, uid);
                     return PERMISSION_DENIED;
                 }
@@ -313,7 +313,7 @@ MediaPlayer* CameraService::newMediaPlayer(const char *file) {
         mp->setAudioStreamType(AUDIO_STREAM_ENFORCED_AUDIBLE);
         mp->prepare();
     } else {
-        ALOGE("Failed to load CameraService sounds: %s", file);
+        LOGE("Failed to load CameraService sounds: %s", file);
         return NULL;
     }
     return mp;
@@ -330,7 +330,7 @@ void CameraService::loadSound() {
     property_get("persist.sys.camera-mute", value, "0");
     int userMute = atoi(value);
 
-    if (!systemMute && !userMute) {
+    if(!systemMute && !userMute) {
         mSoundPlayer[SOUND_SHUTTER] = newMediaPlayer("/system/media/audio/ui/camera_click.ogg");
         mSoundPlayer[SOUND_RECORDING] = newMediaPlayer("/system/media/audio/ui/VideoRecord.ogg");
     } else {
@@ -423,7 +423,7 @@ status_t CameraService::Client::checkPid() const {
     int callingPid = getCallingPid();
     if (callingPid == mClientPid) return NO_ERROR;
 
-    ALOGW("attempt to use a locked camera from a different process"
+    LOGW("attempt to use a locked camera from a different process"
          " (old pid %d, new pid %d)", mClientPid, callingPid);
     return EBUSY;
 }
@@ -432,7 +432,7 @@ status_t CameraService::Client::checkPidAndHardware() const {
     status_t result = checkPid();
     if (result != NO_ERROR) return result;
     if (mHardware == 0) {
-        ALOGE("attempt to use a camera after disconnect() (pid %d)", getCallingPid());
+        LOGE("attempt to use a camera after disconnect() (pid %d)", getCallingPid());
         return INVALID_OPERATION;
     }
     return NO_ERROR;
@@ -462,7 +462,7 @@ status_t CameraService::Client::unlock() {
     status_t result = checkPid();
     if (result == NO_ERROR) {
         if (mHardware->recordingEnabled()) {
-            ALOGE("Not allowed to unlock camera during recording.");
+            LOGE("Not allowed to unlock camera during recording.");
             return INVALID_OPERATION;
         }
         mClientPid = 0;
@@ -481,7 +481,7 @@ status_t CameraService::Client::connect(const sp<ICameraClient>& client) {
     Mutex::Autolock lock(mLock);
 
     if (mClientPid != 0 && checkPid() != NO_ERROR) {
-        ALOGW("Tried to connect to a locked camera (old pid %d, new pid %d)",
+        LOGW("Tried to connect to a locked camera (old pid %d, new pid %d)",
                 mClientPid, callingPid);
         return EBUSY;
     }
@@ -504,7 +504,7 @@ static void disconnectWindow(const sp<ANativeWindow>& window) {
         status_t result = native_window_api_disconnect(window.get(),
                 NATIVE_WINDOW_API_CAMERA);
         if (result != NO_ERROR) {
-            ALOGW("native_window_api_disconnect failed: %s (%d)", strerror(-result),
+            LOGW("native_window_api_disconnect failed: %s (%d)", strerror(-result),
                     result);
         }
     }
@@ -516,7 +516,7 @@ void CameraService::Client::disconnect() {
     Mutex::Autolock lock(mLock);
 
     if (checkPid() != NO_ERROR) {
-        ALOGW("different client - don't disconnect");
+        LOGW("different client - don't disconnect");
         return;
     }
 
@@ -541,8 +541,10 @@ void CameraService::Client::disconnect() {
 
     // Release the held ANativeWindow resources.
     if (mPreviewWindow != 0) {
-#if defined(QCOM_HARDWARE) && !defined(BINDER_COMPAT)
+#ifdef QCOM_HARDWARE
+#ifndef NO_UPDATE_PREVIEW
         mHardware->setPreviewWindow(0);
+#endif
 #endif
         disconnectWindow(mPreviewWindow);
         mPreviewWindow = 0;
@@ -571,7 +573,7 @@ status_t CameraService::Client::setPreviewWindow(const sp<IBinder>& binder,
     if (window != 0) {
         result = native_window_api_connect(window.get(), NATIVE_WINDOW_API_CAMERA);
         if (result != NO_ERROR) {
-            ALOGE("native_window_api_connect failed: %s (%d)", strerror(-result),
+            LOGE("native_window_api_connect failed: %s (%d)", strerror(-result),
                     result);
             return result;
         }
@@ -585,9 +587,11 @@ status_t CameraService::Client::setPreviewWindow(const sp<IBinder>& binder,
             native_window_set_buffers_transform(window.get(), mOrientation);
             result = mHardware->setPreviewWindow(window);
         }
-#if defined(QCOM_HARDWARE) && !defined(BINDER_COMPAT)
+#ifdef QCOM_HARDWARE
+#ifndef NO_UPDATE_PREVIEW
     } else {
         result = mHardware->setPreviewWindow(window);
+#endif
 #endif
     }
 
@@ -677,7 +681,7 @@ status_t CameraService::Client::startCameraMode(camera_mode mode) {
             return startPreviewMode();
         case CAMERA_RECORDING_MODE:
             if (mSurface == 0 && mPreviewWindow == 0) {
-                ALOGE("mSurface or mPreviewWindow must be set before startRecordingMode.");
+                LOGE("mSurface or mPreviewWindow must be set before startRecordingMode.");
                 return INVALID_OPERATION;
             }
             return startRecordingMode();
@@ -729,7 +733,7 @@ status_t CameraService::Client::startRecordingMode() {
     mCameraService->playSound(SOUND_RECORDING);
     result = mHardware->startRecording();
     if (result != NO_ERROR) {
-        ALOGE("mHardware->startRecording() failed with status %d", result);
+        LOGE("mHardware->startRecording() failed with status %d", result);
     }
     return result;
 }
@@ -824,7 +828,7 @@ status_t CameraService::Client::takePicture(int msgType) {
 
     if ((msgType & CAMERA_MSG_RAW_IMAGE) &&
         (msgType & CAMERA_MSG_RAW_IMAGE_NOTIFY)) {
-        ALOGE("CAMERA_MSG_RAW_IMAGE and CAMERA_MSG_RAW_IMAGE_NOTIFY"
+        LOGE("CAMERA_MSG_RAW_IMAGE and CAMERA_MSG_RAW_IMAGE_NOTIFY"
                 " cannot be both enabled");
         return BAD_VALUE;
     }
@@ -887,7 +891,7 @@ status_t CameraService::Client::enableShutterSound(bool enable) {
         // Disabling shutter sound is not allowed. Deny if the current
         // process is not mediaserver.
         if (getCallingPid() != getpid()) {
-            ALOGE("Failed to disable shutter sound. Permission denied (pid %d)", getCallingPid());
+            LOGE("Failed to disable shutter sound. Permission denied (pid %d)", getCallingPid());
             return PERMISSION_DENIED;
         }
     }
@@ -978,7 +982,7 @@ bool CameraService::Client::lockIfMessageWanted(int32_t msgType) {
         }
         usleep(CHECK_MESSAGE_INTERVAL * 1000);
     }
-    ALOGW("lockIfMessageWanted(%d): dropped unwanted message", msgType);
+    LOGW("lockIfMessageWanted(%d): dropped unwanted message", msgType);
     return false;
 }
 
@@ -997,12 +1001,12 @@ sp<CameraService::Client> CameraService::Client::getClientFromCookie(void* user)
 
     // The checks below are not necessary and are for debugging only.
     if (client->mCameraService.get() != gCameraService) {
-        ALOGE("mismatch service!");
+        LOGE("mismatch service!");
         return NULL;
     }
 
     if (client->mHardware == 0) {
-        ALOGE("mHardware == 0: callback after disconnect()?");
+        LOGE("mHardware == 0: callback after disconnect()?");
         return NULL;
     }
 
@@ -1093,7 +1097,7 @@ void CameraService::Client::dataCallbackTimestamp(nsecs_t timestamp,
     if (!client->lockIfMessageWanted(msgType)) return;
 
     if (dataPtr == 0) {
-        ALOGE("Null data returned in data with timestamp callback");
+        LOGE("Null data returned in data with timestamp callback");
         client->handleGenericNotify(CAMERA_MSG_ERROR, UNKNOWN_ERROR, 0);
         return;
     }
@@ -1257,7 +1261,7 @@ void CameraService::Client::copyFrameAndPostCopiedFrame(
         mPreviewBuffer = new MemoryHeapBase(size, 0, NULL);
     }
     if (mPreviewBuffer == 0) {
-        ALOGE("failed to allocate space for preview buffer");
+        LOGE("failed to allocate space for preview buffer");
         mLock.unlock();
         return;
     }
@@ -1267,7 +1271,7 @@ void CameraService::Client::copyFrameAndPostCopiedFrame(
 
     sp<MemoryBase> frame = new MemoryBase(previewBuffer, 0, size);
     if (frame == 0) {
-        ALOGE("failed to allocate space for frame callback");
+        LOGE("failed to allocate space for frame callback");
         mLock.unlock();
         return;
     }
@@ -1277,11 +1281,14 @@ void CameraService::Client::copyFrameAndPostCopiedFrame(
 }
 
 int CameraService::Client::getOrientation(int degrees, bool mirror) {
+#ifndef FFC_BROKEN_MIRROR
     if (!mirror) {
+#endif
         if (degrees == 0) return 0;
         else if (degrees == 90) return HAL_TRANSFORM_ROT_90;
         else if (degrees == 180) return HAL_TRANSFORM_ROT_180;
         else if (degrees == 270) return HAL_TRANSFORM_ROT_270;
+#ifndef FFC_BROKEN_MIRROR
     } else {  // Do mirror (horizontal flip)
         if (degrees == 0) {           // FLIP_H and ROT_0
             return HAL_TRANSFORM_FLIP_H;
@@ -1293,7 +1300,8 @@ int CameraService::Client::getOrientation(int degrees, bool mirror) {
             return HAL_TRANSFORM_FLIP_V | HAL_TRANSFORM_ROT_90;
         }
     }
-    ALOGE("Invalid setDisplayOrientation degrees=%d", degrees);
+#endif
+    LOGE("Invalid setDisplayOrientation degrees=%d", degrees);
     return -1;
 }
 
