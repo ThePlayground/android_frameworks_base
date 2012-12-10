@@ -2206,8 +2206,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                 // change atomically with screen rotations.
                 if (displayWidth < displayHeight) {
                     // Portrait screen; nav bar goes on bottom.
-                    mTmpNavigationFrame.set(0, displayHeight-mNavigationBarHeight,
-                            displayWidth, displayHeight);
+                    mTmpNavigationFrame.set(0, displayHeight-mNavigationBarHeight, displayWidth, displayHeight);
                     if (navVisible) {
                         mDockBottom = mTmpNavigationFrame.top;
                         mRestrictedScreenHeight = mDockBottom - mDockTop;

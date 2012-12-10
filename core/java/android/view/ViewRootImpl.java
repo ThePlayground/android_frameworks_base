@@ -48,6 +48,7 @@ import android.os.Process;
 import android.os.RemoteException;
 import android.os.SystemClock;
 import android.os.SystemProperties;
+import android.provider.Settings;
 import android.util.AndroidRuntimeException;
 import android.util.DisplayMetrics;
 import android.util.EventLog;
@@ -85,6 +86,8 @@ import java.io.PrintWriter;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
+
+import static android.provider.Settings.System.COMPATIBILITY_MODE;
 
 /**
  * The top of a view hierarchy, implementing the needed protocol between View
@@ -272,9 +275,11 @@ public final class ViewRootImpl extends Handler implements ViewParent,
     final PointF mDragPoint = new PointF();
     final PointF mLastTouchPoint = new PointF();
     
-    private boolean mProfileRendering;    
+    private boolean mProfileRendering;
     private Thread mRenderProfiler;
     private volatile boolean mRenderProfilingEnabled;
+
+    private boolean compatibilityMode;
 
     // Variables to track frames per second, enabled via DEBUG_FPS flag
     private long mFpsStartTime = -1;
@@ -367,6 +372,7 @@ public final class ViewRootImpl extends Handler implements ViewParent,
         mFallbackEventHandler = PolicyManager.makeNewFallbackEventHandler(context);
         mProfileRendering = Boolean.parseBoolean(
                 SystemProperties.get(PROPERTY_PROFILE_RENDERING, "false"));
+        compatibilityMode = Settings.System.getInt(context.getContentResolver(), COMPATIBILITY_MODE, 1) == 1;
     }
 
     public static void addFirstDrawHandler(Runnable callback) {
@@ -449,7 +455,7 @@ public final class ViewRootImpl extends Handler implements ViewParent,
                 }
                 if (DEBUG_LAYOUT) Log.d(TAG, "WindowLayout in setView:" + attrs);
 
-                if (!compatibilityInfo.supportsScreen()) {
+                if (!compatibilityInfo.supportsScreen() && compatibilityMode) {
                     attrs.flags |= WindowManager.LayoutParams.FLAG_COMPATIBLE_WINDOW;
                     mLastInCompatMode = true;
                 }

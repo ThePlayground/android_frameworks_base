@@ -31,12 +31,15 @@ import android.os.Message;
 import android.os.RemoteException;
 import android.os.SystemClock;
 import android.os.ParcelFileDescriptor;
+import android.provider.Settings;
 import android.util.AttributeSet;
 import android.util.Log;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.concurrent.locks.ReentrantLock;
+
+import static android.provider.Settings.System.COMPATIBILITY_MODE;
 
 /**
  * Provides a dedicated drawing surface embedded inside of a view hierarchy.
@@ -441,7 +444,8 @@ public class SurfaceView extends View {
                               | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
                               | WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
                               ;
-                if (!getContext().getResources().getCompatibilityInfo().supportsScreen()) {
+                boolean compatibilityMode = Settings.System.getInt(getContext().getContentResolver(), COMPATIBILITY_MODE, 1) == 1;
+                if (!getContext().getResources().getCompatibilityInfo().supportsScreen() && compatibilityMode) {
                     mLayout.flags |= WindowManager.LayoutParams.FLAG_COMPATIBLE_WINDOW;
                 }
 

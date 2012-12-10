@@ -57,6 +57,7 @@ import android.os.IBinder;
 import android.os.Message;
 import android.os.RemoteException;
 import android.os.ServiceManager;
+import android.os.SystemProperties;
 import android.os.storage.StorageManager;
 import android.provider.Settings;
 import android.text.TextUtils;
@@ -567,7 +568,6 @@ public class TabletStatusBar extends StatusBar implements
         final TabletStatusBarView sb = (TabletStatusBarView)View.inflate(
                 context, R.layout.status_bar, null);
         mStatusBarView = sb;
-
         sb.setHandler(mHandler);
 
         try {
