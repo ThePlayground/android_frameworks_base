@@ -1,0 +1,13 @@
+#
+# git files that we don't want to ignore even it they are dot-files
+#
+!.gitignore
+!.mailmap
+
+#
+# Generated files
+#
+.DS_Store
+*.orig
+*~
+\#*#

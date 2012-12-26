@@ -111,6 +111,9 @@ public:
     bool isMetaDataStoredInVideoBuffers() const;
 
     virtual void signalBufferReturned(MediaBuffer* buffer);
+#ifdef FFC_BROKEN_MIRROR
+    bool isFrontCamera() const;
+#endif
 
 protected:
     class ProxyListener: public BnCameraRecordingProxyListener {
@@ -140,6 +143,9 @@ protected:
     int32_t  mVideoFrameRate;
     int32_t  mColorFormat;
     status_t mInitCheck;
+#ifdef FFC_BROKEN_MIRROR
+    bool     mIsFrontCamera;
+#endif
 
     sp<Camera>   mCamera;
     sp<ICameraRecordingProxy>   mCameraRecordingProxy;

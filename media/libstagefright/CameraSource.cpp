@@ -171,6 +171,9 @@ CameraSource::CameraSource(
       mFirstFrameTimeUs(0),
       mNumFramesDropped(0),
       mNumGlitches(0),
+#ifdef FFC_BROKEN_MIRROR
+      mIsFrontCamera(false),
+#endif
       mGlitchDurationThresholdUs(200000),
       mCollectStats(false) {
     mVideoSize.width  = -1;
@@ -509,6 +512,10 @@ status_t CameraSource::initWithCameraAccess(
     if ((err = isCameraColorFormatSupported(params)) != OK) {
         return err;
     }
+
+#ifdef FFC_BROKEN_MIRROR
+    mIsFrontCamera = strcmp(params.get(CameraParameters::KEY_ZOOM_SUPPORTED),CameraParameters::TRUE); // Hack to detect Front Camera
+#endif
 
     // Set the camera to use the requested video frame size
     // and/or frame rate.
@@ -863,4 +870,9 @@ void CameraSource::DeathNotifier::binderDied(const wp<IBinder>& who) {
     LOGI("Camera recording proxy died");
 }
 
+#ifdef FFC_BROKEN_MIRROR
+bool CameraSource::isFrontCamera() const {
+    return mIsFrontCamera;
+}
+#endif
 }  // namespace android

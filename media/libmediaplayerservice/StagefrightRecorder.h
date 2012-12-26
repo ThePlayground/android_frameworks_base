@@ -114,6 +114,10 @@ private:
     bool mIsMetaDataStoredInVideoBuffers;
     MediaProfiles *mEncoderProfiles;
 
+#ifdef FFC_BROKEN_MIRROR
+    bool mIsFrontCamera;
+#endif
+
     bool mStarted;
     // Needed when GLFrames are encoded.
     // An <ISurfaceTexture> pointer

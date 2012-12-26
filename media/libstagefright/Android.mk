@@ -2,6 +2,7 @@ LOCAL_PATH:= $(call my-dir)
 include $(CLEAR_VARS)
 
 ifeq ($(BOARD_USES_QCOM_HARDWARE),true)
+    LOCAL_CFLAGS += -DQCOM_HARDWARE
 ifeq ($(TARGET_BOARD_PLATFORM),msm7x27a)
     LOCAL_CFLAGS += -DUSE_AAC_HW_DEC
 endif
@@ -89,6 +90,7 @@ ifeq ($(TARGET_USES_QCOM_LPA),true)
 ifeq ($(BOARD_USES_ALSA_AUDIO),true)
 	LOCAL_SRC_FILES += LPAPlayerALSA.cpp
 	LOCAL_C_INCLUDES += $(TARGET_OUT_HEADERS)/mm-audio/libalsa-intf
+	LOCAL_C_INCLUDES += $(TOP)/external/alsa-lib/include/sound
 	LOCAL_C_INCLUDES += $(TOP)/hardware/libhardware_legacy/include
 	LOCAL_SHARED_LIBRARIES += libalsa-intf
 	LOCAL_SHARED_LIBRARIES += libhardware_legacy
@@ -138,7 +140,7 @@ LOCAL_STATIC_LIBRARIES := \
         libstagefright_mpeg2ts \
         libstagefright_httplive \
         libstagefright_id3 \
-        libFLAC \
+        libFLAC
 
 ifeq ($(TARGET_USES_QCOM_LPA),true)
 LOCAL_STATIC_LIBRARIES += \

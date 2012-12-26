@@ -77,6 +77,9 @@ StagefrightRecorder::StagefrightRecorder()
       mOutputFd(-1),
       mAudioSource(AUDIO_SOURCE_CNT),
       mVideoSource(VIDEO_SOURCE_LIST_END),
+#ifdef FFC_BROKEN_MIRROR
+      mIsFrontCamera(false),
+#endif
 #ifdef QCOM_HARDWARE
       mStarted(false), mSurfaceMediaSource(NULL),
       mDisableAudio(false) {
@@ -1397,6 +1400,10 @@ status_t StagefrightRecorder::setupCameraSource(
         *cameraSource = NULL;
         return NO_INIT;
     }
+    
+#ifdef FFC_BROKEN_MIRROR
+    mIsFrontCamera = (*cameraSource)->isFrontCamera();
+#endif
 
     // When frame rate is not set, the actual frame rate will be set to
     // the current frame rate being used.
@@ -1699,6 +1706,24 @@ void StagefrightRecorder::setupMPEG4MetaData(int64_t startTimeUs, int32_t totalB
     if (mTrackEveryTimeDurationUs > 0) {
         (*meta)->setInt64(kKeyTrackTimeStatus, mTrackEveryTimeDurationUs);
     }
+#ifdef FFC_BROKEN_MIRROR
+    if (mCameraId == 1 || mIsFrontCamera) {
+        switch(mRotationDegrees) {
+            case 0:
+                mRotationDegrees = 0;
+                break;
+            case 180:
+                mRotationDegrees = 180;
+                break;
+            case 90:
+                mRotationDegrees = 270;
+                break;
+            case 270:
+                mRotationDegrees = 90;
+                break;
+        }
+    }
+#endif
     if (mRotationDegrees != 0) {
         (*meta)->setInt32(kKeyRotation, mRotationDegrees);
     }
