@@ -1716,10 +1716,12 @@ void StagefrightRecorder::setupMPEG4MetaData(int64_t startTimeUs, int32_t totalB
                 mRotationDegrees = 180;
                 break;
             case 90:
-                mRotationDegrees = 270;
+                //mRotationDegrees = 270;
+                mRotationDegrees = 90;
                 break;
             case 270:
-                mRotationDegrees = 90;
+                //mRotationDegrees = 90;
+                mRotationDegrees = 270;
                 break;
         }
     }
