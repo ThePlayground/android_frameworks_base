@@ -1710,10 +1710,12 @@ void StagefrightRecorder::setupMPEG4MetaData(int64_t startTimeUs, int32_t totalB
     if (mCameraId == 1 || mIsFrontCamera) {
         switch(mRotationDegrees) {
             case 0:
-                mRotationDegrees = 0;
+                //mRotationDegrees = 0;
+                mRotationDegrees = 180;
                 break;
             case 180:
-                mRotationDegrees = 180;
+                //mRotationDegrees = 180;
+                mRotationDegrees = 0;
                 break;
             case 90:
                 //mRotationDegrees = 270;
